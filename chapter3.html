@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 3 · Analytic Geometry — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/ch3.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 3</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s31">3.1 Norms</a>
+  <a href="#s32">3.2 Inner products</a>
+  <a href="#s33">3.3 Lengths and distances</a>
+  <a href="#s34">3.4 Angles, orthogonality</a>
+  <a href="#s35">3.5 Orthonormal basis</a>
+  <a href="#s36">3.6 Orthogonal complement</a>
+  <a href="#s37">3.7 Functions as vectors</a>
+  <a href="#s38">3.8 Orthogonal projections</a>
+  <a href="#s39">3.9 Rotations</a>
+  <a href="#recap">Cheat sheet</a>
+</nav>
+<main>
+<h1>Chapter 3 · Analytic Geometry</h1>
+<p class="sub">Give vectors a ruler and a protractor: length, distance, angle, and "dropping a perpendicular".</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>Chapter 2 treated vectors as things you can add and scale. It had no idea how <i>long</i> a vector is or whether two vectors point the same way. This chapter adds one extra gadget, the <b>inner product</b>, and with it everything geometric falls out: lengths, distances, angles, perpendicularity, and best-approximation by <b>projection</b>.</p>
+<table class="t">
+  <tr><th>Concept</th><th>Where it comes back in ML</th></tr>
+  <tr><td>Inner product, angle</td><td>Similarity between data points (SVMs, kernels, Ch. 12)</td></tr>
+  <tr><td>Orthogonal projection</td><td>Dimensionality reduction (PCA, Ch. 10), least-squares regression (Ch. 9)</td></tr>
+  <tr><td>Orthonormal basis</td><td>Cheap coordinates; PCA directions</td></tr>
+  <tr><td>Rotations</td><td>Computer graphics, robotics, and anything that must not distort data</td></tr>
+</table>
+</section>
+
+<!-- ============ 3.1 ============ -->
+<section id="s31"><h2><span class="n">3.1</span>Norms</h2>
+<p>A <b>norm</b> $\|\cdot\|$ assigns every vector a length. To deserve the name it must obey three rules:</p>
+<ul>
+  <li><b>Absolutely homogeneous:</b> $\|\lambda\mathbf{x}\|=|\lambda|\,\|\mathbf{x}\|$ (double the vector, double the length)</li>
+  <li><b>Triangle inequality:</b> $\|\mathbf{x}+\mathbf{y}\|\le\|\mathbf{x}\|+\|\mathbf{y}\|$ (a detour is never shorter than the direct path)</li>
+  <li><b>Positive definite:</b> $\|\mathbf{x}\|\ge0$, and $\|\mathbf{x}\|=0$ only for $\mathbf{x}=\mathbf 0$</li>
+</ul>
+<p>There is more than one way to measure length. The two from the book:</p>
+<div class="formula">$$\|\mathbf{x}\|_1=\sum_{i=1}^n|x_i|\ \ \text{(Manhattan, }\ell_1\text{)},\qquad \|\mathbf{x}\|_2=\sqrt{\sum_{i=1}^n x_i^2}=\sqrt{\mathbf{x}^\top\mathbf{x}}\ \ \text{(Euclidean, }\ell_2\text{)}$$</div>
+<p>Manhattan length is what a taxi drives in a city grid (only along streets). Euclidean is the crow's flight. The book uses $\ell_2$ unless it says otherwise. Below, the orange curve is the set of all vectors with the <i>same length as $\mathbf{x}$</i>. Change $p$ and watch the shape of "equally long" change:</p>
+<div class="widget" id="w-norm"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Side note beyond the book: the corners of the $\ell_1$ diamond sit on the axes. That is the usual intuition for why $\ell_1$ regularisation pushes some weights to exactly zero.</p>
+<div class="short"><b>In short.</b> Norm = length with three sensible rules. Different norms, different shapes of "unit ball".</div>
+<details><summary>Check yourself</summary>Compute $\|(3,-4)\|_1$ and $\|(3,-4)\|_2$. <br><b>Answer:</b> $3+4=7$ and $\sqrt{9+16}=5$.</details>
+</section>
+
+<!-- ============ 3.2 ============ -->
+<section id="s32"><h2><span class="n">3.2</span>Inner Products</h2>
+<p>You know the <b>dot product</b>: multiply component by component and add.</p>
+<div class="formula">$$\mathbf{x}^\top\mathbf{y}=\sum_{i=1}^n x_iy_i$$</div>
+<p>The inner product generalises it. It is any function $\langle\mathbf{x},\mathbf{y}\rangle$ that takes two vectors, returns a number, and is:</p>
+<ul>
+  <li><b>Bilinear:</b> linear in each argument (it distributes over sums and pulls out scalars, like normal multiplication).</li>
+  <li><b>Symmetric:</b> $\langle\mathbf{x},\mathbf{y}\rangle=\langle\mathbf{y},\mathbf{x}\rangle$.</li>
+  <li><b>Positive definite:</b> $\langle\mathbf{x},\mathbf{x}\rangle>0$ for every $\mathbf{x}\ne\mathbf 0$ (a nonzero vector always has positive "self-overlap").</li>
+</ul>
+<p>The dot product is one example; it is not the only one. The book's Example 3.3, $\langle\mathbf{x},\mathbf{y}\rangle=x_1y_1-(x_1y_2+x_2y_1)+2x_2y_2$, is another.</p>
+
+<h3>Symmetric, positive definite matrices</h3>
+<p>Here's the practical way to build inner products. Pick a basis and a matrix $A$. Then $\langle\mathbf{x},\mathbf{y}\rangle=\hat{\mathbf{x}}^\top A\hat{\mathbf{y}}$ ($\hat{\mathbf x},\hat{\mathbf y}$ are the coordinates). It is a valid inner product <b>exactly when $A$ is symmetric and positive definite</b>:</p>
+<div class="formula">$$A=A^\top\qquad\text{and}\qquad \mathbf{x}^\top A\mathbf{x}>0\ \text{ for all }\mathbf{x}\ne\mathbf 0$$</div>
+<p>Example from the book: $A_1=\begin{bmatrix}9&6\\6&5\end{bmatrix}$ is positive definite since $\mathbf{x}^\top A_1\mathbf{x}=(3x_1+2x_2)^2+x_2^2>0$. But $A_2=\begin{bmatrix}9&6\\6&3\end{bmatrix}$ gives $(3x_1+2x_2)^2-x_2^2$, which is negative for $\mathbf{x}=(2,-3)$, so it fails.</p>
+<p>Play with it: the three sliders fill in a symmetric $2\times2$ matrix. The vectors $\mathbf{x}=(2,2)$ and $\mathbf{y}=(-2,2)$ never move, but their <i>lengths and angle</i> do, because the ruler (the inner product) changes. The dot product says they are perpendicular. Try "diag(2,1)".</p>
+<div class="widget" id="w-inner"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Takeaway: "orthogonal" and "length" are not absolute. They depend on which inner product you picked. Vectors orthogonal under the dot product need not be orthogonal under another.</p>
+<div class="short"><b>In short.</b> Inner product = bilinear + symmetric + positive definite. In coordinates it is $\mathbf{x}^\top A\mathbf{y}$ with $A$ symmetric positive definite. Dot product is the case $A=I$.</div>
+<details><summary>Check yourself</summary>Is $\begin{bmatrix}1&2\\2&1\end{bmatrix}$ positive definite? <br><b>Answer:</b> No. For $\mathbf{x}=(1,-1)$: $1-4+1=-2<0$. (The widget's "Not positive definite" preset is the same idea.)</details>
+</section>
+
+<!-- ============ 3.3 ============ -->
+<section id="s33"><h2><span class="n">3.3</span>Lengths and Distances</h2>
+<p>Every inner product comes with its own norm for free:</p>
+<div class="formula">$$\|\mathbf{x}\|=\sqrt{\langle\mathbf{x},\mathbf{x}\rangle}$$</div>
+<p>(Not every norm arises this way. The Manhattan norm doesn't come from any inner product.) The two always obey the <b>Cauchy–Schwarz inequality</b>:</p>
+<div class="formula">$$|\langle\mathbf{x},\mathbf{y}\rangle|\le\|\mathbf{x}\|\,\|\mathbf{y}\|$$</div>
+<p>Distance is just the length of the difference:</p>
+<div class="formula">$$d(\mathbf{x},\mathbf{y})=\|\mathbf{x}-\mathbf{y}\|=\sqrt{\langle\mathbf{x}-\mathbf{y},\,\mathbf{x}-\mathbf{y}\rangle}$$</div>
+<p>A distance function (a <b>metric</b>) must be positive definite ($d(\mathbf{x},\mathbf{y})=0\iff\mathbf{x}=\mathbf{y}$), symmetric, and satisfy the triangle inequality $d(\mathbf{x},\mathbf{z})\le d(\mathbf{x},\mathbf{y})+d(\mathbf{y},\mathbf{z})$.</p>
+<p class="why">Subtle point from the book: inner product and distance move in <i>opposite</i> directions. Two very similar vectors have a <b>large</b> inner product but a <b>small</b> distance.</p>
+<div class="short"><b>In short.</b> Length = $\sqrt{\langle x,x\rangle}$. Distance = length of $x-y$. Cauchy–Schwarz bounds the inner product by the product of lengths.</div>
+<details><summary>Check yourself</summary>Euclidean distance between $(1,2)$ and $(4,6)$? <br><b>Answer:</b> $\|(-3,-4)\|=5$.</details>
+</section>
+
+<!-- ============ 3.4 ============ -->
+<section id="s34"><h2><span class="n">3.4</span>Angles and Orthogonality</h2>
+<p>Cauchy–Schwarz guarantees that $\frac{\langle x,y\rangle}{\|x\|\|y\|}$ lies between $-1$ and $1$, which is exactly the range of cosine. So we <i>define</i> the angle $\omega\in[0,\pi]$ by</p>
+<div class="formula">$$\cos\omega=\frac{\langle\mathbf{x},\mathbf{y}\rangle}{\|\mathbf{x}\|\,\|\mathbf{y}\|}$$</div>
+<p>Book example: $\mathbf{x}=(1,1)$, $\mathbf{y}=(1,2)$ gives $\cos\omega=3/\sqrt{10}$, so $\omega\approx18.4^\circ$. Try it, and also look at the distance (dashed line) and Cauchy–Schwarz check:</p>
+<div class="widget" id="w-angle"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p><b>Orthogonal</b> means the inner product is zero: $\mathbf{x}\perp\mathbf{y}\iff\langle\mathbf{x},\mathbf{y}\rangle=0$. If both also have length 1, they are <b>orthonormal</b>. (The zero vector is orthogonal to everything. Politely awkward.)</p>
+<div class="card"><h3><span class="tag def">Def</span>Orthogonal matrix</h3>
+  <p>A square matrix whose columns are orthonormal:</p>
+  <div class="formula">$$AA^\top=A^\top A=I\quad\Longrightarrow\quad A^{-1}=A^\top$$</div>
+  <p>Inverting it costs nothing: just transpose. And it moves vectors without distorting them, since $\|A\mathbf{x}\|^2=\mathbf{x}^\top A^\top A\mathbf{x}=\mathbf{x}^\top\mathbf{x}=\|\mathbf{x}\|^2$. <b>Lengths and angles are preserved.</b> These are the rotations and flips (see 3.9).</p>
+</div>
+<div class="ml"><b>ML link.</b> The cosine of the angle is "cosine similarity", the standard way to compare word embeddings and documents. It ignores length and only asks "do they point the same way?"</div>
+<div class="short"><b>In short.</b> Angle from $\cos\omega=\langle x,y\rangle/(\|x\|\|y\|)$. Orthogonal = inner product 0. Orthogonal matrices keep lengths and angles, with $A^{-1}=A^\top$.</div>
+<details><summary>Check yourself</summary>Angle between $(1,0)$ and $(0,5)$? <br><b>Answer:</b> dot product $0$, so $\cos\omega=0$ and $\omega=90^\circ$. (Length 5 doesn't matter.)</details>
+</section>
+
+<!-- ============ 3.5 ============ -->
+<section id="s35"><h2><span class="n">3.5</span>Orthonormal Basis</h2>
+<p>In Chapter 2 a basis was just "independent vectors that span". Now we can ask for the nicest kind: basis vectors that are <b>orthogonal to each other and have length 1</b>.</p>
+<div class="formula">$$\langle\mathbf{b}_i,\mathbf{b}_j\rangle=0\ (i\ne j),\qquad\langle\mathbf{b}_i,\mathbf{b}_i\rangle=1$$</div>
+<p>That is an <b>orthonormal basis (ONB)</b>. (Orthogonal only, without the length-1 condition, is an <i>orthogonal basis</i>.) The standard basis is one. Another in $\mathbb{R}^2$: $\frac{1}{\sqrt2}(1,1)$ and $\frac1{\sqrt2}(1,-1)$.</p>
+<p>The payoff: with an ONB, <b>finding coordinates needs no equation solving</b>. Each coordinate is a single dot product, $\lambda_i=\mathbf{b}_i^\top\mathbf{x}$.</p>
+<div class="widget" id="w-onb"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Rotate the basis with θ. The coordinates change but the recipe never does: just dot with each basis vector. Gram–Schmidt (3.8) turns any basis into an ONB.</p>
+<div class="short"><b>In short.</b> ONB = orthogonal + unit length. Coordinates are $\lambda_i=\mathbf{b}_i^\top\mathbf{x}$.</div>
+<details><summary>Check yourself</summary>Is $\{(1,0),(1,1)\}$ an ONB? <br><b>Answer:</b> No. Their dot product is $1\ne0$ (and $(1,1)$ has length $\sqrt2$).</details>
+</section>
+
+<!-- ============ 3.6 ============ -->
+<section id="s36"><h2><span class="n">3.6</span>Orthogonal Complement</h2>
+<p>Take a subspace $U$ of a $D$-dimensional space $V$ with $\dim U=M$. Its <b>orthogonal complement</b> $U^\perp$ is the set of all vectors orthogonal to <i>every</i> vector of $U$. It is itself a subspace, of dimension $D-M$, and $U\cap U^\perp=\{\mathbf 0\}$. Together they cover everything uniquely:</p>
+<div class="formula">$$\mathbf{x}=\sum_{m=1}^M\lambda_m\mathbf{b}_m+\sum_{j=1}^{D-M}\psi_j\mathbf{b}^\perp_j$$</div>
+<p>(with $\mathbf{b}_m$ a basis of $U$ and $\mathbf{b}^\perp_j$ a basis of $U^\perp$). Every vector splits into "the part in $U$" plus "the part perpendicular to $U$":</p>
+<div class="widget" id="w-compl"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">In 3D: a plane $U$ through the origin has a 1-dimensional complement, the line along its <b>normal vector</b> $\mathbf{w}$. That is why a plane can be described by one vector: "all vectors orthogonal to $\mathbf{w}$".</p>
+<div class="short"><b>In short.</b> $U^\perp$ = everything perpendicular to $U$; dimensions add up to the whole space; every vector splits uniquely into a $U$-part and a $U^\perp$-part.</div>
+<details><summary>Check yourself</summary>$U$ is a line through the origin in $\mathbb{R}^3$. What is $\dim U^\perp$? <br><b>Answer:</b> $3-1=2$. It is the plane perpendicular to the line.</details>
+</section>
+
+<!-- ============ 3.7 ============ -->
+<section id="s37"><h2><span class="n">3.7</span>Inner Product of Functions</h2>
+<p>A vector in $\mathbb{R}^n$ is really a function with $n$ values. Let the number of values go to infinity and the sum in the dot product becomes an <b>integral</b>:</p>
+<div class="formula">$$\langle u,v\rangle=\int_a^b u(x)\,v(x)\,dx$$</div>
+<p>All the geometry still works. If the integral is $0$, the functions are <b>orthogonal</b>. The area under $u\cdot v$ is the inner product, so orthogonal means "positive and negative areas cancel":</p>
+<div class="widget wide" id="w-funcs"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Book Example 3.9: $\sin$ and $\cos$ are orthogonal on $[-\pi,\pi]$, because $\sin x\cos x$ is an odd function. More generally $\{1,\cos x,\cos 2x,\dots\}$ are mutually orthogonal there. Projecting a function onto such a family is the idea of <b>Fourier series</b>. (The book notes that making this fully rigorous needs more analysis than it covers.)</p>
+<div class="short"><b>In short.</b> Functions are vectors; sum → integral; orthogonal ⇔ the integral of the product is 0.</div>
+<details><summary>Check yourself</summary>Why is $\int_{-\pi}^{\pi}x\cos x\,dx=0$ without computing? <br><b>Answer:</b> $x$ is odd and $\cos x$ is even, so the product is odd, and an odd function integrates to 0 over a symmetric interval.</details>
+</section>
+
+<!-- ============ 3.8 ============ -->
+<section id="s38"><h2><span class="n">3.8</span>Orthogonal Projections</h2>
+<p>High-dimensional data is hard to look at and often mostly redundant. A <b>projection</b> squeezes it into a lower-dimensional subspace while keeping as much as possible. Formally, a linear map $\pi:V\to U$ is a projection if applying it twice changes nothing:</p>
+<div class="formula">$$\pi^2=\pi\qquad\Longleftrightarrow\qquad P_\pi^2=P_\pi$$</div>
+<p>(Once you've been squashed onto the line, squashing again does nothing.) We use the <b>orthogonal</b> projection: the point of $U$ <i>closest</i> to $\mathbf{x}$.</p>
+
+<h3>Onto a line</h3>
+<p>Let $U$ be the line spanned by $\mathbf{b}$. The closest point is $\pi_U(\mathbf{x})=\lambda\mathbf{b}$ for some $\lambda$, and the error $\mathbf{x}-\lambda\mathbf{b}$ must be <b>orthogonal to $\mathbf{b}$</b>. Writing that out:</p>
+<div class="formula">$$\langle\mathbf{x}-\lambda\mathbf{b},\mathbf{b}\rangle=0\ \Rightarrow\ \lambda=\frac{\mathbf{b}^\top\mathbf{x}}{\mathbf{b}^\top\mathbf{b}},\qquad \pi_U(\mathbf{x})=\frac{\mathbf{b}^\top\mathbf{x}}{\|\mathbf{b}\|^2}\mathbf{b},\qquad P_\pi=\frac{\mathbf{b}\mathbf{b}^\top}{\|\mathbf{b}\|^2}$$</div>
+<div class="widget" id="w-proj"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Book Example 3.10: for $\mathbf{b}=(1,2,2)$ and $\mathbf{x}=(1,1,1)$, $\lambda=5/9$ and $\pi_U(\mathbf{x})=\frac19(5,10,10)$. Note $P_\pi$ is symmetric, rank 1, and $\|\pi_U(\mathbf x)\|=|\cos\omega|\,\|\mathbf x\|$, the trigonometry you remember.</p>
+
+<h3>Why ML cares: the best line through data</h3>
+<p>Project every data point onto a line and add up the squared errors (the book calls this reconstruction error). The best line is the one that keeps the most information, i.e. has the smallest error. This is the heart of PCA (Ch. 10):</p>
+<div class="widget" id="w-projdata"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Onto a general subspace</h3>
+<p>Now let $U$ be spanned by several basis vectors, collected as columns of $B=[\mathbf{b}_1,\dots,\mathbf{b}_m]$. Same idea: $\pi_U(\mathbf{x})=B\boldsymbol{\lambda}$, and the error must be orthogonal to <i>every</i> $\mathbf{b}_i$, i.e. $B^\top(\mathbf{x}-B\boldsymbol\lambda)=\mathbf 0$. Rearranged, this is the <b>normal equation</b>:</p>
+<div class="formula">$$B^\top B\boldsymbol\lambda=B^\top\mathbf{x}\ \Rightarrow\ \boldsymbol\lambda=(B^\top B)^{-1}B^\top\mathbf{x},\qquad \pi_U(\mathbf{x})=B(B^\top B)^{-1}B^\top\mathbf{x}$$</div>
+<p>So $P_\pi=B(B^\top B)^{-1}B^\top$. For one vector this collapses to the line formula above. The matrix $(B^\top B)^{-1}B^\top$ is the pseudo-inverse from Chapter 2. Here is the book's Example 3.11 in 3D (the plane is $U$, drag the view to see the error is perpendicular):</p>
+<div class="widget" id="w-proj3d"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<div class="card"><h3><span class="tag thm">Shortcut</span>If the basis is orthonormal</h3>
+  <p>Then $B^\top B=I$ and everything simplifies: $\pi_U(\mathbf{x})=BB^\top\mathbf{x}$ with coordinates $\boldsymbol\lambda=B^\top\mathbf{x}$. No inverse needed. That is why we like ONBs.</p>
+</div>
+<div class="ml"><b>ML link (least squares).</b> If $A\mathbf{x}=\mathbf{b}$ has no solution, $\mathbf b$ is outside the column space of $A$. The best you can do is project $\mathbf{b}$ onto that column space: the closest reachable point. That is the <b>least-squares solution</b>, the engine of linear regression (Ch. 9). The book also notes in practice a small "jitter" $\epsilon I$ is often added to $B^\top B$ for numerical stability.</div>
+
+<h3>Gram–Schmidt: manufacturing an orthogonal basis</h3>
+<p>Given any basis $(\mathbf{b}_1,\dots,\mathbf{b}_n)$, build an orthogonal one using projections. Keep the first vector, then for each next vector subtract its projection onto what you already built:</p>
+<div class="formula">$$\mathbf{u}_1=\mathbf{b}_1,\qquad \mathbf{u}_k=\mathbf{b}_k-\pi_{\operatorname{span}[\mathbf{u}_1,\dots,\mathbf{u}_{k-1}]}(\mathbf{b}_k)$$</div>
+<p>Normalise each $\mathbf{u}_k$ and you have an ONB spanning the same space.</p>
+<div class="widget" id="w-gs"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Onto an affine subspace</h3>
+<p>For a shifted subspace $L=\mathbf{x}_0+U$: subtract the support point, project onto $U$, add it back:</p>
+<div class="formula">$$\pi_L(\mathbf{x})=\mathbf{x}_0+\pi_U(\mathbf{x}-\mathbf{x}_0),\qquad d(\mathbf{x},L)=d(\mathbf{x}-\mathbf{x}_0,\,\pi_U(\mathbf{x}-\mathbf{x}_0))$$</div>
+<div class="short"><b>In short.</b> Projection = closest point in the subspace; error ⟂ subspace. Line: $P=bb^\top/\|b\|^2$. General: $P=B(B^\top B)^{-1}B^\top$. ONB: $P=BB^\top$. Gram–Schmidt = subtract projections.</div>
+<details><summary>Check yourself</summary>Project $(3,4)$ onto the $x_1$-axis. What are $\pi$, $P_\pi$ and the error? <br><b>Answer:</b> $b=(1,0)$: $\pi=(3,0)$, $P=\begin{bmatrix}1&0\\0&0\end{bmatrix}$, error $\|(0,4)\|=4$.</details>
+</section>
+
+<!-- ============ 3.9 ============ -->
+<section id="s39"><h2><span class="n">3.9</span>Rotations</h2>
+<p>A <b>rotation</b> turns the plane by an angle $\theta$ about the origin (positive = counterclockwise). It is a linear map, so by Chapter 2 its matrix has columns = where the standard basis lands: $\mathbf{e}_1\mapsto(\cos\theta,\sin\theta)$ and $\mathbf{e}_2\mapsto(-\sin\theta,\cos\theta)$. Hence</p>
+<div class="formula">$$R(\theta)=\begin{bmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{bmatrix}$$</div>
+<p>This is an orthogonal matrix, so it preserves lengths and angles. The "flip" slider adds a mirror; the result is still orthogonal but has determinant $-1$ (book: "rotations, with the possibility of flips").</p>
+<div class="widget" id="w-rot"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Higher dimensions</h3>
+<p>In $\mathbb{R}^3$ you rotate around an axis. Fix one coordinate, rotate the other two. For example about $\mathbf{e}_3$ (looking at the axis head-on from its tip):</p>
+<div class="formula">$$R_3(\theta)=\begin{bmatrix}\cos\theta&-\sin\theta&0\\ \sin\theta&\cos\theta&0\\0&0&1\end{bmatrix}$$</div>
+<p>In $n$ dimensions, a <b>Givens rotation</b> $R_{ij}(\theta)$ is the identity with just four entries changed: $r_{ii}=\cos\theta$, $r_{ij}=-\sin\theta$, $r_{ji}=\sin\theta$, $r_{jj}=\cos\theta$. It rotates in the $(i,j)$ plane and leaves all other coordinates alone.</p>
+<div class="card"><h3><span class="tag thm">Properties</span></h3>
+  <ul>
+    <li>Rotations preserve <b>distances</b>: $\|\mathbf{x}-\mathbf{y}\|=\|R\mathbf{x}-R\mathbf{y}\|$.</li>
+    <li>Rotations preserve <b>angles</b>.</li>
+    <li>In 2D, rotations <b>commute</b>: $R(\phi)R(\theta)=R(\theta)R(\phi)$. In 3D and higher they generally <b>do not</b>: order matters (try turning a book 90° about two different axes in both orders).</li>
+  </ul>
+</div>
+<div class="short"><b>In short.</b> $R(\theta)$ = columns are the rotated basis vectors. Orthogonal, so $R^{-1}=R^\top$ and nothing gets distorted.</div>
+<details><summary>Check yourself</summary>Where does $R(90^\circ)$ send $(1,0)$? <br><b>Answer:</b> First column of $R(90^\circ)$ is $(\cos90^\circ,\sin90^\circ)=(0,1)$.</details>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>Norm</td><td>Length with 3 rules: $\|\lambda x\|=|\lambda|\|x\|$, triangle inequality, positive definite. $\ell_1$ and $\ell_2$.</td></tr>
+    <tr><td>Inner product</td><td>Bilinear, symmetric, positive definite. In coordinates $\mathbf x^\top A\mathbf y$, $A$ symmetric positive definite.</td></tr>
+    <tr><td>Length, distance</td><td>$\|x\|=\sqrt{\langle x,x\rangle}$, $d(x,y)=\|x-y\|$. Cauchy–Schwarz: $|\langle x,y\rangle|\le\|x\|\|y\|$.</td></tr>
+    <tr><td>Angle</td><td>$\cos\omega=\langle x,y\rangle/(\|x\|\|y\|)$. Orthogonal ⇔ $\langle x,y\rangle=0$.</td></tr>
+    <tr><td>Orthogonal matrix</td><td>$AA^\top=I$, $A^{-1}=A^\top$; keeps lengths and angles.</td></tr>
+    <tr><td>ONB</td><td>Orthogonal unit vectors; coordinates $\lambda_i=b_i^\top x$.</td></tr>
+    <tr><td>Complement $U^\perp$</td><td>All vectors ⟂ $U$; $\dim U+\dim U^\perp=\dim V$.</td></tr>
+    <tr><td>Projection (line)</td><td>$\pi(x)=\frac{b^\top x}{b^\top b}b$, $P=\frac{bb^\top}{b^\top b}$, $P^2=P$.</td></tr>
+    <tr><td>Projection (subspace)</td><td>$P=B(B^\top B)^{-1}B^\top$; error ⟂ $U$. ONB: $P=BB^\top$.</td></tr>
+    <tr><td>Gram–Schmidt</td><td>$u_k=b_k-\pi_{\operatorname{span}[u_1..u_{k-1}]}(b_k)$.</td></tr>
+    <tr><td>Rotation</td><td>$R(\theta)$ orthogonal; preserves distance and angle; commute in 2D only.</td></tr>
+  </table>
+</div></section>
+
+<div class="pager"><a href="chapter2.html">← Chapter 2: Linear Algebra</a><a href="chapter4.html">Chapter 4: Matrix Decompositions →</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 3, rewritten with extra intuition and examples. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>

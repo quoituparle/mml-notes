@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 2 · Linear Algebra — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 2</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s21">2.1 Systems of equations</a>
+  <a href="#s22">2.2 Matrices</a>
+  <a href="#s23">2.3 Solving systems</a>
+  <a href="#s24">2.4 Vector spaces</a>
+  <a href="#s25">2.5 Linear independence</a>
+  <a href="#s26">2.6 Basis and rank</a>
+  <a href="#s27">2.7 Linear mappings</a>
+  <a href="#s28">2.8 Affine spaces</a>
+  <a href="#recap">Cheat sheet</a>
+</nav>
+<main>
+<h1>Chapter 2 · Linear Algebra</h1>
+<p class="sub">The language of machine learning: data are vectors, models are matrices.</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>Machine learning is mostly "put numbers in a list, multiply by a grid of numbers, look at the result". Linear algebra is the rulebook for that. If you only remember one thing: <b>a matrix is a machine that moves vectors around</b>. Everything here builds on that idea.</p>
+<table class="t">
+  <tr><th>In ML you say…</th><th>In linear algebra that is…</th></tr>
+  <tr><td>One data point (a house: size, rooms, age)</td><td>A vector $\mathbf{x}\in\mathbb{R}^3$</td></tr>
+  <tr><td>A whole dataset</td><td>A matrix, one row per example</td></tr>
+  <tr><td>A linear layer in a neural net</td><td>$W\mathbf{x}+\mathbf{b}$: a matrix times a vector, plus a shift</td></tr>
+  <tr><td>Fitting a line to data</td><td>Solving $A\mathbf{x}=\mathbf{b}$ as well as possible</td></tr>
+  <tr><td>"Are my features redundant?"</td><td>Linear independence and rank</td></tr>
+</table>
+</section>
+
+<!-- ============ 2.1 ============ -->
+<section id="s21"><h2><span class="n">2.1</span>Systems of Linear Equations</h2>
+<p>Let's start with a tiny factory (the book uses a bigger one, the idea is the same). It makes two products and has two limited resources:</p>
+<ul>
+  <li>Product A needs <b>2 kg wood</b> and <b>1 h labour</b>. Product B needs <b>1 kg wood</b> and <b>3 h labour</b>.</li>
+  <li>We have exactly <b>5 kg wood</b> and <b>5 h labour</b> to use up. How many of each, $x_1$ and $x_2$?</li>
+</ul>
+<div class="formula">$$\begin{aligned}2x_1+x_2&=5 &&\text{(wood)}\\ x_1+3x_2&=5&&\text{(labour)}\end{aligned}\qquad\Longleftrightarrow\qquad
+\underbrace{\begin{bmatrix}2&1\\1&3\end{bmatrix}}_{A}\underbrace{\begin{bmatrix}x_1\\x_2\end{bmatrix}}_{\mathbf{x}}=\underbrace{\begin{bmatrix}5\\5\end{bmatrix}}_{\mathbf{b}}$$</div>
+<p>That compact form $A\mathbf{x}=\mathbf{b}$ is a <b>system of linear equations</b>, with $A\in\mathbb{R}^{m\times n}$ ($m$ equations, $n$ unknowns). You can look at the very same system in two different ways.</p>
+
+<h3>View 1: rows. Each equation is a line.</h3>
+<p>Each equation draws a line in the $(x_1,x_2)$ plane. A solution has to satisfy <i>both</i>, so it is where the lines cross.</p>
+<div class="widget" id="w-lines"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p>Two lines can only cross once, never cross (parallel), or lie on top of each other. So the answer is always <b>0, 1, or infinitely many solutions</b>. Never exactly two. (Try it. It is oddly satisfying.)</p>
+
+<h3>View 2: columns. Mix the columns to hit $\mathbf{b}$.</h3>
+<p>Write the same system as $x_1\mathbf{a}_1+x_2\mathbf{a}_2=\mathbf{b}$, where $\mathbf{a}_1,\mathbf{a}_2$ are the columns of $A$. Now the question is: <i>how much of each column vector do I need to add up to reach $\mathbf{b}$?</i> This is the view that matters most for ML.</p>
+<div class="widget" id="w-cols"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Slide $x_1$ and $x_2$ until the red dot lands on the orange target. Then try the "Dependent columns" presets: when the columns point in the same direction, many targets are simply unreachable. That is exactly the "no solution" case in the row view.</p>
+
+<div class="short"><b>In short.</b> $A\mathbf{x}=\mathbf{b}$ can be read as "lines that meet" or as "a recipe of columns". Solutions: 0, 1, or ∞.</div>
+<details><summary>Check yourself</summary>The system $x_1+x_2=3$, $2x_1+2x_2=6$: how many solutions? <br><b>Answer:</b> infinitely many. The second equation is the first one doubled, so both describe the same line.</details>
+</section>
+
+<!-- ============ 2.2 ============ -->
+<section id="s22"><h2><span class="n">2.2</span>Matrices</h2>
+<p>A <b>matrix</b> is a rectangular grid of numbers: $m$ rows, $n$ columns, written $A\in\mathbb{R}^{m\times n}$. A vector is just a matrix with one column.</p>
+
+<h3>Multiplying matrices</h3>
+<p>$AB$ only exists if the <b>inner sizes match</b>: an $(m\times n)$ times an $(n\times k)$ gives an $(m\times k)$. Each entry is a row of $A$ "dotted" with a column of $B$: multiply pairwise, then add.</p>
+<div class="formula">$$(AB)_{ij}=\sum_{l=1}^{n}a_{il}\,b_{lj}$$</div>
+<div id="w-matmul" class="card"><b style="font-family:system-ui">Hover (or tap) a result cell:</b>
+  <div class="mm"></div><div class="readout"></div></div>
+
+<p><b>Not commutative.</b> Even when both $AB$ and $BA$ exist, usually $AB\neq BA$. Order matters, like putting on socks and then shoes. You'll see a picture of this in 2.7.</p>
+
+<h3>Four special characters</h3>
+<table class="t">
+  <tr><th>Name</th><th>Definition</th><th>Meaning</th></tr>
+  <tr><td>Identity $I_n$</td><td>1s on the diagonal, 0 elsewhere</td><td>The "do nothing" matrix: $IA=AI=A$</td></tr>
+  <tr><td>Inverse $A^{-1}$</td><td>$AA^{-1}=A^{-1}A=I$</td><td>The "undo" matrix. Only some square matrices have one (they are called <i>regular</i> or <i>invertible</i>)</td></tr>
+  <tr><td>Transpose $A^\top$</td><td>$(A^\top)_{ij}=A_{ji}$</td><td>Flip over the diagonal: rows become columns</td></tr>
+  <tr><td>Symmetric</td><td>$A=A^\top$</td><td>Mirror-symmetric across the diagonal</td></tr>
+</table>
+<div class="formula">$$(AB)^{-1}=B^{-1}A^{-1},\qquad (AB)^\top=B^\top A^\top$$</div>
+<p class="why">Why the order flips: to undo "socks then shoes" you must take off the shoes first.</p>
+<p>Other rules work as you expect: $A(BC)=(AB)C$ (associative), $A(B+C)=AB+AC$ (distributive), and $(A+B)^\top=A^\top+B^\top$.</p>
+
+<div class="short"><b>In short.</b> Multiply = row · column. Order matters. Inverse = undo. Transpose = flip. Reverse the order when inverting or transposing a product.</div>
+<details><summary>Check yourself</summary>$A$ is $3\times 2$ and $B$ is $2\times 5$. What is the size of $AB$? Does $BA$ exist? <br><b>Answer:</b> $AB$ is $3\times5$. $BA$ would need $5=3$, so it does not exist.</details>
+</section>
+
+<!-- ============ 2.3 ============ -->
+<section id="s23"><h2><span class="n">2.3</span>Solving Systems of Linear Equations</h2>
+<p>How do we actually find $\mathbf{x}$? The classic method is <b>Gaussian elimination</b>: write the system as an <b>augmented matrix</b> $[A\,|\,\mathbf{b}]$ and use three harmless moves on rows until it is easy to read:</p>
+<ol><li>swap two rows, 2. multiply a row by a nonzero number, 3. add a multiple of one row to another.</li></ol>
+<p>These moves never change the solutions, they just make the equations simpler. The goal is a <b>staircase shape</b> (row-echelon form): the first nonzero number in each row, called the <b>pivot</b>, sits to the right of the pivot above it. Keep going until each pivot is 1 and has zeros above and below it, and you get <b>reduced</b> row-echelon form, where the answer is just written out.</p>
+
+<div class="card" id="w-gauss"><b style="font-family:system-ui">Step through it yourself.</b> The system:
+  <div class="eqs readout" style="margin:8px 0"></div>
+  <div class="stepbox"></div>
+</div>
+
+<h3>What the end result tells you</h3>
+<ul>
+  <li><b>Pivot columns</b> ↔ <b>basic variables</b>, fixed by the equations. Other columns ↔ <b>free variables</b>, which you can choose freely.</li>
+  <li>A row like $0=1$ → <b>no solution</b>. No free variables → <b>exactly one</b>. Free variables left → <b>infinitely many</b>.</li>
+</ul>
+<p>With free variables the solution set has a neat structure: <b>one particular solution plus anything from the kernel</b> (solutions of $A\mathbf{x}=\mathbf 0$).</p>
+<div class="formula">$$\{\mathbf{x}:A\mathbf{x}=\mathbf{b}\}=\mathbf{x}_p+\{\mathbf{x}:A\mathbf{x}=\mathbf{0}\}$$</div>
+<p class="why"><b>Minus-1 trick</b> (from the book): in the reduced form of the "Infinitely many" example, read off the particular solution $\mathbf{x}_p=(3,0,1)$ from the pivot rows. For the kernel, take each non-pivot column and write it with a $-1$ in the free variable's slot: $(2,-1,0)$. So all solutions are $(3,0,1)+\lambda(2,-1,0)$. Check it in the original equations.</p>
+
+<h3>Computing an inverse</h3>
+<p>Same trick: row-reduce $[A\,|\,I]$ until the left side becomes $I$, and the right side becomes $A^{-1}$.</p>
+
+<h3>When $A$ is not square</h3>
+<p>In ML you usually have <b>more equations than unknowns</b> (many data points, few parameters), so an exact solution rarely exists. If $A$ has linearly independent columns, you can instead use the <b>Moore–Penrose pseudo-inverse</b>:</p>
+<div class="formula">$$A\mathbf{x}=\mathbf{b}\ \Longleftrightarrow\ A^\top A\mathbf{x}=A^\top\mathbf{b}\ \Longleftrightarrow\ \mathbf{x}=(A^\top A)^{-1}A^\top\mathbf{b}$$</div>
+<div class="ml"><b>ML link.</b> This is the closed-form solution of <b>linear regression</b> (Ch. 9): the best-fitting $\mathbf{x}$ in the least-squares sense. The book also warns that explicitly computing inverses is numerically fragile and expensive, so real software uses smarter factorisations (Ch. 4).</div>
+
+<div class="short"><b>In short.</b> Gaussian elimination = clean up rows with 3 safe moves. Pivots decide unique / none / infinite. Solutions = particular + kernel.</div>
+<details><summary>Check yourself</summary>After elimination a 3-unknown system has 2 pivots and no contradictory row. How many free variables, and how many solutions? <br><b>Answer:</b> $3-2=1$ free variable, so infinitely many solutions (a line of them).</details>
+</section>
+
+<!-- ============ 2.4 ============ -->
+<section id="s24"><h2><span class="n">2.4</span>Vector Spaces</h2>
+<p>So far "vector" meant a list of numbers. Mathematicians zoom out: a <b>vector space</b> is <i>any</i> collection of things you can <b>add</b> and <b>scale</b> without ever leaving the collection. Lists of numbers qualify, but so do matrices and even functions.</p>
+
+<h3>Groups (the warm-up)</h3>
+<div class="card"><h3><span class="tag def">Def</span>Group</h3>
+  <p>A set $G$ with an operation $\otimes$ is a <b>group</b> if it has <b>closure</b> (combining two members gives a member), <b>associativity</b>, a <b>neutral element</b> $e$ (changes nothing), and an <b>inverse</b> for each element. If $x\otimes y=y\otimes x$ always, the group is <b>Abelian</b>.</p>
+  <p class="why">Examples: whole numbers with $+$ form an Abelian group. Invertible matrices with multiplication form a group too, the <b>general linear group</b> $GL(n,\mathbb{R})$, but it is <i>not</i> Abelian (matrix order matters!).</p>
+</div>
+
+<div class="card"><h3><span class="tag def">Def</span>Vector space</h3>
+  <p>A set $V$ with addition $+$ (making $(V,+)$ an Abelian group) and scaling by real numbers $\lambda\cdot\mathbf{x}$, obeying the usual distributive and associative rules, and $1\cdot\mathbf{x}=\mathbf{x}$.</p>
+  <p class="why">Translation: if you add two members or stretch one, you stay in the set. Examples: $\mathbb{R}^n$, matrices $\mathbb{R}^{m\times n}$, polynomials.</p>
+</div>
+
+<div class="card"><h3><span class="tag def">Def</span>Vector subspace</h3>
+  <p>A <b>subset</b> $U\subseteq V$ that is itself a vector space. In practice: it contains $\mathbf{0}$, and it is <b>closed</b> under addition and scaling.</p>
+  <p>Test closure here. Pick two points $u,v$ on the curve and see where $u+v$ and $2u$ land.</p>
+  <div class="widget" id="w-sub"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+  <p class="why">Lines and planes <b>through the origin</b> are subspaces. Shift the line off the origin, or bend it, and it breaks. Also: the kernel $\{\mathbf{x}:A\mathbf{x}=\mathbf{0}\}$ is always a subspace, but $\{\mathbf{x}:A\mathbf{x}=\mathbf{b}\}$ with $\mathbf b\neq\mathbf 0$ is not (it misses $\mathbf{0}$).</p>
+</div>
+
+<div class="short"><b>In short.</b> Vector space = closed under add and scale. Subspace = a vector space sitting inside another. It must pass through $\mathbf{0}$.</div>
+<details><summary>Check yourself</summary>Is the set of all points with $x_1\ge 0$ in $\mathbb{R}^2$ a subspace? <br><b>Answer:</b> No. It has $\mathbf 0$ and is closed under addition, but multiplying $(1,0)$ by $-1$ leaves the set.</details>
+</section>
+
+<!-- ============ 2.5 ============ -->
+<section id="s25"><h2><span class="n">2.5</span>Linear Independence</h2>
+<p>A <b>linear combination</b> of vectors is a sum of stretched copies: $\lambda_1\mathbf{x}_1+\dots+\lambda_k\mathbf{x}_k$. The set of everything you can reach this way is their <b>span</b>.</p>
+<p>Vectors are <b>linearly independent</b> if each one adds a genuinely new direction. Formally, the only way to combine them into $\mathbf{0}$ is the boring way, with every $\lambda_i=0$:</p>
+<div class="formula">$$\lambda_1\mathbf{x}_1+\dots+\lambda_k\mathbf{x}_k=\mathbf{0}\ \Longrightarrow\ \lambda_1=\dots=\lambda_k=0$$</div>
+<p>If a non-boring combination gives $\mathbf 0$, the vectors are <b>dependent</b>, meaning one of them is redundant (a combination of the others).</p>
+<div class="widget" id="w-span"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p><b>How to test it:</b> put the vectors as columns of a matrix and run Gaussian elimination. If <i>every</i> column is a pivot column, they are independent. Any column without a pivot is redundant.</p>
+<div class="ml"><b>ML link.</b> Two features that are perfect copies of each other (height in cm and height in inches) are linearly dependent. They carry no extra information and can make a regression ill-defined, since the matrix $A^\top A$ from 2.3 stops being invertible.</div>
+<div class="short"><b>In short.</b> Independent = no redundant vectors. Dependent = someone can be built from the others.</div>
+<details><summary>Check yourself</summary>Are $(1,2)$, $(2,4)$ independent? And any three vectors in $\mathbb{R}^2$? <br><b>Answer:</b> The first pair is dependent ($(2,4)=2\cdot(1,2)$). Any three vectors in $\mathbb{R}^2$ are dependent: the plane only has 2 directions to offer.</details>
+</section>
+
+<!-- ============ 2.6 ============ -->
+<section id="s26"><h2><span class="n">2.6</span>Basis and Rank</h2>
+<h3>Basis: the smallest set that covers everything</h3>
+<p>A <b>basis</b> of a vector space is a set of independent vectors whose span is the <i>entire</i> space: no gaps, no waste. Every basis of a space has the same size, called its <b>dimension</b>. ($\mathbb{R}^2$ has dimension 2, whichever basis you pick.)</p>
+<p>Given a basis, every vector has <b>unique coordinates</b>: exactly one way to write $\mathbf{x}=\alpha_1\mathbf{b}_1+\dots+\alpha_n\mathbf{b}_n$. Change the basis and the coordinates change, but the point stays put:</p>
+<div class="widget" id="w-basis"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">The red point never moves. Only the grid (orange) changes. "Basis" is just which ruler you measure with. The standard basis $\mathbf{e}_1,\mathbf{e}_2$ is merely the most common ruler.</p>
+
+<h3>Rank: how much information is really in a matrix</h3>
+<p>The <b>rank</b> of a matrix, $\operatorname{rk}(A)$, is its number of linearly independent columns (which is always equal to the number of independent rows). Facts worth remembering:</p>
+<ul>
+  <li>$\operatorname{rk}(A)=\operatorname{rk}(A^\top)$</li>
+  <li>A square $n\times n$ matrix is invertible ⇔ $\operatorname{rk}(A)=n$ (<b>full rank</b>)</li>
+  <li>$A\mathbf{x}=\mathbf{b}$ has a solution ⇔ $\operatorname{rk}(A)=\operatorname{rk}([A\,|\,\mathbf{b}])$</li>
+  <li>Rank in an $m\times n$ matrix is at most $\min(m,n)$. If lower, the matrix is <b>rank-deficient</b>.</li>
+</ul>
+<div class="card"><b style="font-family:system-ui">Rank explorer.</b> Type numbers into the matrix (or use a preset):
+  <div class="widget" id="w-rank" style="grid-template-columns:auto 1fr;margin-bottom:0"><div class="mat-in"></div><div class="readout"></div></div></div>
+<div class="ml"><b>ML link.</b> Low rank = compressible. A big data matrix with small rank can be stored with far fewer numbers (that is the idea behind PCA and SVD in Ch. 4 and 10).</div>
+<div class="short"><b>In short.</b> Basis = independent vectors that span the space; their count is the dimension. Rank = number of independent columns; full rank = invertible.</div>
+<details><summary>Check yourself</summary>A $4\times 4$ matrix has rank 3. Is it invertible? <br><b>Answer:</b> No. Invertible needs rank 4. One column is a mix of the others.</details>
+</section>
+
+<!-- ============ 2.7 ============ -->
+<section id="s27"><h2><span class="n">2.7</span>Linear Mappings</h2>
+<p>Now the big idea. A <b>linear mapping</b> $\Phi:V\to W$ is a function that respects the structure of vector spaces:</p>
+<div class="formula">$$\Phi(\mathbf{x}+\mathbf{y})=\Phi(\mathbf{x})+\Phi(\mathbf{y}),\qquad \Phi(\lambda\mathbf{x})=\lambda\,\Phi(\mathbf{x})$$</div>
+<p>Pictures: grid lines stay straight and parallel, the origin stays put, evenly spaced points stay evenly spaced. Vocabulary: <b>injective</b> (no two inputs collide), <b>surjective</b> (every output is hit), <b>bijective</b> (both, so it can be undone).</p>
+
+<h3>Matrices <i>are</i> linear maps</h3>
+<p>Every matrix defines one: $\mathbf{x}\mapsto A\mathbf{x}$. And once you fix bases, every linear map between finite-dimensional spaces is a matrix. The recipe for the <b>transformation matrix</b> is delightfully simple: <b>column $j$ = where basis vector $\mathbf{b}_j$ lands.</b></p>
+<div class="formula">$$\Phi(\mathbf{b}_j)=\sum_{i=1}^m\alpha_{ij}\mathbf{c}_i\quad\Longrightarrow\quad A_\Phi=[\alpha_{ij}]$$</div>
+<p>Drag the sliders: the blue and green arrows are the two columns of $A$. The unit square gets carried along and its area is multiplied by $|\det A|$.</p>
+<div class="widget" id="w-map"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Doing two maps in a row</h3>
+<p>Applying $B$ then $A$ is the single map $AB$. And since matrix multiplication is not commutative, <i>the order of transformations matters</i>:</p>
+<div class="widget" id="w-compose"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Same map, different basis</h3>
+<div class="card"><h3><span class="tag thm">Thm</span>Basis change</h3>
+  <p>If we swap the basis of $V$ (via matrix $S$) and of $W$ (via $T$), the matrix of $\Phi$ becomes</p>
+  <div class="formula">$$\tilde A_\Phi=T^{-1}A_\Phi S$$</div>
+  <p class="why">Read it right to left: convert coordinates into the old basis ($S$), apply the map ($A_\Phi$), convert the result to the new basis ($T^{-1}$). If $V=W$ this is $S^{-1}AS$ and the matrices are called <b>similar</b>. Chapter 4 uses this to find a basis in which a matrix becomes diagonal (very easy).</p>
+</div>
+
+<h3>Image and kernel</h3>
+<div class="card"><h3><span class="tag def">Def</span>Kernel and image</h3>
+  <div class="formula">$$\ker(\Phi)=\{\mathbf{x}:\Phi(\mathbf{x})=\mathbf 0\},\qquad \operatorname{Im}(\Phi)=\{\Phi(\mathbf{x}):\mathbf{x}\in V\}$$</div>
+  <p><b>Kernel</b> = everything the map crushes to zero. <b>Image</b> = everything the map can produce. They trade off:</p>
+  <div class="formula">$$\dim\ker(\Phi)+\dim\operatorname{Im}(\Phi)=\dim V\qquad\text{(rank–nullity)}$$</div>
+  <p class="why">Try the <b>Squash (singular)</b> preset above. The plane collapses onto a line: image has dimension 1, so the kernel must have dimension $2-1=1$ (a whole line of points gets crushed to the origin). A map is injective exactly when its kernel is just $\{\mathbf 0\}$. And $\operatorname{rk}(A)=\dim\operatorname{Im}(A)$.</p>
+</div>
+
+<div class="short"><b>In short.</b> Matrix = linear map; columns = where the basis vectors go. Compose = multiply (order matters). Kernel + image dimensions add to the input dimension.</div>
+<details><summary>Check yourself</summary>A $5\times 3$ matrix has rank 3. What is its kernel? <br><b>Answer:</b> Rank–nullity: $\dim\ker=3-3=0$, so the kernel is just $\{\mathbf 0\}$ and the map is injective.</details>
+</section>
+
+<!-- ============ 2.8 ============ -->
+<section id="s28"><h2><span class="n">2.8</span>Affine Spaces</h2>
+<p>Subspaces must pass through the origin. What about a line that doesn't? That is an <b>affine subspace</b>: a subspace $U$ <i>shifted</i> by a support point $\mathbf{x}_0$.</p>
+<div class="formula">$$L=\mathbf{x}_0+U=\{\mathbf{x}_0+\mathbf{u}:\mathbf{u}\in U\}$$</div>
+<p>And an <b>affine mapping</b> is a linear map followed by a translation: $\phi(\mathbf{x})=\mathbf{a}+\Phi(\mathbf{x})$.</p>
+<p>This ties the chapter together. The solutions of $A\mathbf{x}=\mathbf{b}$ are exactly an affine subspace: particular solution + kernel (see 2.3). Here is a single equation $ax_1+bx_2=c$:</p>
+<div class="widget" id="w-affine"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<div class="ml"><b>ML link.</b> Every neural-network layer $\mathbf{x}\mapsto W\mathbf{x}+\mathbf{b}$ is an affine map. The matrix $W$ rotates/stretches/squashes, the bias $\mathbf{b}$ shifts.</div>
+<div class="short"><b>In short.</b> Affine = linear + shift. Solutions to $A\mathbf{x}=\mathbf{b}$ form an affine subspace.</div>
+<details><summary>Check yourself</summary>Is $\{(x,y):x+y=1\}$ a subspace? An affine subspace? <br><b>Answer:</b> Not a subspace (it misses $(0,0)$). It is affine: the line $x+y=0$ shifted by $(1,0)$.</details>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>$A\mathbf{x}=\mathbf{b}$</td><td>0, 1 or ∞ solutions. Rows = lines meeting; columns = recipe.</td></tr>
+    <tr><td>Matrix product</td><td>Row · column. Not commutative. $(AB)^{-1}=B^{-1}A^{-1}$.</td></tr>
+    <tr><td>Gaussian elimination</td><td>3 row moves → pivots. Solutions = particular + kernel.</td></tr>
+    <tr><td>Pseudo-inverse</td><td>$(A^\top A)^{-1}A^\top\mathbf{b}$ when columns are independent (least squares).</td></tr>
+    <tr><td>Subspace</td><td>Contains $\mathbf0$, closed under $+$ and scaling.</td></tr>
+    <tr><td>Independence</td><td>No vector is a combination of the others.</td></tr>
+    <tr><td>Basis / dimension</td><td>Independent + spans; size is the dimension; coordinates are unique.</td></tr>
+    <tr><td>Rank</td><td># independent columns. Full rank ⇔ invertible (square).</td></tr>
+    <tr><td>Linear map</td><td>Columns of $A$ = images of basis vectors. Basis change: $T^{-1}AS$.</td></tr>
+    <tr><td>Kernel / image</td><td>$\dim\ker+\dim\operatorname{Im}=\dim V$.</td></tr>
+    <tr><td>Affine</td><td>Linear + shift, e.g. $W\mathbf{x}+\mathbf{b}$.</td></tr>
+  </table>
+</div></section>
+
+<div class="pager"><a href="chapter1.html">← Chapter 1: Introduction</a><a href="chapter3.html">Chapter 3: Analytic Geometry →</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 2, rewritten with extra intuition and examples. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>

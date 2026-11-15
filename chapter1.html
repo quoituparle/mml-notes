@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 1 · Introduction and Motivation — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 1</h2>
+  <a href="#core">Data, model, learning</a>
+  <a href="#words">Words are slippery</a>
+  <a href="#map">Map of the book</a>
+  <a href="#how">How to read it</a>
+</nav>
+<main>
+<h1>Chapter 1 · Introduction and Motivation</h1>
+<p class="sub">What machine learning is, and why a book about <i>maths</i> is where you start.</p>
+
+<section id="core" style="margin-top:20px"><h2>Three ideas: data, model, learning</h2>
+<p>Machine learning is about designing algorithms that <b>automatically extract valuable information from data</b>. "Automatically" is the point: general-purpose methods that work on many datasets. Everything rests on three concepts:</p>
+<div class="chapters" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+  <div class="card" style="margin:0"><b>Data</b><p style="margin:6px 0 0;font-size:15px">Numbers we feed in. We treat each example as a <b>vector</b> and a table of examples as a <b>matrix</b>.</p></div>
+  <div class="card" style="margin:0"><b>Model</b><p style="margin:6px 0 0;font-size:15px">A simplified description of the process that generated the data, e.g. a function from inputs to real-valued outputs.</p></div>
+  <div class="card" style="margin:0"><b>Learning</b><p style="margin:6px 0 0;font-size:15px">Tuning the model's parameters by <b>optimisation</b> so that it does well on the task. Like climbing a hill to its peak.</p></div>
+</div>
+<p>A model <i>learns</i> if its performance on a task improves after it sees data (the book paraphrases Mitchell). The real goal is <b>generalisation</b>: doing well on data it hasn't seen. Doing well on the training set alone may just mean the model <i>memorised</i> it.</p>
+<div class="short"><b>Why maths?</b> You can already use ML software without it. But the maths lets you understand what's under the hood, build new methods, debug existing ones, and know their hidden assumptions and limits.</div>
+</section>
+
+<section id="words"><h2>Words are slippery</h2>
+<p>The book warns early that the same word means different things in different places. Two examples worth keeping in mind:</p>
+<ul>
+  <li><b>"Algorithm"</b> can mean a <i>predictor</i> (a system that makes predictions from input) or the <i>training procedure</i> that adapts the predictor's parameters.</li>
+  <li><b>"Vector"</b> has three views: an <b>array of numbers</b> (computer science), an <b>arrow</b> with direction and length (physics), or <b>anything you can add and scale</b> (mathematics). Chapter 2 uses all three.</li>
+</ul>
+</section>
+
+<section id="map"><h2>Map of the book (and of these notes)</h2>
+<p>The book has two parts. <b>Part I</b> (these notes) builds the mathematical foundations. <b>Part II</b> applies them to four "pillars" of machine learning. Click a foundation to jump to its chapter:</p>
+<div class="card" style="font-family:system-ui,sans-serif">
+  <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:6px">PART II · the four pillars (not in these notes)</div>
+  <div class="chapters" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin:0 0 14px">
+    <div style="border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;font-size:14px">Regression<br><small style="color:var(--muted)">Ch. 9</small></div>
+    <div style="border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;font-size:14px">Dimensionality reduction<br><small style="color:var(--muted)">Ch. 10</small></div>
+    <div style="border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;font-size:14px">Density estimation<br><small style="color:var(--muted)">Ch. 11</small></div>
+    <div style="border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;font-size:14px">Classification<br><small style="color:var(--muted)">Ch. 12</small></div>
+  </div>
+  <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:6px">▲ built on ▲ &nbsp;·&nbsp; PART I · the foundations</div>
+  <div class="chapters" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:0">
+    <a href="chapter2.html"><b>2 · Linear algebra</b><span>vectors, matrices</span></a>
+    <a href="chapter3.html"><b>3 · Analytic geometry</b><span>lengths, angles, projections</span></a>
+    <a href="chapter4.html"><b>4 · Matrix decompositions</b><span>eigen, SVD</span></a>
+    <a href="chapter5.html"><b>5 · Vector calculus</b><span>gradients, backprop</span></a>
+    <a href="chapter6.html"><b>6 · Probability</b><span>distributions, Bayes</span></a>
+    <a href="chapter7.html"><b>7 · Optimization</b><span>gradient descent</span></a>
+  </div>
+</div>
+<p>How the foundations connect to machine learning, in the book's own words:</p>
+<table class="t">
+  <tr><th>Need</th><th>Math</th></tr>
+  <tr><td>Represent data (vectors) and tables of data (matrices)</td><td>Linear algebra (Ch. 2)</td></tr>
+  <tr><td>Say two data points are "similar"</td><td>Analytic geometry: inner products, distances (Ch. 3)</td></tr>
+  <tr><td>Summarise and compress matrices</td><td>Matrix decompositions (Ch. 4)</td></tr>
+  <tr><td>Say how <i>uncertain</i> a prediction is; model noise</td><td>Probability (Ch. 6)</td></tr>
+  <tr><td>Know which direction improves the model</td><td>Vector calculus (Ch. 5)</td></tr>
+  <tr><td>Actually find the best parameters</td><td>Optimisation (Ch. 7)</td></tr>
+</table>
+</section>
+
+<section id="how"><h2>Two ways to read</h2>
+<ul>
+  <li><b>Bottom-up:</b> start with foundations and build upward. You can always rely on what you've learned, but motivation can be thin ("why do I need eigenvalues?").</li>
+  <li><b>Top-down:</b> start from a goal (say, PCA) and drill down to what it needs. You always know why, but the foundations can feel shaky.</li>
+</ul>
+<p>Most people mix the two. These notes lean bottom-up, but every chapter has an <b>"ML link"</b> box so you can see where each idea gets used. Chapters in Part I mostly build on each other in order (2 → 3 → 4, then 5 and 6, then 7).</p>
+<div class="pager"><span style="color:var(--muted)">Start here</span><a href="chapter2.html">Chapter 2: Linear Algebra →</a></div>
+</section>
+
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 1. Read the real book for the full text.</p>
+</main></div>
+</body></html>

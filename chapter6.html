@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 6 · Probability and Distributions — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/plot.js"></script>
+<script defer src="assets/ch6.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 6</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s61">6.1 Probability space</a>
+  <a href="#s62">6.2 Discrete and continuous</a>
+  <a href="#s63">6.3 Sum rule, Bayes</a>
+  <a href="#s64">6.4 Statistics, independence</a>
+  <a href="#s65">6.5 Gaussian distribution</a>
+  <a href="#s66">6.6 Conjugacy, exponential family</a>
+  <a href="#s67">6.7 Change of variables</a>
+  <a href="#recap">Cheat sheet</a>
+</nav>
+<main>
+<h1>Chapter 6 · Probability and Distributions</h1>
+<p class="sub">A language for uncertainty: noisy data, unknown parameters, and honest predictions.</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>Real data is noisy, and a model is never 100% sure. Probability gives us a precise way to say <i>how</i> unsure. In ML you'll use it three ways: to model <b>noise in data</b> (a likelihood), to express <b>beliefs about parameters</b> (a prior), and to <b>update beliefs</b> after seeing data (Bayes' theorem).</p>
+<table class="t">
+  <tr><th>Idea</th><th>One-line meaning</th></tr>
+  <tr><td>Random variable</td><td>A quantity whose value is uncertain</td></tr>
+  <tr><td>Distribution</td><td>How likely each value is</td></tr>
+  <tr><td>Sum rule, product rule</td><td>The only two rules you ever need</td></tr>
+  <tr><td>Bayes' theorem</td><td>Flip "data given hypothesis" into "hypothesis given data"</td></tr>
+  <tr><td>Gaussian</td><td>The default continuous distribution (and it's closed under almost everything)</td></tr>
+</table>
+</section>
+
+<!-- ============ 6.1 ============ -->
+<section id="s61"><h2><span class="n">6.1</span>Construction of a Probability Space</h2>
+<p>Probability theory starts from three ingredients (the book's "probability space"):</p>
+<ul>
+  <li>The <b>sample space</b> $\Omega$: all possible outcomes of an experiment. Two coin tosses: $\{hh,ht,th,tt\}$.</li>
+  <li>The <b>event space</b> $\mathcal{A}$: the sets of outcomes we can ask about (e.g. "at least one head").</li>
+  <li>The <b>probability</b> $P$: a number in $[0,1]$ for each event, with $P(\Omega)=1$.</li>
+</ul>
+<p>In practice we rarely work with $\Omega$ directly. We use a <b>random variable</b> $X:\Omega\to\mathcal{T}$, which turns each outcome into a quantity we care about. (The book's joke: it is "neither random nor a variable. It is a function.") Counting heads in two tosses: $X(hh)=2$, $X(ht)=X(th)=1$, $X(tt)=0$.</p>
+<div class="card"><h3><span class="tag def">Example</span>Book Example 6.1: drawing two coins</h3>
+  <p>A bag gives a $ coin with probability $0.3$ (draws are independent). Let $X$ = number of $ coins in two draws.</p>
+  <p>$P(X=2)=0.3\cdot0.3=0.09,\quad P(X=1)=2\cdot0.3\cdot0.7=0.42,\quad P(X=0)=0.7\cdot0.7=0.49$.</p>
+  <p class="why">$X=1$ gets two outcomes ($\$\pounds$ and $\pounds\$$), so it gets the sum of two probabilities. The widget in 6.2 reproduces this.</p></div>
+<p class="why"><b>Probability vs statistics</b> (book): probability starts from a model and works out what data to expect. Statistics starts from observed data and works out the model. Machine learning lives mostly on the statistics side, using probability's rules.</p>
+</section>
+
+<!-- ============ 6.2 ============ -->
+<section id="s62"><h2><span class="n">6.2</span>Discrete and Continuous Probabilities</h2>
+<table class="t">
+  <tr><th></th><th>"Point" probability</th><th>"Interval" probability</th></tr>
+  <tr><td><b>Discrete</b> (countable values)</td><td>probability mass function $P(X=x)$</td><td>add up the masses</td></tr>
+  <tr><td><b>Continuous</b> (real numbers)</td><td>probability density function $p(x)$</td><td>cumulative distribution function $P(X\le x)=\int_{-\infty}^xp(t)\,dt$</td></tr>
+</table>
+<h3>Discrete: the probability mass function</h3>
+<p>Each value has its own probability, and they add to 1. The <b>Binomial</b> distribution counts successes in $N$ independent yes/no trials with success chance $\mu$ (book Example 6.9):</p>
+<div class="formula">$$p(m\mid N,\mu)=\binom Nm\mu^m(1-\mu)^{N-m},\qquad \mathbb{E}[m]=N\mu,\quad \mathbb{V}[m]=N\mu(1-\mu)$$</div>
+<div class="widget wide" id="w-binom"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<h3>Continuous: the density</h3>
+<p>For a continuous variable the probability of <i>exactly</i> one value is 0. Instead, the <b>density</b> $p(x)$ gives probability as <b>area</b>: $P(a\le X\le b)=\int_a^bp(x)\,dx$, and $\int p(x)dx=1$.</p>
+<p class="why"><b>Common trap (from the book):</b> a density can be bigger than 1. A very narrow bump must be tall to have area 1. Only areas are probabilities. You'll see this in the Gaussian widget in 6.5.</p>
+<div class="short"><b>In short.</b> Discrete: heights are probabilities. Continuous: <i>areas</i> are probabilities. The CDF accumulates them.</div>
+<details><summary>Check yourself</summary>For a fair coin tossed 4 times, what is $\mathbb{E}[\text{heads}]$ and $\mathbb{V}$? <br><b>Answer:</b> $N\mu=2$ and $N\mu(1-\mu)=4\cdot0.25=1$.</details>
+</section>
+
+<!-- ============ 6.3 ============ -->
+<section id="s63"><h2><span class="n">6.3</span>Sum Rule, Product Rule, and Bayes' Theorem</h2>
+<p>Two variables $x,y$ have a <b>joint</b> distribution $p(x,y)$. There are only two rules:</p>
+<div class="formula">$$\underbrace{p(x)=\sum_yp(x,y)\ \ \Big(\text{or }\int p(x,y)\,dy\Big)}_{\text{sum rule (marginalisation)}}\qquad\qquad\underbrace{p(x,y)=p(y\mid x)\,p(x)}_{\text{product rule}}$$</div>
+<p>The sum rule "sums out" the variable you don't care about. The product rule factors the joint into "marginal × conditional". Try both on this table (it's a joint distribution of two variables with 3 states each):</p>
+<div class="card" id="w-joint"><div class="jt"></div><div class="readout"></div></div>
+
+<h3>Bayes' theorem</h3>
+<p>The product rule can be written two ways, $p(x,y)=p(y\mid x)p(x)=p(x\mid y)p(y)$. Equate them:</p>
+<div class="formula">$$\underbrace{p(x\mid y)}_{\text{posterior}}=\frac{\overbrace{p(y\mid x)}^{\text{likelihood}}\ \overbrace{p(x)}^{\text{prior}}}{\underbrace{p(y)}_{\text{evidence}}},\qquad p(y)=\int p(y\mid x)p(x)\,dx$$</div>
+<ul>
+  <li><b>Prior</b> $p(x)$: what you believed about the unknown $x$ <i>before</i> seeing data.</li>
+  <li><b>Likelihood</b> $p(y\mid x)$: how likely the observed data $y$ would be if $x$ were true.</li>
+  <li><b>Posterior</b> $p(x\mid y)$: what you believe <i>after</i>. This is what you want.</li>
+  <li><b>Evidence</b> $p(y)$: just the normaliser that makes the posterior sum to 1.</li>
+</ul>
+<p>Humans are famously bad at this. The classic illustration (a standard example, not from the book): a disease affects 1% of people. A test catches 90% of sick people but also gives a false alarm for 9% of healthy ones. You test positive. How worried should you be? Most people say "~90%". Look at the dots:</p>
+<div class="widget wide" id="w-bayes"><canvas style="aspect-ratio:2.6"></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Because the disease is rare, the healthy people who falsely test positive (orange) outnumber the sick people who correctly do (blue). So a positive result means only about 9% chance of being sick. Raise the prior and watch the posterior jump. This is the whole reason priors matter.</p>
+<div class="ml"><b>ML link.</b> Every Bayesian model is this theorem with: $x$ = parameters (or a class label), $y$ = data. Chapter 8–9 build on it.</div>
+<div class="short"><b>In short.</b> Sum rule: marginalise. Product rule: joint = conditional × marginal. Bayes: posterior ∝ likelihood × prior.</div>
+<details><summary>Check yourself</summary>In the table above, what is $p(y_3)$? <br><b>Answer:</b> add the column: $0.05+0.10+0.30=0.45$.</details>
+</section>
+
+<!-- ============ 6.4 ============ -->
+<section id="s64"><h2><span class="n">6.4</span>Summary Statistics and Independence</h2>
+<h3>Mean, variance, covariance</h3>
+<p>The <b>expected value</b> is the probability-weighted average:</p>
+<div class="formula">$$\mathbb{E}[g(X)]=\sum_xg(x)P(x)\quad\text{or}\quad\int g(x)p(x)\,dx,\qquad \text{mean }\ \mu=\mathbb{E}[X]$$</div>
+<table class="t">
+  <tr><th>Quantity</th><th>Formula</th><th>Meaning</th></tr>
+  <tr><td>Variance</td><td>$\mathbb{V}[X]=\mathbb{E}[(X-\mu)^2]=\mathbb{E}[X^2]-\mathbb{E}[X]^2$</td><td>Spread around the mean ("mean of the square minus square of the mean")</td></tr>
+  <tr><td>Covariance</td><td>$\operatorname{Cov}[X,Y]=\mathbb{E}[(X-\mu_X)(Y-\mu_Y)]$</td><td>Do they move together (+) or oppositely (−)?</td></tr>
+  <tr><td>Correlation</td><td>$\operatorname{corr}[X,Y]=\dfrac{\operatorname{Cov}[X,Y]}{\sqrt{\mathbb{V}[X]\mathbb{V}[Y]}}\in[-1,1]$</td><td>Covariance with the units removed</td></tr>
+</table>
+<p>For a vector $\mathbf{x}$ the covariance is a <b>matrix</b> $\Sigma$ (symmetric positive semi-definite, as in Ch. 3–4). Its diagonal holds the variances. Other "typical value" statistics: the <b>median</b> (middle value), the <b>mode</b> (most likely value).</p>
+<p>From data you estimate these <b>empirical</b> versions, which are just averages:</p>
+<div class="formula">$$\bar{\mathbf{x}}=\frac1N\sum_{n=1}^N\mathbf{x}_n,\qquad \Sigma=\frac1N\sum_{n=1}^N(\mathbf{x}_n-\bar{\mathbf{x}})(\mathbf{x}_n-\bar{\mathbf{x}})^\top$$</div>
+<p class="why">Book remark: the raw-score formula $\mathbb{E}[X^2]-\mathbb{E}[X]^2$ is handy in derivations, but subtracting two huge, nearly equal numbers can be numerically unstable on a computer.</p>
+
+<h3>Sums and linear transformations</h3>
+<div class="formula">$$\mathbb{E}[\mathbf x+\mathbf y]=\mathbb{E}[\mathbf x]+\mathbb{E}[\mathbf y],\qquad \mathbb{V}[\mathbf x+\mathbf y]=\mathbb{V}[\mathbf x]+\mathbb{V}[\mathbf y]+\operatorname{Cov}[\mathbf x,\mathbf y]+\operatorname{Cov}[\mathbf y,\mathbf x]$$</div>
+<div class="formula">$$\mathbf y=A\mathbf x+\mathbf b\quad\Longrightarrow\quad\mathbb{E}[\mathbf y]=A\boldsymbol\mu+\mathbf b,\qquad \mathbb{V}[\mathbf y]=A\Sigma A^\top$$</div>
+<p>The second line is the same sandwich shape as the change of basis in Chapter 2.</p>
+
+<h3>Independence</h3>
+<p>$X,Y$ are <b>independent</b> if knowing one tells you nothing about the other:</p>
+<div class="formula">$$p(x,y)=p(x)\,p(y)\ \Longleftrightarrow\ p(y\mid x)=p(y)$$</div>
+<p>Independent ⇒ uncorrelated (covariance 0), but <b>not</b> the other way round in general. For jointly Gaussian variables, though, uncorrelated does mean independent.</p>
+<p class="why"><b>Fun fact from the book (6.4.6):</b> covariance is an inner product for random variables, and correlation is the cosine of the angle between them. All of Chapter 3's geometry applies.</p>
+<div class="short"><b>In short.</b> Mean = weighted average. Variance = spread. Covariance matrix $\Sigma$ = all pairwise co-movements. Linear map: $\mu\to A\mu+b$, $\Sigma\to A\Sigma A^\top$.</div>
+<details><summary>Check yourself</summary>$X$ has variance 4. What is the variance of $3X+7$? <br><b>Answer:</b> $A\Sigma A^\top=3\cdot4\cdot3=36$ (the shift doesn't matter, scaling by 3 multiplies variance by 9).</details>
+</section>
+
+<!-- ============ 6.5 ============ -->
+<section id="s65"><h2><span class="n">6.5</span>Gaussian Distribution</h2>
+<p>The <b>Gaussian</b> (normal) distribution is the bell curve. It is defined by just a mean $\mu$ and variance $\sigma^2$:</p>
+<div class="formula">$$p(x\mid\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\!\Big(-\frac{(x-\mu)^2}{2\sigma^2}\Big)$$</div>
+<div class="widget wide" id="w-gauss1d"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<h3>Why is the Gaussian everywhere?</h3>
+<p>Partly because of the <b>central limit theorem</b> (mentioned in the book): add up many independent random things and the total looks Gaussian, no matter what the individual pieces look like. Check it:</p>
+<div class="widget wide" id="w-clt"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p>And partly because it's very <b>well-behaved</b>, as the next facts show.</p>
+
+<h3>Multivariate Gaussian</h3>
+<p>In $D$ dimensions it has a mean vector and a covariance matrix:</p>
+<div class="formula">$$p(\mathbf x\mid\boldsymbol\mu,\Sigma)=(2\pi)^{-D/2}|\Sigma|^{-1/2}\exp\!\Big(-\tfrac12(\mathbf x-\boldsymbol\mu)^\top\Sigma^{-1}(\mathbf x-\boldsymbol\mu)\Big)$$</div>
+<p>The contours are ellipses whose shape is given by $\Sigma$ (its eigenvectors, from Ch. 4, are the ellipse axes). Move $\rho$ to tilt the cloud. The vertical line shows <b>conditioning</b>: fix $x_1$ and look at what's left for $x_2$.</p>
+<div class="widget" id="w-gauss2d"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<div class="card"><h3><span class="tag thm">Thm</span>Marginals and conditionals of Gaussians are Gaussians</h3>
+  <p>Split a joint Gaussian into parts $\mathbf x,\mathbf y$ with $\begin{bmatrix}\mathbf x\\\mathbf y\end{bmatrix}\sim\mathcal N\Big(\begin{bmatrix}\boldsymbol\mu_x\\\boldsymbol\mu_y\end{bmatrix},\begin{bmatrix}\Sigma_{xx}&\Sigma_{xy}\\\Sigma_{yx}&\Sigma_{yy}\end{bmatrix}\Big)$. Then</p>
+  <div class="formula">$$p(\mathbf x)=\mathcal N(\boldsymbol\mu_x,\Sigma_{xx})\quad\text{(just drop }\mathbf y\text{)}$$</div>
+  <div class="formula">$$p(\mathbf x\mid\mathbf y)=\mathcal N(\boldsymbol\mu_{x|y},\Sigma_{x|y}),\quad \boldsymbol\mu_{x|y}=\boldsymbol\mu_x+\Sigma_{xy}\Sigma_{yy}^{-1}(\mathbf y-\boldsymbol\mu_y),\quad \Sigma_{x|y}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}$$</div>
+  <p class="why">In the widget: the conditional mean is a straight line in the observed value (green line), and the conditional variance $\sigma_2^2(1-\rho^2)$ is <i>smaller</i> than before. Observing one variable always reduces uncertainty about a correlated one. Kalman filters and Gaussian processes are built on this formula.</p></div>
+<h3>More closure properties</h3>
+<ul>
+  <li><b>Product of two Gaussian densities</b> is (up to a constant) a Gaussian. Precisions add: $C=(A^{-1}+B^{-1})^{-1}$.</li>
+  <li><b>Sum of independent Gaussians</b> is Gaussian: means add, covariances add.</li>
+  <li><b>Linear transformation:</b> $\mathbf x\sim\mathcal N(\boldsymbol\mu,\Sigma)\Rightarrow A\mathbf x\sim\mathcal N(A\boldsymbol\mu,A\Sigma A^\top)$.</li>
+</ul>
+<div class="ml"><b>ML link: sampling.</b> To draw samples from $\mathcal N(\boldsymbol\mu,\Sigma)$: sample $\mathbf z\sim\mathcal N(0,I)$ and output $\boldsymbol\mu+L\mathbf z$, where $\Sigma=LL^\top$ is the Cholesky factorisation (Ch. 4). That is exactly how the dots in the widget above are generated.</div>
+<div class="short"><b>In short.</b> Gaussian = mean + covariance. Marginals, conditionals, sums, and linear maps of Gaussians stay Gaussian, with closed-form parameters.</div>
+<details><summary>Check yourself</summary>$X\sim\mathcal N(0,1)$. What is the distribution of $2X+3$? <br><b>Answer:</b> $\mathcal N(3,\,4)$: mean $A\mu+b=3$, variance $A\Sigma A^\top=4$.</details>
+</section>
+
+<!-- ============ 6.6 ============ -->
+<section id="s66"><h2><span class="n">6.6</span>Conjugacy and the Exponential Family</h2>
+<p>Bayes' theorem needs us to multiply a prior by a likelihood and normalise. Usually that integral is nasty. A <b>conjugate prior</b> is a prior chosen so the posterior is of the <i>same family</i>. Then updating is just changing a couple of numbers.</p>
+<h3>The classic: Beta prior, coin-flip likelihood</h3>
+<p>The probability $\mu$ that a coin lands heads lives in $[0,1]$. A <b>Beta</b> distribution is a natural belief over such a number:</p>
+<div class="formula">$$p(\mu\mid\alpha,\beta)=\frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}\mu^{\alpha-1}(1-\mu)^{\beta-1},\qquad\mathbb{E}[\mu]=\frac{\alpha}{\alpha+\beta}$$</div>
+<p>($\alpha=\beta=1$ is uniform, $\alpha,\beta>1$ is a single hump, $\alpha,\beta<1$ is U-shaped.) Observe $h$ heads and $t$ tails. Multiply prior × likelihood: $\mu^{\alpha-1}(1-\mu)^{\beta-1}\cdot\mu^h(1-\mu)^t$, which is still a Beta:</p>
+<div class="formula">$$\text{posterior}=\operatorname{Beta}(\alpha+h,\ \beta+t)$$</div>
+<div class="widget wide" id="w-beta"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p>This is book Examples 6.11–6.12. The book's Table 6.2 lists other conjugate pairs:</p>
+<table class="t">
+  <tr><th>Likelihood</th><th>Conjugate prior</th></tr>
+  <tr><td>Bernoulli / Binomial</td><td>Beta</td></tr>
+  <tr><td>Gaussian (unknown mean)</td><td>Gaussian</td></tr>
+  <tr><td>Gaussian (unknown variance)</td><td>Inverse Gamma / Inverse Wishart</td></tr>
+  <tr><td>Multinomial</td><td>Dirichlet</td></tr>
+</table>
+<h3>Sufficient statistics and the exponential family</h3>
+<p>A <b>sufficient statistic</b> is a summary of the data that holds <i>all</i> the information about the parameter: for coin flips you only need the counts $h,t$, not the order of the flips. The <b>exponential family</b> is the class of distributions with the form</p>
+<div class="formula">$$p(\mathbf x\mid\boldsymbol\theta)=h(\mathbf x)\exp\big(\langle\boldsymbol\theta,\boldsymbol\phi(\mathbf x)\rangle-A(\boldsymbol\theta)\big)$$</div>
+<p>where $\boldsymbol\phi(\mathbf x)$ are the sufficient statistics. Gaussian, Bernoulli, Binomial, Beta, and many others belong to it (book Examples 6.13–6.14). Why care: exponential-family likelihoods always have a conjugate prior, and they have only finitely many sufficient statistics, which makes learning tractable.</p>
+<div class="short"><b>In short.</b> Conjugate prior ⇒ posterior in the same family, updated by simple counting (Beta: add heads to α, tails to β).</div>
+<details><summary>Check yourself</summary>Prior Beta(2, 2); you see 3 heads, 1 tail. Posterior? <br><b>Answer:</b> Beta$(2+3,\,2+1)$ = Beta(5, 3), with mean $5/8=0.625$.</details>
+</section>
+
+<!-- ============ 6.7 ============ -->
+<section id="s67"><h2><span class="n">6.7</span>Change of Variables / Inverse Transform</h2>
+<p>If $X$ has a known distribution and $Y=U(X)$, what is the distribution of $Y$? Careful: you cannot just plug $U^{-1}(y)$ into $p_X$. Stretching the axis thins out the probability, and the density must be corrected by how much. The recipe for an invertible $U$:</p>
+<div class="formula">$$p_Y(y)=p_X\big(U^{-1}(y)\big)\cdot\Big|\frac{d}{dy}U^{-1}(y)\Big|$$</div>
+<p>(Derived from the CDF: $F_Y(y)=F_X(U^{-1}(y))$ and then differentiate with the chain rule.) In several dimensions the correction factor becomes $|\det J|$ of the inverse map, the Jacobian from Chapter 5, which is why that determinant mattered.</p>
+<div class="widget wide" id="w-change"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<h3>Inverse transform sampling</h3>
+<p>The "$Y=\Phi(X)$" preset shows the <b>probability integral transform</b> (book Thm 6.15): feed any continuous variable through its own CDF and you get Uniform(0,1). Reverse it and you can <b>generate samples from any distribution</b> whose CDF you can invert: draw a uniform number $u$ (what computers provide) and output $F^{-1}(u)$.</p>
+<div class="short"><b>In short.</b> $p_Y(y)=p_X(U^{-1}(y))\,|dU^{-1}/dy|$. The extra factor accounts for stretching. In many dimensions it's the Jacobian determinant.</div>
+<details><summary>Check yourself</summary>$X\sim$ Uniform(0,1) and $Y=3X$. What is the density of $Y$ on $[0,3]$? <br><b>Answer:</b> $p_Y(y)=1\cdot|d(y/3)/dy|=1/3$: spread over three times the length, so one third as tall.</details>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>Probability space</td><td>$(\Omega,\mathcal A,P)$; random variable = function $\Omega\to\mathcal T$.</td></tr>
+    <tr><td>pmf / pdf / cdf</td><td>Discrete heights / continuous density (areas) / accumulated area.</td></tr>
+    <tr><td>Sum rule</td><td>$p(x)=\sum_y p(x,y)$.</td></tr>
+    <tr><td>Product rule</td><td>$p(x,y)=p(y|x)p(x)$.</td></tr>
+    <tr><td>Bayes</td><td>$p(x|y)=p(y|x)p(x)/p(y)$: posterior ∝ likelihood × prior.</td></tr>
+    <tr><td>Mean, variance</td><td>$\mathbb E[X]$; $\mathbb V[X]=\mathbb E[X^2]-\mathbb E[X]^2$.</td></tr>
+    <tr><td>Covariance</td><td>$\operatorname{Cov}[X,Y]=\mathbb E[XY]-\mathbb E[X]\mathbb E[Y]$; matrix $\Sigma$; corr ∈ [−1,1].</td></tr>
+    <tr><td>Affine map</td><td>$A\mathbf x+\mathbf b$: mean $A\mu+b$, covariance $A\Sigma A^\top$.</td></tr>
+    <tr><td>Independence</td><td>$p(x,y)=p(x)p(y)$ ⇒ uncorrelated (not conversely).</td></tr>
+    <tr><td>Gaussian</td><td>$\mathcal N(\mu,\Sigma)$; marginals, conditionals, sums, linear maps are Gaussian.</td></tr>
+    <tr><td>Gaussian conditioning</td><td>$\mu_{x|y}=\mu_x+\Sigma_{xy}\Sigma_{yy}^{-1}(y-\mu_y)$, $\Sigma_{x|y}=\Sigma_{xx}-\Sigma_{xy}\Sigma_{yy}^{-1}\Sigma_{yx}$.</td></tr>
+    <tr><td>Conjugacy</td><td>Beta prior + coin-flip data → Beta$(\alpha+h,\beta+t)$.</td></tr>
+    <tr><td>Change of variables</td><td>$p_Y(y)=p_X(U^{-1}(y))\,|dU^{-1}/dy|$ (Jacobian in many dimensions).</td></tr>
+  </table>
+</div></section>
+
+<div class="pager"><a href="chapter5.html">← Chapter 5: Vector Calculus</a><a href="chapter7.html">Chapter 7: Continuous Optimization →</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 6, rewritten with extra intuition and examples. The Bayes disease example and the CLT demo are my additions. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 5 · Vector Calculus — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/plot.js"></script>
+<script defer src="assets/ch5.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 5</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s51">5.1 Univariate functions</a>
+  <a href="#s52">5.2 Partial derivatives, gradients</a>
+  <a href="#s53">5.3 Vector-valued functions</a>
+  <a href="#s54">5.4 Gradients of matrices</a>
+  <a href="#s55">5.5 Useful identities</a>
+  <a href="#s56">5.6 Backpropagation</a>
+  <a href="#s57">5.7 Higher-order derivatives</a>
+  <a href="#s58">5.8 Linearization, Taylor</a>
+  <a href="#recap">Cheat sheet</a>
+</nav>
+<main>
+<h1>Chapter 5 · Vector Calculus</h1>
+<p class="sub">How does the output change when I nudge the input? The engine behind "training" a model.</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>Training a model means finding parameters that make a loss small. To improve the parameters you need to know <b>which way is downhill</b>. That direction is the <b>gradient</b>. Everything in this chapter is a way to compute gradients correctly and efficiently, culminating in <b>backpropagation</b>, the algorithm that trains neural networks.</p>
+<table class="t">
+  <tr><th>Object</th><th>Input → output</th><th>Derivative is…</th></tr>
+  <tr><td>Univariate function</td><td>$f:\mathbb{R}\to\mathbb{R}$</td><td>a number $f'(x)$ (slope)</td></tr>
+  <tr><td>Scalar of many variables</td><td>$f:\mathbb{R}^n\to\mathbb{R}$</td><td>the gradient, a $1\times n$ row</td></tr>
+  <tr><td>Vector-valued function</td><td>$f:\mathbb{R}^n\to\mathbb{R}^m$</td><td>the Jacobian, an $m\times n$ matrix</td></tr>
+</table>
+</section>
+
+<!-- ============ 5.1 ============ -->
+<section id="s51"><h2><span class="n">5.1</span>Differentiation of Univariate Functions</h2>
+<h3>The derivative as a limit</h3>
+<p>The slope of a straight line is "rise over run". For a curve, take two nearby points: the <b>difference quotient</b> is the slope of the line through them, and the <b>derivative</b> is what it tends to as the gap $h$ shrinks to zero:</p>
+<div class="formula">$$f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}$$</div>
+<div class="widget wide" id="w-deriv"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Slide $h$ toward $0$ and the orange secant becomes the green tangent. The "$|x|$" preset shows a function that has no derivative at its kink: left and right slopes disagree.</p>
+
+<h3>Rules you need</h3>
+<div class="formula">$$\begin{aligned}\text{Sum: }&(f+g)'=f'+g' &\qquad\text{Product: }&(fg)'=f'g+fg'\\ \text{Quotient: }&\Big(\tfrac fg\Big)'=\tfrac{f'g-fg'}{g^2} &\qquad\text{Chain: }&\big(g(f(x))\big)'=g'(f(x))\,f'(x)\end{aligned}$$</div>
+<p>The <b>chain rule</b> is the star: derivatives of nested functions multiply. Book Example 5.5: $h(x)=(2x+1)^4$ is $g(f(x))$ with $f=2x+1$, $g=f^4$, so $h'(x)=4(2x+1)^3\cdot2=8(2x+1)^3$. Remember this, backprop is just the chain rule applied systematically.</p>
+
+<h3>Taylor series: approximate by a polynomial</h3>
+<p>Any smooth function looks like a polynomial near a point $x_0$, and the polynomial is built from the derivatives there. The <b>Taylor polynomial</b> of degree $n$:</p>
+<div class="formula">$$T_n(x)=\sum_{k=0}^n\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k$$</div>
+<p>Degree 0 is a flat line at $f(x_0)$, degree 1 is the tangent line, degree 2 adds curvature, and so on. For $x_0=0$ it's called a Maclaurin series.</p>
+<div class="widget wide" id="w-taylor"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Book Example 5.4: for $\sin x+\cos x$ at $0$, the coefficients are $1,1,-\tfrac12,-\tfrac16,\dots$ (each sign twice). Book Example 5.3: $x^4$ at $x_0=1$ is a polynomial, so $T_4$ is <i>exactly</i> $x^4$ (the "x⁴" preset: the error drops to zero at degree 4).</p>
+<div class="short"><b>In short.</b> Derivative = limit of slopes. Chain rule: derivatives of nested functions multiply. Taylor: a function ≈ polynomial built from its derivatives.</div>
+<details><summary>Check yourself</summary>Differentiate $(3x^2+1)^5$. <br><b>Answer:</b> chain rule: $5(3x^2+1)^4\cdot6x=30x(3x^2+1)^4$.</details>
+</section>
+
+<!-- ============ 5.2 ============ -->
+<section id="s52"><h2><span class="n">5.2</span>Partial Differentiation and Gradients</h2>
+<p>With several inputs, change <b>one variable at a time</b> and freeze the rest. That's a <b>partial derivative</b>. Collect them all and you have the <b>gradient</b>:</p>
+<div class="formula">$$\nabla_{\mathbf x}f=\frac{df}{d\mathbf x}=\begin{bmatrix}\dfrac{\partial f}{\partial x_1}&\dfrac{\partial f}{\partial x_2}&\cdots&\dfrac{\partial f}{\partial x_n}\end{bmatrix}\in\mathbb{R}^{1\times n}$$</div>
+<p>Note the book writes the gradient as a <b>row</b> vector. That makes the shapes work out for the chain rule and for vector-valued functions (next section). Many other texts use a column.</p>
+<div class="card"><h3><span class="tag def">Example</span>Book Examples 5.6 and 5.7</h3>
+  <p>$f(x,y)=(x+2y^3)^2\Rightarrow\ \dfrac{\partial f}{\partial x}=2(x+2y^3),\ \ \dfrac{\partial f}{\partial y}=12(x+2y^3)y^2$ (chain rule).</p>
+  <p>$f(x_1,x_2)=x_1^2x_2+x_1x_2^3\Rightarrow\ \dfrac{df}{d\mathbf x}=\begin{bmatrix}2x_1x_2+x_2^3&x_1^2+3x_1x_2^2\end{bmatrix}$.</p></div>
+<h3>What the gradient means</h3>
+<p>The gradient points in the direction of <b>steepest ascent</b>, and its length is how steep that is. It is always perpendicular to the contour (level) line through the point. So $-\nabla f$ is the steepest <b>descent</b> direction, which is exactly what gradient descent (Ch. 7) follows. The colours show $f$ (orange high, blue low):</p>
+<div class="widget" id="w-grad"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p><b>Chain rule for several variables</b> stays the same shape: $\dfrac{\partial}{\partial\mathbf x}g(f(\mathbf x))=\dfrac{\partial g}{\partial f}\dfrac{\partial f}{\partial\mathbf x}$, just with matrices (order matters). Product and sum rules extend likewise.</p>
+<div class="short"><b>In short.</b> Gradient = vector of partial derivatives = direction of steepest ascent, ⟂ to contour lines. Go against it to descend.</div>
+<details><summary>Check yourself</summary>Gradient of $f(x,y)=x^2+3y$ at $(1,2)$? <br><b>Answer:</b> $[2x,\ 3]=[2,\ 3]$.</details>
+</section>
+
+<!-- ============ 5.3 ============ -->
+<section id="s53"><h2><span class="n">5.3</span>Gradients of Vector-Valued Functions</h2>
+<p>Now the function itself returns a vector, $\mathbf f:\mathbb{R}^n\to\mathbb{R}^m$ (several outputs, several inputs). Stack the gradients of each output as rows. The result is the <b>Jacobian</b>, an $m\times n$ matrix:</p>
+<div class="formula">$$J=\frac{d\mathbf f}{d\mathbf x}=\begin{bmatrix}\dfrac{\partial f_1}{\partial x_1}&\cdots&\dfrac{\partial f_1}{\partial x_n}\\ \vdots&&\vdots\\ \dfrac{\partial f_m}{\partial x_1}&\cdots&\dfrac{\partial f_m}{\partial x_n}\end{bmatrix}$$</div>
+<p><b>The Jacobian is the best linear approximation of $\mathbf f$ near a point.</b> Chapter 2 said matrices are linear maps. So near each point, a smooth function behaves like a matrix, and $|\det J|$ says how much it scales area. Below, the map is "polar to Cartesian". The tiny rectangle is bent by the real map (orange), but the Jacobian (blue) is a straight-edged parallelogram that matches it when the rectangle is small:</p>
+<div class="widget" id="w-jac"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">This is why $\det J$ appears in probability when you change variables (Ch. 6.7). For polar coordinates $|\det J|=r$, the familiar "$r\,dr\,d\theta$".</p>
+<div class="card"><h3><span class="tag def">Example</span>Book Example 5.9: $\mathbf f(\mathbf x)=A\mathbf x$</h3>
+  <p>$f_i=\sum_jA_{ij}x_j\Rightarrow\partial f_i/\partial x_j=A_{ij}$, so $\dfrac{d\mathbf f}{d\mathbf x}=A$. A linear map's derivative is the matrix itself. (Of course.)</p></div>
+<div class="card"><h3><span class="tag def">Example</span>Book Example 5.11: gradient of the least-squares loss</h3>
+  <p>Linear model $\mathbf y=\Phi\boldsymbol\theta$ with $\Phi\in\mathbb{R}^{N\times D}$. Loss $L(\mathbf e)=\|\mathbf e\|^2$, error $\mathbf e(\boldsymbol\theta)=\mathbf y-\Phi\boldsymbol\theta$. By the chain rule:</p>
+  <div class="formula">$$\frac{\partial L}{\partial\boldsymbol\theta}=\underbrace{2\mathbf e^\top}_{\partial L/\partial\mathbf e}\ \underbrace{(-\Phi)}_{\partial\mathbf e/\partial\boldsymbol\theta}=-2(\mathbf y-\Phi\boldsymbol\theta)^\top\Phi\ \in\mathbb{R}^{1\times D}$$</div></div>
+<div class="ml"><b>ML link.</b> That last formula is the gradient of linear regression. Set it to zero and you recover the normal equations from Ch. 3. Chapter 9 does exactly this.</div>
+<div class="short"><b>In short.</b> Jacobian = matrix of all partial derivatives ($m\times n$) = local linear map. Chain rule = multiply Jacobians.</div>
+<details><summary>Check yourself</summary>$\mathbf f(x,y)=(xy,\ x+y)$. What is $J$? <br><b>Answer:</b> $\begin{bmatrix}y&x\\1&1\end{bmatrix}$.</details>
+</section>
+
+<!-- ============ 5.4 ============ -->
+<section id="s54"><h2><span class="n">5.4</span>Gradients of Matrices</h2>
+<p>Sometimes the thing you differentiate with respect to is a matrix, or the output is a matrix (say $f(\mathbf x)=A\mathbf{x}$ with respect to the entries of $A$). The Jacobian is then a <b>tensor</b>: a multi-dimensional array. For $\mathbf f\in\mathbb{R}^M$ and $A\in\mathbb{R}^{M\times N}$ it has shape $M\times(M\times N)$.</p>
+<p>Two ways to cope, both from the book:</p>
+<ol>
+  <li><b>Compute entry by entry</b>: $\partial f_i/\partial A_{jk}$, then collect into the tensor. It is mechanical (and book Example 5.12 shows only the entries with $i=j$ are nonzero: $\partial f_i/\partial A_{iq}=x_q$).</li>
+  <li><b>Vectorise:</b> reshape each matrix into one long vector ($A\in\mathbb{R}^{4\times2}\to\mathbb{R}^8$), then use ordinary Jacobians.</li>
+</ol>
+<p class="why">Don't memorise tensor shapes. Always track dimensions: "gradient of $\mathbb{R}^a$-valued thing with respect to $\mathbb{R}^b$-valued thing is $a\times b$".</p>
+</section>
+
+<!-- ============ 5.5 ============ -->
+<section id="s55"><h2><span class="n">5.5</span>Useful Identities for Computing Gradients</h2>
+<p>Memorise a handful, look up the rest (the book credits the <i>Matrix Cookbook</i>). With $\mathbf a$ constant:</p>
+<table class="t">
+  <tr><th>Derivative</th><th>Result</th></tr>
+  <tr><td>$\dfrac{\partial\,\mathbf x^\top\mathbf a}{\partial\mathbf x}$ and $\dfrac{\partial\,\mathbf a^\top\mathbf x}{\partial\mathbf x}$</td><td>$\mathbf a^\top$</td></tr>
+  <tr><td>$\dfrac{\partial\,\mathbf a^\top X\mathbf b}{\partial X}$</td><td>$\mathbf a\mathbf b^\top$</td></tr>
+  <tr><td>$\dfrac{\partial\,\mathbf x^\top B\mathbf x}{\partial\mathbf x}$</td><td>$\mathbf x^\top(B+B^\top)$ (equals $2\mathbf x^\top B$ if $B$ is symmetric)</td></tr>
+  <tr><td>$\dfrac{\partial}{\partial\mathbf s}(\mathbf x-A\mathbf s)^\top W(\mathbf x-A\mathbf s)$</td><td>$-2(\mathbf x-A\mathbf s)^\top WA$ for symmetric $W$</td></tr>
+  <tr><td>$\dfrac{\partial}{\partial X}\det f(X)$</td><td>$\det f(X)\,\operatorname{tr}\!\big(f(X)^{-1}\tfrac{\partial f}{\partial X}\big)$</td></tr>
+  <tr><td>$\dfrac{\partial}{\partial X}f(X)^{-1}$</td><td>$-f(X)^{-1}\dfrac{\partial f}{\partial X}f(X)^{-1}$</td></tr>
+  <tr><td>$\dfrac{\partial}{\partial X}\operatorname{tr}f(X)$</td><td>$\operatorname{tr}\!\big(\tfrac{\partial f}{\partial X}\big)$</td></tr>
+</table>
+<p class="why">The 4th row is the least-squares gradient from 5.3, generalised with a weight matrix $W$.</p>
+</section>
+
+<!-- ============ 5.6 ============ -->
+<section id="s56"><h2><span class="n">5.6</span>Backpropagation and Automatic Differentiation</h2>
+<p>Take the book's innocent-looking function</p>
+<div class="formula">$$f(x)=\sqrt{x^2+e^{x^2}}+\cos\!\big(x^2+e^{x^2}\big)$$</div>
+<p>Differentiating it by hand (the book's (5.110)) gives a long expression: $2x\big(\tfrac{1}{2\sqrt{x^2+e^{x^2}}}-\sin(x^2+e^{x^2})\big)(1+e^{x^2})$. For a neural network with millions of parameters, writing the formula out is hopeless. Instead, break the function into <b>small steps</b> (a <b>computation graph</b>), each with a trivial local derivative:</p>
+<div class="formula">$$a=x^2,\quad b=e^a,\quad c=a+b,\quad d=\sqrt c,\quad e=\cos c,\quad f=d+e$$</div>
+<ul>
+  <li><b>Forward pass:</b> compute the values left to right (blue).</li>
+  <li><b>Backward pass:</b> start with $\partial f/\partial f=1$ and move right to left. At each node, <b>multiply</b> by the local derivative, and where two paths merge, <b>add</b> (that is the chain rule). This is <b>backpropagation</b>.</li>
+</ul>
+<div class="card" id="w-backprop"><b style="font-family:system-ui">Try it.</b>
+  <div class="presets"><button class="bf">Forward pass</button><button class="bb">Forward + backward pass</button></div>
+  <svg class="graph" viewBox="0 0 700 270" style="width:100%;height:auto;display:block;margin:6px 0"></svg>
+  <div class="ctrl"><label style="grid-template-columns:34px 1fr 44px">x<input type="range" class="x" min="-1.5" max="1.5" step="0.05" value="1"><span class="xv"></span></label></div>
+  <div class="readout"></div></div>
+<p class="why">Notice the cost: the backward pass has about the same number of operations as the forward pass, no matter how ugly the final formula is. That is what makes training deep networks feasible.</p>
+
+<h3>In a deep network</h3>
+<p>A network is a long chain $\mathbf f_K\circ\dots\circ\mathbf f_1(\mathbf x)$ with each layer $\mathbf f_i=\sigma(A_{i-1}\mathbf f_{i-1}+\mathbf b_{i-1})$. To get $\partial L/\partial\theta_i$ for layer $i$, the chain rule multiplies Jacobians from the output down to layer $i$. Computing layer $i$ <b>reuses</b> everything already computed for layer $i+1$, so one backward sweep gives all the gradients.</p>
+<h3>Reverse vs forward mode</h3>
+<p>Because $\frac{dy}{dx}=\frac{dy}{db}\frac{db}{da}\frac{da}{dx}$ is a product, you can multiply from the right end (<b>forward mode</b>) or from the left end (<b>reverse mode</b> = backprop). Reverse mode is far cheaper when there are many inputs (parameters) and one output (the loss), which is the neural-network case. In general this technique is <b>automatic differentiation</b>: exact (up to rounding), unlike finite differences, and not symbolic like algebra.</p>
+<div class="short"><b>In short.</b> Break a function into small steps, then propagate derivatives backward: multiply along paths, add at joins. Cost ≈ cost of the forward pass.</div>
+<details><summary>Check yourself</summary>For $f=(x+1)^2$ split as $a=x+1,\ f=a^2$, what are $\partial f/\partial a$ and $\partial f/\partial x$ at $x=2$? <br><b>Answer:</b> $a=3$, $\partial f/\partial a=2a=6$, and $\partial a/\partial x=1$, so $\partial f/\partial x=6$.</details>
+</section>
+
+<!-- ============ 5.7 ============ -->
+<section id="s57"><h2><span class="n">5.7</span>Higher-Order Derivatives</h2>
+<p>The derivative of the derivative tells you about <b>curvature</b>. For $f(x,y)$ the second derivatives collect into the <b>Hessian</b>:</p>
+<div class="formula">$$H=\nabla^2f=\begin{bmatrix}\dfrac{\partial^2f}{\partial x^2}&\dfrac{\partial^2f}{\partial x\partial y}\\[2mm]\dfrac{\partial^2f}{\partial y\partial x}&\dfrac{\partial^2f}{\partial y^2}\end{bmatrix}$$</div>
+<p>For nice functions it is <b>symmetric</b> (mixed partials agree). Its eigenvalues (Ch. 4!) are the curvatures in the principal directions: all positive → a bowl (a minimum candidate), all negative → a dome, mixed signs → a saddle. The readout of the gradient widget in 5.2 shows the Hessian and its eigenvalues at the chosen point: try the saddle.</p>
+<div class="ml"><b>ML link.</b> Second-order optimisation methods (Newton's method) use the Hessian to take smarter steps than plain gradient descent.</div>
+</section>
+
+<!-- ============ 5.8 ============ -->
+<section id="s58"><h2><span class="n">5.8</span>Linearization and Multivariate Taylor Series</h2>
+<p>The 1D Taylor idea extends. Near a point $\mathbf x_0$, with $\boldsymbol\delta=\mathbf x-\mathbf x_0$:</p>
+<div class="formula">$$f(\mathbf x)\approx\underbrace{f(\mathbf x_0)}_{\text{height}}+\underbrace{\nabla f(\mathbf x_0)\,\boldsymbol\delta}_{\text{tilted plane}}+\underbrace{\tfrac12\boldsymbol\delta^\top H(\mathbf x_0)\,\boldsymbol\delta}_{\text{curvature}}+\cdots$$</div>
+<p>Keeping the first two terms is <b>linearization</b>: replace the function by its tangent plane. Add the third and you capture curvature with a quadratic. These approximations are the reason local methods work: zoom in far enough and everything looks like a plane or a bowl.</p>
+<div class="short"><b>In short.</b> $f(\mathbf x)\approx f(\mathbf x_0)+\nabla f\,\boldsymbol\delta+\tfrac12\boldsymbol\delta^\top H\boldsymbol\delta$. Gradient = slope of the tangent plane, Hessian = curvature.</div>
+<details><summary>Check yourself</summary>$f(x)=x^2$ at $x_0=1$: what is the linear approximation? <br><b>Answer:</b> $f(1)+f'(1)(x-1)=1+2(x-1)$, the tangent line.</details>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>Derivative</td><td>$f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}$. Chain rule: $(g\circ f)'=g'(f)f'$.</td></tr>
+    <tr><td>Taylor</td><td>$T_n=\sum_k\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k$: polynomial approximation near $x_0$.</td></tr>
+    <tr><td>Gradient</td><td>$1\times n$ row of partials; steepest ascent; ⟂ contours.</td></tr>
+    <tr><td>Jacobian</td><td>$m\times n$ matrix of partials; local linear map; $|\det J|$ = area scaling.</td></tr>
+    <tr><td>Chain rule (multivariate)</td><td>Multiply Jacobians, in order.</td></tr>
+    <tr><td>Least-squares gradient</td><td>$\partial\|\mathbf y-\Phi\boldsymbol\theta\|^2/\partial\boldsymbol\theta=-2(\mathbf y-\Phi\boldsymbol\theta)^\top\Phi$.</td></tr>
+    <tr><td>Backpropagation</td><td>Forward pass for values, backward pass multiplying local derivatives (adding at joins).</td></tr>
+    <tr><td>Hessian</td><td>Matrix of second derivatives; eigenvalues give curvature (bowl / dome / saddle).</td></tr>
+    <tr><td>Linearization</td><td>$f(\mathbf x)\approx f(\mathbf x_0)+\nabla f\,\boldsymbol\delta+\tfrac12\boldsymbol\delta^\top H\boldsymbol\delta$.</td></tr>
+  </table>
+</div></section>
+
+<div class="pager"><a href="chapter4.html">← Chapter 4: Matrix Decompositions</a><a href="chapter6.html">Chapter 6: Probability →</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 5, rewritten with extra intuition and examples. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>

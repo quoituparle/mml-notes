@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 7 · Continuous Optimization — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/plot.js"></script>
+<script defer src="assets/ch7.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 7</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s71">7.1 Gradient descent</a>
+  <a href="#s72">7.2 Constrained, Lagrange</a>
+  <a href="#s73">7.3 Convex optimization</a>
+  <a href="#recap">Cheat sheet</a>
+  <a href="#end">End of Part I</a>
+</nav>
+<main>
+<h1>Chapter 7 · Continuous Optimization</h1>
+<p class="sub">Training a model = finding the best parameters. This chapter is how you actually walk there.</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>Almost every ML method ends with "...and then we minimise a loss". That is <b>optimisation</b>. It uses everything before: gradients (Ch. 5) point downhill, Hessians (Ch. 5) measure curvature, eigenvalues (Ch. 4) explain why some valleys are hard, and probability (Ch. 6) explains why noisy gradients still work.</p>
+<table class="t">
+  <tr><th>Situation</th><th>Tool</th><th>Section</th></tr>
+  <tr><td>No constraints, differentiable loss</td><td>Gradient descent (+ momentum, + stochastic)</td><td>7.1</td></tr>
+  <tr><td>Must satisfy $g(\mathbf x)\le0$ or $h(\mathbf x)=0$</td><td>Lagrange multipliers, duality</td><td>7.2</td></tr>
+  <tr><td>Convex problem</td><td>Guaranteed global optimum. LP, QP.</td><td>7.3</td></tr>
+</table>
+</section>
+
+<!-- ============ 7.1 ============ -->
+<section id="s71"><h2><span class="n">7.1</span>Optimization Using Gradient Descent</h2>
+<p>We want $\min_{\mathbf x}f(\mathbf x)$ for a differentiable $f$ (often there is no closed-form solution). Imagine a ball on a hilly surface. The gradient points uphill, so step <b>against</b> it:</p>
+<div class="formula">$$\mathbf x_{i+1}=\mathbf x_i-\gamma_i\,(\nabla f)(\mathbf x_i)^\top$$</div>
+<p>$\gamma$ is the <b>step size</b> (the <i>learning rate</i>). For a small enough $\gamma$, $f$ never increases. The path ends at a <b>local</b> minimum, and which one you reach depends on where you start. Here's a function with two valleys (this isn't the book's picture, just an illustration):</p>
+<div class="widget wide" id="w-gd1"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Starting right of the hill you roll into the shallow valley. Starting left you reach the deep one. Too small a $\gamma$ is slow, too large a $\gamma$ overshoots and can blow up. For general non-convex $f$, gradient descent promises a <i>local</i> minimum, not the best one.</p>
+
+<h3>The step size matters</h3>
+<p>The book gives two simple heuristics: if $f$ went <b>up</b> after a step, the step was too large (undo it and shrink $\gamma$). If $f$ went down, you could try a bigger step. Adaptive methods automate this.</p>
+
+<h3>Poorly conditioned problems: the zig-zag</h3>
+<p>Book Example 7.1: $f(\mathbf x)=\tfrac12\mathbf x^\top\begin{bmatrix}2&1\\1&20\end{bmatrix}\mathbf x-\begin{bmatrix}5\\3\end{bmatrix}^\top\mathbf x$, starting at $(-3,-1)$ with $\gamma=0.085$. The surface is a long thin valley: very steep in $x_2$, very flat in $x_1$. The ratio of steepest to flattest curvature is the <b>condition number</b> $\kappa$ (the ratio of largest to smallest singular value, Ch. 4). Large $\kappa$ ⇒ gradient descent zig-zags across the valley and crawls along it.</p>
+<div class="widget" id="w-gd"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>Momentum: give the ball some memory</h3>
+<p>Add a fraction $\alpha\in[0,1]$ of the previous step to the new one (a heavy ball that resists changing direction):</p>
+<div class="formula">$$\mathbf x_{i+1}=\mathbf x_i-\gamma_i(\nabla f)(\mathbf x_i)^\top+\alpha\,\Delta\mathbf x_i,\qquad\Delta\mathbf x_i=\mathbf x_i-\mathbf x_{i-1}$$</div>
+<p>It averages out the zig-zag (the opposite jumps cancel) and builds speed along the valley. Try the "With momentum" preset and compare how many steps it needs.</p>
+
+<h3>Stochastic gradient descent (SGD)</h3>
+<p>ML losses are sums over data points: $L(\boldsymbol\theta)=\sum_{n=1}^NL_n(\boldsymbol\theta)$. The full gradient needs all $N$ points, which is expensive. <b>SGD</b> estimates it from a random <b>mini-batch</b> (even one example). The estimate is noisy but <b>unbiased</b>: on average it equals the true gradient, and that's all convergence needs. The "Noisy gradient" preset mimics this by adding random noise to each gradient:</p>
+<ul>
+  <li><b>Large batches:</b> accurate gradient, smooth path, but expensive per step.</li>
+  <li><b>Small batches:</b> cheap, noisy, and the noise can even help escape bad local minima.</li>
+  <li>With a suitably decreasing learning rate, SGD converges to a local minimum (book remark).</li>
+</ul>
+<div class="card"><h3><span class="tag def">Example</span>Book Example 7.2: solving $A\mathbf{x}=\mathbf{b}$ by descent</h3>
+  <p>Minimise $\|A\mathbf x-\mathbf b\|^2$. The gradient is $2(A\mathbf x-\mathbf b)^\top A$. In this special case you can set the gradient to zero and solve directly (Ch. 9), but gradient descent also works, with speed governed by the condition number $\kappa=\sigma_{\max}(A)/\sigma_{\min}(A)$. A <b>preconditioner</b> $P^{-1}$ tries to make the valley rounder.</p></div>
+<div class="short"><b>In short.</b> Gradient descent: $x\leftarrow x-\gamma\nabla f$. Small γ = slow, large γ = unstable. Thin valleys zig-zag. Momentum smooths it. SGD trades accuracy for cheapness using mini-batches.</div>
+<details><summary>Check yourself</summary>For $f(x)=x^2$, start at $x_0=4$ with $\gamma=0.25$. What is $x_1$? <br><b>Answer:</b> $f'(x)=2x=8$, so $x_1=4-0.25\cdot8=2$.</details>
+</section>
+
+<!-- ============ 7.2 ============ -->
+<section id="s72"><h2><span class="n">7.2</span>Constrained Optimization and Lagrange Multipliers</h2>
+<p>Often the answer isn't allowed to be anywhere. For example, probabilities must be $\ge0$ and add to 1. The constrained problem:</p>
+<div class="formula">$$\min_{\mathbf x}f(\mathbf x)\quad\text{subject to}\quad g_i(\mathbf x)\le0\ \ (i=1,\dots,m)$$</div>
+<p>Equality constraints $h_j(\mathbf x)=0$ are allowed too (they're two inequalities). The unconstrained minimum may simply be infeasible, so the answer is pushed to the <b>boundary</b>.</p>
+<h3>The Lagrangian</h3>
+<p>Instead of an "infinite wall" penalty (the book's indicator function, impossible to optimise), add each constraint with a weight $\lambda_i\ge0$, a <b>Lagrange multiplier</b>:</p>
+<div class="formula">$$\mathfrak{L}(\mathbf x,\boldsymbol\lambda)=f(\mathbf x)+\boldsymbol\lambda^\top\mathbf g(\mathbf x),\qquad \boldsymbol\lambda\ge0$$</div>
+<p>(For equality constraints the multipliers are unconstrained in sign.) The geometric picture is the most useful thing to remember. Below, $f$ is "distance to $p$" and the red curve is the constraint. Slide along the constraint:</p>
+<div class="widget" id="w-lagr"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">At the best feasible point, the contour of $f$ just <b>touches</b> the constraint curve, so $\nabla f$ and $\nabla g$ are parallel: $\nabla f=-\lambda\nabla g$. The multiplier $\lambda$ says how much the optimum would improve if you relaxed the constraint a little.</p>
+<h3>Duality</h3>
+<p>Turn the problem around. The <b>dual function</b> is $\mathfrak{D}(\boldsymbol\lambda)=\min_{\mathbf x}\mathfrak L(\mathbf x,\boldsymbol\lambda)$, and the <b>dual problem</b> is $\max_{\boldsymbol\lambda\ge0}\mathfrak D(\boldsymbol\lambda)$. The original is the <b>primal</b> problem. Two facts from the book:</p>
+<ul>
+  <li><b>Weak duality:</b> dual value ≤ primal value, always (it follows from the minimax inequality $\max_y\min_x\varphi\le\min_x\max_y\varphi$).</li>
+  <li>$\mathfrak D(\boldsymbol\lambda)$ is always <b>concave</b>, even if $f$ is not convex, so the dual is easy to maximise. For convex problems the gap closes: <b>strong duality</b>.</li>
+</ul>
+<div class="short"><b>In short.</b> Constrained min: build $\mathfrak L=f+\lambda^\top g$. At the optimum $\nabla f=-\lambda\nabla g$ (gradients parallel). Dual problem ≤ primal problem.</div>
+<details><summary>Check yourself</summary>Minimise $x^2+y^2$ on the line $x+y=2$. Where? <br><b>Answer:</b> by symmetry $(1,1)$. Check: $\nabla f=(2,2)$ and $\nabla g=(1,1)$ are parallel with $\lambda=-2$.</details>
+</section>
+
+<!-- ============ 7.3 ============ -->
+<section id="s73"><h2><span class="n">7.3</span>Convex Optimization</h2>
+<p>Some problems are special: <b>every local minimum is the global minimum</b>. That's a <b>convex optimisation problem</b>, the well-behaved corner of optimisation.</p>
+<h3>Convex sets and functions</h3>
+<ul>
+  <li>A <b>convex set</b>: the line segment between any two of its points stays inside it ($\theta\mathbf x+(1-\theta)\mathbf y\in C$ for $0\le\theta\le1$). A disc is convex, a crescent is not.</li>
+  <li>A <b>convex function</b>: the chord between any two points on the graph lies <b>above</b> the graph:
+    <div class="formula">$$f(\theta\mathbf x+(1-\theta)\mathbf y)\le\theta f(\mathbf x)+(1-\theta)f(\mathbf y)$$</div>
+    (This is Jensen's inequality. A concave function is the negative of a convex one.)</li>
+</ul>
+<div class="widget wide" id="w-convex"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Book Example 7.3 checks $x\log_2x$ at $x=2$, $y=4$, $\theta=0.5$: left side $3\log_23\approx4.75\le5$ = right side ✓ (the third preset).</p>
+<p><b>Easier tests</b> for differentiable $f$ (from the book):</p>
+<ul>
+  <li>$f$ is convex ⇔ $f(\mathbf y)\ge f(\mathbf x)+\nabla f(\mathbf x)(\mathbf y-\mathbf x)$ for all $\mathbf x,\mathbf y$ (every tangent lies below the curve; the green dashed line in the widget).</li>
+  <li>If twice differentiable: convex ⇔ the <b>Hessian is positive semidefinite</b> everywhere (the "bowl" case from Ch. 5).</li>
+  <li><b>Closure:</b> a non-negative weighted sum of convex functions is convex (just like "sums of vectors stay in the space").</li>
+</ul>
+<h3>Linear programming (LP)</h3>
+<p>Everything linear:</p>
+<div class="formula">$$\min_{\mathbf x}\ \mathbf c^\top\mathbf x\quad\text{subject to}\quad A\mathbf x\le\mathbf b$$</div>
+<p>The feasible region is a polygon (a polytope in higher dimensions) and the objective is a tilted plane, so the optimum is always at a <b>corner</b>. Rotate the objective $\mathbf c$ and watch the optimal corner jump:</p>
+<div class="widget wide" id="w-lp"><canvas style="aspect-ratio:2.1"></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">Book Example 7.5 (with $\mathbf c=(-5,-3)$, i.e. maximise $5x_1+3x_2$). Small note: the book's printed vector has $5$ for the third constraint but its figure legend says $x_2\le2x_1-5$; I follow the figure, and the optimum is the same either way. The dual of an LP is another LP, $\max_{\boldsymbol\lambda\ge0}-\mathbf b^\top\boldsymbol\lambda$ subject to $\mathbf c+A^\top\boldsymbol\lambda=\mathbf 0$. Use whichever has fewer variables.</p>
+<h3>Quadratic programming (QP)</h3>
+<p>Quadratic bowl objective, linear constraints (with $Q$ positive definite):</p>
+<div class="formula">$$\min_{\mathbf x}\ \tfrac12\mathbf x^\top Q\mathbf x+\mathbf c^\top\mathbf x\quad\text{subject to}\quad A\mathbf x\le\mathbf b$$</div>
+<p>Book Example 7.6 puts a box ($|x_i|\le1$) around an ellipse-shaped objective. Grow and shrink the box:</p>
+<div class="widget" id="w-qp"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<div class="ml"><b>ML link.</b> Support vector machines (Ch. 12) are trained by solving a quadratic program. Linear regression with a constraint on the weights is one too.</div>
+<h3>Legendre–Fenchel transform (a glimpse)</h3>
+<p>Because a convex function is fully described by its <b>tangent lines</b>, it can be re-expressed in terms of slopes instead of positions. That re-expression is the <b>convex conjugate</b> $f^*(\mathbf s)=\sup_{\mathbf x}\big(\langle\mathbf s,\mathbf x\rangle-f(\mathbf x)\big)$, the second kind of duality in the book. It's used in advanced derivations (e.g. SVM duality); you can skip it on a first read.</p>
+<div class="short"><b>In short.</b> Convex = chord above curve = every local min is global. LP: corners. QP: bowl + linear constraints. Test convexity with tangents or a PSD Hessian.</div>
+<details><summary>Check yourself</summary>Is $f(x)=x^3$ convex on all of $\mathbb{R}$? <br><b>Answer:</b> No. $f''(x)=6x<0$ for $x<0$ (concave there). It is convex only for $x\ge0$.</details>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>Gradient descent</td><td>$\mathbf x\leftarrow\mathbf x-\gamma\nabla f(\mathbf x)^\top$. Finds a local minimum. Small γ slow, large γ unstable.</td></tr>
+    <tr><td>Condition number</td><td>$\kappa=\sigma_{\max}/\sigma_{\min}$; big κ ⇒ thin valley ⇒ zig-zag.</td></tr>
+    <tr><td>Momentum</td><td>Add $\alpha\Delta\mathbf x_i$: a heavy ball that smooths oscillation.</td></tr>
+    <tr><td>SGD</td><td>Gradient of a random mini-batch: noisy but unbiased and cheap.</td></tr>
+    <tr><td>Lagrangian</td><td>$\mathfrak L=f+\boldsymbol\lambda^\top\mathbf g$, $\boldsymbol\lambda\ge0$. At the optimum $\nabla f=-\lambda\nabla g$.</td></tr>
+    <tr><td>Duality</td><td>Dual = $\max_\lambda\min_x\mathfrak L$ ≤ primal (weak duality); equal for convex problems.</td></tr>
+    <tr><td>Convex function</td><td>$f(\theta x+(1-\theta)y)\le\theta f(x)+(1-\theta)f(y)$; Hessian ⪰ 0; local min = global min.</td></tr>
+    <tr><td>LP</td><td>$\min\mathbf c^\top\mathbf x$ s.t. $A\mathbf x\le\mathbf b$; optimum at a vertex.</td></tr>
+    <tr><td>QP</td><td>$\min\tfrac12\mathbf x^\top Q\mathbf x+\mathbf c^\top\mathbf x$ s.t. $A\mathbf x\le\mathbf b$, $Q\succ0$.</td></tr>
+  </table>
+</div></section>
+
+<section id="end"><h2>End of Part I 🎉</h2>
+<p>You've now met the full mathematical toolkit: <b>vectors and matrices</b> (Ch. 2), <b>geometry</b> (Ch. 3), <b>decompositions</b> (Ch. 4), <b>derivatives</b> (Ch. 5), <b>probability</b> (Ch. 6) and <b>optimisation</b> (Ch. 7). Part II of the book puts them to work: linear regression, PCA, Gaussian mixtures and SVMs. A natural way to review: reread each chapter's cheat sheet, and try to explain to yourself how, say, PCA would use projections (Ch. 3), the covariance matrix (Ch. 6) and eigenvectors (Ch. 4).</p></section>
+
+<div class="pager"><a href="chapter6.html">← Chapter 6: Probability</a><a href="index.html">Home</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 7, rewritten with extra intuition and examples. The 1D two-valley function is my own illustration. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>

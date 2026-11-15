@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ch 4 · Matrix Decompositions — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/ch4.js"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Chapter 4</h2>
+  <a href="#intro">Why this chapter</a>
+  <a href="#s41">4.1 Determinant and trace</a>
+  <a href="#s42">4.2 Eigenvalues, eigenvectors</a>
+  <a href="#s43">4.3 Cholesky</a>
+  <a href="#s44">4.4 Eigendecomposition</a>
+  <a href="#s45">4.5 SVD</a>
+  <a href="#s46">4.6 Matrix approximation</a>
+  <a href="#s47">4.7 Matrix phylogeny</a>
+  <a href="#recap">Cheat sheet</a>
+</nav>
+<main>
+<h1>Chapter 4 · Matrix Decompositions</h1>
+<p class="sub">Factor a matrix into simple pieces, the way 21 = 3 × 7, and its secrets fall out.</p>
+
+<section id="intro" style="margin-top:20px"><h2>Why this chapter?</h2>
+<p>A matrix can be a big, opaque pile of numbers. This chapter gives you three tools to see inside: <b>(1) a few summary numbers</b> (determinant, trace, eigenvalues), <b>(2) factorisations</b> that split it into easy parts (Cholesky, eigendecomposition, SVD), and <b>(3) approximations</b> that keep only the important parts (low-rank).</p>
+<table class="t">
+  <tr><th>Tool</th><th>What it tells you</th><th>Where it shows up in ML</th></tr>
+  <tr><td>Determinant</td><td>How much a map scales area/volume; invertible or not</td><td>Gaussian densities (Ch. 6), change of variables</td></tr>
+  <tr><td>Eigenvalues / vectors</td><td>Directions a matrix only stretches</td><td>PCA, Google's PageRank, stability</td></tr>
+  <tr><td>Cholesky</td><td>A "square root" of a positive definite matrix</td><td>Sampling Gaussians, solving systems fast</td></tr>
+  <tr><td>SVD</td><td>Rotate, stretch, rotate for <i>any</i> matrix</td><td>Compression, recommenders, PCA (Ch. 10)</td></tr>
+</table>
+</section>
+
+<!-- ============ 4.1 ============ -->
+<section id="s41"><h2><span class="n">4.1</span>Determinant and Trace</h2>
+<h3>Determinant: the area-scaling number</h3>
+<p>For a square matrix $A$, the <b>determinant</b> $\det(A)$ is one number. For $2\times2$ it's the formula you may remember:</p>
+<div class="formula">$$\det\begin{bmatrix}a_{11}&a_{12}\\a_{21}&a_{22}\end{bmatrix}=a_{11}a_{22}-a_{12}a_{21}$$</div>
+<p>The geometric meaning is much better than the formula: the columns of $A$ span a parallelogram (a box in 3D), and $|\det A|$ is its <b>area (volume)</b>. The <b>sign</b> says whether orientation was kept or flipped.</p>
+<div class="widget" id="w-det"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<div class="card"><h3><span class="tag thm">Thm</span>Invertible ⇔ det ≠ 0</h3>
+  <p>A square matrix is invertible exactly when $\det(A)\ne0$ (equivalently, full rank). Zero area means the columns collapse into a line: information is lost and can't be undone.</p></div>
+<p>Handy properties:</p>
+<ul>
+  <li>$\det(AB)=\det(A)\det(B)$, $\ \det(A^\top)=\det(A)$, $\ \det(A^{-1})=1/\det(A)$</li>
+  <li>Swapping two rows flips the sign. Adding a multiple of one row to another changes nothing. Scaling a row by $\lambda$ scales $\det$ by $\lambda$, so $\det(\lambda A)=\lambda^n\det(A)$.</li>
+  <li>For a <b>triangular</b> matrix, the determinant is just the product of the diagonal. So you can compute any determinant by Gaussian elimination (Ch. 2) down to triangular form.</li>
+  <li>Similar matrices have equal determinants: it doesn't depend on the basis you use.</li>
+</ul>
+<p>For bigger matrices there is the <b>Laplace expansion</b> (expand along a row or column into smaller determinants) and, for $3\times3$, <b>Sarrus' rule</b>. The book's example: $\begin{bmatrix}1&2&3\\3&1&2\\0&0&1\end{bmatrix}$ has determinant $-5$. In practice computers don't use these, they use elimination.</p>
+
+<h3>Trace: sum of the diagonal</h3>
+<div class="formula">$$\operatorname{tr}(A)=\sum_{i=1}^n a_{ii},\qquad \operatorname{tr}(AB)=\operatorname{tr}(BA)$$</div>
+<p>The trace is linear and invariant under cyclic shifts: $\operatorname{tr}(AKL)=\operatorname{tr}(KLA)$. Like the determinant it doesn't change under a change of basis, because $\operatorname{tr}(S^{-1}AS)=\operatorname{tr}(A)$.</p>
+
+<h3>Characteristic polynomial</h3>
+<p>Bring them together in one polynomial, which we'll use in 4.2:</p>
+<div class="formula">$$p_A(\lambda)=\det(A-\lambda I)=c_0+c_1\lambda+\dots+(-1)^n\lambda^n,\qquad c_0=\det(A),\ \ c_{n-1}=(-1)^{n-1}\operatorname{tr}(A)$$</div>
+<div class="short"><b>In short.</b> $|\det A|$ = volume scaling, sign = orientation, zero = not invertible. Trace = sum of the diagonal. Both survive a change of basis.</div>
+<details><summary>Check yourself</summary>$\det\begin{bmatrix}2&1\\4&3\end{bmatrix}$? And what is $\det(3I_2)$? <br><b>Answer:</b> $2\cdot3-1\cdot4=2$. And $\det(3I_2)=3^2\det(I)=9$ (area scales by 3 in each direction).</details>
+</section>
+
+<!-- ============ 4.2 ============ -->
+<section id="s42"><h2><span class="n">4.2</span>Eigenvalues and Eigenvectors</h2>
+<p>Most vectors get both stretched <i>and turned</i> by a matrix. But some special directions only get stretched (or flipped). Those are <b>eigenvectors</b>, and the stretch factor is the <b>eigenvalue</b> ("eigen" is German for "own/characteristic").</p>
+<div class="formula">$$A\mathbf{x}=\lambda\mathbf{x},\qquad \mathbf{x}\ne\mathbf{0}$$</div>
+<p>Below, the grey circle is all unit vectors, the orange ellipse is where $A$ sends them. Turn the blue test vector with $\theta$ until the green $A\mathbf{x}$ lines up with it. The red lines show the eigenspaces:</p>
+<div class="widget" id="w-eig"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+
+<h3>How to find them</h3>
+<p>$A\mathbf{x}=\lambda\mathbf{x}\iff(A-\lambda I)\mathbf{x}=\mathbf{0}$. A nonzero $\mathbf{x}$ in that kernel exists exactly when $A-\lambda I$ is singular, i.e. $\det(A-\lambda I)=0$. So <b>eigenvalues are the roots of the characteristic polynomial</b>. Then solve $(A-\lambda I)\mathbf{x}=\mathbf0$ for each.</p>
+<div class="card"><h3><span class="tag def">Example</span>Book Example 4.5: $A=\begin{bmatrix}4&2\\1&3\end{bmatrix}$</h3>
+  <p>$p_A(\lambda)=(4-\lambda)(3-\lambda)-2=\lambda^2-7\lambda+10=(2-\lambda)(5-\lambda)$, so $\lambda_1=5,\ \lambda_2=2$.</p>
+  <p>For $\lambda=5$: $\begin{bmatrix}-1&2\\1&-2\end{bmatrix}\mathbf x=\mathbf0\Rightarrow E_5=\operatorname{span}\big[\begin{smallmatrix}2\\1\end{smallmatrix}\big]$. For $\lambda=2$: $E_2=\operatorname{span}\big[\begin{smallmatrix}1\\-1\end{smallmatrix}\big]$. (Select "Book Ex. 4.5" above and compare.)</p></div>
+<h3>Facts worth knowing</h3>
+<ul>
+  <li><b>Any multiple</b> of an eigenvector is also an eigenvector, so we only care about the direction. All eigenvectors of one $\lambda$ form the <b>eigenspace</b> $E_\lambda=\ker(A-\lambda I)$. The set of eigenvalues is the <b>spectrum</b>.</li>
+  <li><b>Trace and determinant</b> come for free: $\operatorname{tr}(A)=\sum\lambda_i$ and $\det(A)=\prod\lambda_i$ (check in the readout: $5+2=7$, $5\cdot2=10$).</li>
+  <li><b>Multiplicity:</b> if a root repeats, the <i>algebraic</i> multiplicity counts how often, the <i>geometric</i> multiplicity is the dimension of $E_\lambda$ (never larger). $\begin{bmatrix}2&1\\0&2\end{bmatrix}$ has $\lambda=2$ twice but only one eigenvector direction: it is <b>defective</b> (try the "Shear" preset: just one red line).</li>
+  <li><b>Rotations</b> have complex eigenvalues: no real direction is preserved (preset "Rotation 45°").</li>
+  <li>$A$ and $A^\top$ have the same eigenvalues. Similar matrices share eigenvalues.</li>
+  <li><b>Symmetric positive definite</b> matrices always have real, positive eigenvalues.</li>
+</ul>
+<div class="card"><h3><span class="tag thm">Thm</span>Spectral theorem</h3>
+  <p>A <b>symmetric</b> matrix has real eigenvalues and an <b>orthonormal basis of eigenvectors</b>. (In the widget, a symmetric matrix always shows two perpendicular red lines.)</p></div>
+<div class="ml"><b>ML link.</b> Google's PageRank (the book's Example 4.9) is an eigenvector problem: the importance of web pages is the eigenvector of the link matrix with eigenvalue 1. And the covariance matrix of data is symmetric, so its eigenvectors are the principal components in PCA (Ch. 10).</div>
+<div class="short"><b>In short.</b> Eigenvector = direction that is only stretched. Eigenvalue = the stretch. Roots of $\det(A-\lambda I)$. Sum = trace, product = determinant.</div>
+<details><summary>Check yourself</summary>A $2\times2$ matrix has trace 5 and determinant 6. What are its eigenvalues? <br><b>Answer:</b> they sum to 5 and multiply to 6: $2$ and $3$ (also: $\lambda^2-5\lambda+6=0$).</details>
+</section>
+
+<!-- ============ 4.3 ============ -->
+<section id="s43"><h2><span class="n">4.3</span>Cholesky Decomposition</h2>
+<p>Positive numbers have a square root: $9=3\cdot3$. Symmetric positive definite matrices have an analogue. The <b>Cholesky decomposition</b> writes</p>
+<div class="formula">$$A=LL^\top,\qquad L\text{ lower-triangular with positive diagonal}$$</div>
+<p>and $L$ is unique. Multiplying $LL^\top$ out and matching entries gives a simple recipe, one entry at a time:</p>
+<div class="formula">$$l_{11}=\sqrt{a_{11}},\quad l_{21}=\frac{a_{21}}{l_{11}},\quad l_{22}=\sqrt{a_{22}-l_{21}^2},\ \ \dots$$</div>
+<div class="card"><h3><span class="tag def">Example</span>$A=\begin{bmatrix}9&6\\6&5\end{bmatrix}$ (the positive definite matrix from Ch. 3)</h3>
+  <p>$l_{11}=\sqrt9=3$, $l_{21}=6/3=2$, $l_{22}=\sqrt{5-2^2}=1$. So $L=\begin{bmatrix}3&0\\2&1\end{bmatrix}$. Check: $LL^\top=\begin{bmatrix}9&6\\6&5\end{bmatrix}$ ✓.</p></div>
+<p>Why bother? Triangular matrices are cheap: solving $A\mathbf{x}=\mathbf{b}$ becomes two easy triangular solves, and $\det(A)=\det(L)^2=\left(\prod l_{ii}\right)^2$.</p>
+<div class="ml"><b>ML link.</b> To <i>sample</i> from a Gaussian with covariance $\Sigma$, draw $\mathbf z\sim\mathcal N(0,I)$ and compute $L\mathbf z$ with $\Sigma=LL^\top$. You'll watch this happen in Chapter 6.</div>
+<div class="short"><b>In short.</b> Cholesky = square root of a symmetric positive definite matrix: $A=LL^\top$, $L$ triangular.</div>
+<details><summary>Check yourself</summary>Cholesky factor of $\begin{bmatrix}4&2\\2&5\end{bmatrix}$? <br><b>Answer:</b> $l_{11}=2$, $l_{21}=1$, $l_{22}=\sqrt{5-1}=2$, so $L=\begin{bmatrix}2&0\\1&2\end{bmatrix}$.</details>
+</section>
+
+<!-- ============ 4.4 ============ -->
+<section id="s44"><h2><span class="n">4.4</span>Eigendecomposition and Diagonalization</h2>
+<p>A <b>diagonal</b> matrix is the easiest matrix there is: it just stretches each axis. Can we turn any matrix into a diagonal one by choosing a better basis? Yes, if it has enough eigenvectors. Put the eigenvectors in the columns of $P$ and the eigenvalues on the diagonal of $D$:</p>
+<div class="formula">$$A=PDP^{-1},\qquad D=\operatorname{diag}(\lambda_1,\dots,\lambda_n),\quad P=[\mathbf p_1,\dots,\mathbf p_n]$$</div>
+<p>Read it right to left (just like the basis change in Ch. 2): $P^{-1}$ converts coordinates into the eigenbasis, $D$ stretches along each eigen-axis, $P$ converts back. This works exactly when $A$ has $n$ linearly independent eigenvectors (non-defective).</p>
+<p>The payoff is huge. Powers become trivial and the determinant is a product:</p>
+<div class="formula">$$A^k=PD^kP^{-1},\qquad \det(A)=\prod_i\lambda_i$$</div>
+<p>For <b>symmetric</b> $S$, the spectral theorem gives an <i>orthonormal</i> $P$, so $P^{-1}=P^\top$: $S=PDP^\top$. That is "rotate, stretch, rotate back". You'll see precisely this in the next section's widget with the "Symmetric" preset.</p>
+<div class="short"><b>In short.</b> Eigendecomposition $A=PDP^{-1}$: change to the eigenbasis, stretch, change back. Needs $n$ independent eigenvectors, so square matrices only.</div>
+<details><summary>Check yourself</summary>$A=PDP^{-1}$ with $D=\operatorname{diag}(2,3)$. What are the eigenvalues of $A^{10}$? <br><b>Answer:</b> $2^{10}=1024$ and $3^{10}=59049$ (same $P$).</details>
+</section>
+
+<!-- ============ 4.5 ============ -->
+<section id="s45"><h2><span class="n">4.5</span>Singular Value Decomposition (SVD)</h2>
+<p>Eigendecomposition needs a square matrix with enough eigenvectors. The <b>SVD</b> works for <b>every</b> matrix, any shape, always. The book calls it the "fundamental theorem of linear algebra". Every matrix $A\in\mathbb{R}^{m\times n}$ factors as</p>
+<div class="formula">$$A=U\,\Sigma\,V^\top$$</div>
+<ul>
+  <li>$V\in\mathbb{R}^{n\times n}$ and $U\in\mathbb{R}^{m\times m}$ are <b>orthogonal</b> matrices (rotations/reflections). Columns: <b>right-singular vectors</b> $\mathbf v_j$ and <b>left-singular vectors</b> $\mathbf u_i$.</li>
+  <li>$\Sigma\in\mathbb{R}^{m\times n}$ is zero except for the diagonal, which holds the <b>singular values</b> $\sigma_1\ge\sigma_2\ge\dots\ge0$. The number of nonzero ones is the rank.</li>
+</ul>
+<p><b>Geometric picture:</b> any linear map is "rotate ($V^\top$), stretch the axes ($\Sigma$), rotate ($U$)". A circle always becomes an ellipse. Step through it:</p>
+<div class="widget" id="w-svd"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
+<p class="why">The longest axis of the ellipse is $\sigma_1$. That is the biggest stretch $A$ can apply (the <b>spectral norm</b>, $\|A\|_2=\sigma_1$). Try "Rank 1": $\sigma_2=0$ and the ellipse is squashed into a line.</p>
+
+<h3>Where do $U,\Sigma,V$ come from?</h3>
+<p>Build the symmetric positive semidefinite matrix $A^\top A$. Its orthonormal eigenvectors are the $\mathbf v_j$, and its eigenvalues are $\sigma_j^2$. Then $\mathbf u_j=A\mathbf v_j/\sigma_j$:</p>
+<div class="formula">$$A^\top A=V\Sigma^\top\Sigma V^\top,\qquad \sigma_j=\sqrt{\lambda_j(A^\top A)},\qquad \mathbf{u}_j=\frac{1}{\sigma_j}A\mathbf{v}_j$$</div>
+<table class="t">
+  <tr><th></th><th>Eigendecomposition</th><th>SVD</th></tr>
+  <tr><td>Exists for</td><td>Some square matrices</td><td><b>Every</b> matrix</td></tr>
+  <tr><td>Bases</td><td>$P$ need not be orthogonal</td><td>$U$, $V$ always orthogonal</td></tr>
+  <tr><td>Domain ≠ codomain?</td><td>Same space in and out</td><td>Different bases for input ($V$) and output ($U$)</td></tr>
+  <tr><td>Symmetric positive definite</td><td colspan="2">They coincide: $U=V=P$, $\Sigma=D$</td></tr>
+</table>
+<div class="short"><b>In short.</b> $A=U\Sigma V^\top$ exists for any matrix. $V^\top$ and $U$ rotate, $\Sigma$ stretches. Singular values $=\sqrt{\text{eigenvalues of }A^\top A}$; the number of nonzero ones is the rank.</div>
+<details><summary>Check yourself</summary>A $3\times3$ matrix has singular values $5,\,2,\,0$. What is its rank, and is it invertible? <br><b>Answer:</b> rank 2 (two nonzero singular values), so it is not invertible.</details>
+</section>
+
+<!-- ============ 4.6 ============ -->
+<section id="s46"><h2><span class="n">4.6</span>Matrix Approximation</h2>
+<p>The SVD can also be written as a <b>sum of simple pieces</b>. Each piece is a rank-1 matrix $A_i=\mathbf u_i\mathbf v_i^\top$ (an outer product), weighted by its singular value:</p>
+<div class="formula">$$A=\sum_{i=1}^r\sigma_i\,\mathbf u_i\mathbf v_i^\top,\qquad \hat A(k)=\sum_{i=1}^k\sigma_i\,\mathbf u_i\mathbf v_i^\top\ \ \text{(keep the }k\text{ biggest)}$$</div>
+<p>Because singular values are sorted, the first few terms carry most of the structure. Keep only $k$ of them and you get a <b>rank-$k$ approximation</b>: a compressed version that needs only $k(m+n+1)$ numbers instead of $mn$. The <b>Eckart–Young theorem</b> says this is the <i>best possible</i> rank-$k$ approximation (in spectral norm), with error exactly the next singular value:</p>
+<div class="formula">$$\|A-\hat A(k)\|_2=\sigma_{k+1}$$</div>
+<div class="card" id="w-lowrank"><b style="font-family:system-ui">Try it.</b> Drag $k$ and watch the picture appear (the shapes arrive in order of importance), or switch to the book's movie-ratings matrix:
+  <div class="presets"></div>
+  <div class="lr"><div><canvas class="orig"></canvas><div class="cap">Original A</div></div><div><canvas class="appr"></canvas><div class="cap capk"></div></div><div><canvas class="sv"></canvas><div class="cap">Singular values (orange = kept)</div></div></div>
+  <div class="ctrl"><label>k<input type="range" class="k" min="1" max="28" step="1" value="3"><span class="kv"></span></label></div>
+  <div class="readout"></div></div>
+<p class="why">Movie example (book Ex. 4.14–4.15): rows are movies (Star Wars, Blade Runner, Amelie, Delicatessen), columns are viewers (Ali, Beatrix, Chandra). With $k=1$ you capture the "sci-fi lovers" pattern, with $k=2$ the "French art-house" pattern too, and the result is almost the original. The data really only has two themes.</p>
+<div class="ml"><b>ML link.</b> This is lossy compression, noise filtering, and the core of recommender systems and PCA (Ch. 10): keep the directions that matter, drop the rest.</div>
+<div class="short"><b>In short.</b> $A=\sum\sigma_i u_iv_i^\top$. Truncate to $k$ terms for the best rank-$k$ approximation, with error $\sigma_{k+1}$.</div>
+<details><summary>Check yourself</summary>How many numbers does a rank-5 approximation of a $100\times100$ matrix need? <br><b>Answer:</b> $5\cdot(100+100+1)=1005$, about 10% of the 10,000 numbers of the original.</details>
+</section>
+
+<!-- ============ 4.7 ============ -->
+<section id="s47"><h2><span class="n">4.7</span>Matrix Phylogeny</h2>
+<p>A family tree of matrices from the book (arrows mean "is a special case of"). The more special the matrix, the more tools you get:</p>
+<ul class="tree">
+  <li><b>Any real matrix</b> $\mathbb{R}^{m\times n}$ <small>→ the SVD always exists, so does the pseudo-inverse</small>
+    <ul>
+      <li><b>Non-square</b> <small>no determinant, no eigenvalues, but SVD</small></li>
+      <li><b>Square</b> $\mathbb{R}^{n\times n}$ <small>→ determinant and trace exist. Two independent questions:</small>
+        <ul>
+          <li><i>Is it invertible?</i> <b>Singular</b> <small>(det = 0)</small> or <b>Regular</b> <small>(det ≠ 0, inverse exists)</small></li>
+          <li><i>Does it have a full set of eigenvectors?</i>
+            <ul>
+              <li><b>Defective</b> <small>no basis of eigenvectors, not diagonalisable (e.g. $\begin{bmatrix}2&1\\0&2\end{bmatrix}$)</small></li>
+              <li><b>Non-defective (diagonalisable)</b> <small>$A=PDP^{-1}$</small>
+                <ul>
+                  <li><b>Normal</b> $A^\top A=AA^\top$
+                    <ul>
+                      <li><b>Symmetric</b> $A=A^\top$ <small>real eigenvalues, orthonormal eigenvectors</small>
+                        <ul><li><b>Positive definite</b> <small>eigenvalues &gt; 0 → Cholesky exists</small>
+                          <ul><li><b>Diagonal</b> → <b>Identity</b></li></ul></li></ul></li>
+                      <li><b>Orthogonal</b> $A^\top A=AA^\top=I$ <small>(always invertible) → rotations</small></li>
+                    </ul></li>
+                </ul></li>
+            </ul></li>
+        </ul></li>
+    </ul></li>
+</ul><p class="why">Note from the book: invertible and diagonalisable are different things. A rotation matrix is invertible but has no real eigenvectors, so it can't be diagonalised over the reals.</p>
+<div class="short"><b>In short.</b> Know which family your matrix belongs to. Symmetric positive definite matrices (covariance matrices!) are the friendliest: everything works.</div>
+</section>
+
+<section id="recap"><h2>Cheat sheet</h2>
+<div class="card">
+  <table class="t">
+    <tr><th>Idea</th><th>One-liner</th></tr>
+    <tr><td>Determinant</td><td>Signed volume of the columns' box. $\ne0\iff$ invertible. $\det(AB)=\det A\det B$.</td></tr>
+    <tr><td>Trace</td><td>Sum of the diagonal. $\operatorname{tr}(AB)=\operatorname{tr}(BA)$.</td></tr>
+    <tr><td>Eigenpair</td><td>$A\mathbf x=\lambda\mathbf x$. Roots of $\det(A-\lambda I)$. $\sum\lambda=\operatorname{tr}$, $\prod\lambda=\det$.</td></tr>
+    <tr><td>Spectral theorem</td><td>Symmetric ⇒ real eigenvalues, orthonormal eigenvectors.</td></tr>
+    <tr><td>Cholesky</td><td>$A=LL^\top$ for symmetric positive definite $A$.</td></tr>
+    <tr><td>Eigendecomposition</td><td>$A=PDP^{-1}$ (needs $n$ independent eigenvectors). $A^k=PD^kP^{-1}$.</td></tr>
+    <tr><td>SVD</td><td>$A=U\Sigma V^\top$ for any $A$. $\sigma_j=\sqrt{\lambda_j(A^\top A)}$. Rank = # nonzero $\sigma$.</td></tr>
+    <tr><td>Low-rank approximation</td><td>$\hat A(k)=\sum_{i\le k}\sigma_iu_iv_i^\top$, error $\sigma_{k+1}$ (Eckart–Young).</td></tr>
+  </table>
+</div></section>
+
+<div class="pager"><a href="chapter3.html">← Chapter 3: Analytic Geometry</a><a href="chapter5.html">Chapter 5: Vector Calculus →</a></div>
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong), Chapter 4, rewritten with extra intuition and examples. The book has the full proofs and more depth.</p>
+</main></div>
+</body></html>
