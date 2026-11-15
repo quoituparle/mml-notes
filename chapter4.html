@@ -13,6 +13,7 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 4</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s41">4.1 Determinant and trace</a>
@@ -22,6 +23,7 @@
   <a href="#s45">4.5 SVD</a>
   <a href="#s46">4.6 Matrix approximation</a>
   <a href="#s47">4.7 Matrix phylogeny</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
 </nav>
 <main>
@@ -64,6 +66,20 @@
 <h3>Characteristic polynomial</h3>
 <p>Bring them together in one polynomial, which we'll use in 4.2:</p>
 <div class="formula">$$p_A(\lambda)=\det(A-\lambda I)=c_0+c_1\lambda+\dots+(-1)^n\lambda^n,\qquad c_0=\det(A),\ \ c_{n-1}=(-1)^{n-1}\operatorname{tr}(A)$$</div>
+<div class="deep"><h3>Going deeper: how determinants are actually computed</h3>
+<h4>Laplace expansion</h4>
+<p>Pick any column $j$ (or row) and expand into smaller determinants. $A_{k,j}$ is $A$ with row $k$ and column $j$ deleted:</p>
+<div class="formula">$$\det A=\sum_{k=1}^n(-1)^{k+j}a_{kj}\det(A_{k,j})\quad(\text{expansion along column }j),$$</div>
+<p>and likewise along rows. The signs follow a checkerboard $\begin{smallmatrix}+&-&+\\-&+&-\\+&-&+\end{smallmatrix}$. <b>Tip:</b> expand along the row or column with the most zeros.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.3</span> Laplace expansion</h4>
+  <p>$A=\begin{bmatrix}1&2&3\\3&1&2\\0&0&1\end{bmatrix}$. Along the first row: $1\cdot\det\left[\begin{smallmatrix}1&2\\0&1\end{smallmatrix}\right]-2\cdot\det\left[\begin{smallmatrix}3&2\\0&1\end{smallmatrix}\right]+3\cdot\det\left[\begin{smallmatrix}3&1\\0&0\end{smallmatrix}\right]=1-6+0=-5$. Smarter: along the third row $(0,0,1)$ only one term survives: $1\cdot\det\left[\begin{smallmatrix}1&2\\3&1\end{smallmatrix}\right]=1-6=-5$ ✓.</p></div>
+<p><b>Sarrus' rule</b> for $3\times3$: $\det=a_{11}a_{22}a_{33}+a_{21}a_{32}a_{13}+a_{31}a_{12}a_{23}-a_{31}a_{22}a_{13}-a_{11}a_{32}a_{23}-a_{21}a_{12}a_{33}$ (three "downward diagonals" minus three "upward"). It works <i>only</i> for $3\times3$.</p>
+<h4>The practical way: Gaussian elimination</h4>
+<p>Adding a multiple of one row to another leaves $\det$ unchanged; swapping two rows flips its sign; scaling a row by $\lambda$ scales $\det$ by $\lambda$. For a triangular matrix, $\det$ = product of the diagonal. So eliminate to triangular form and multiply the pivots (flipping the sign for each swap). The cost is about $n^3$, versus $n!$ for naive expansion.</p>
+<div class="wex"><h4>Worked example</h4>
+  <p>$A=\begin{bmatrix}2&1&1\\4&3&3\\8&7&9\end{bmatrix}$. $R_2\leftarrow R_2-2R_1$, $R_3\leftarrow R_3-4R_1$, then $R_3\leftarrow R_3-3R_2$ gives the triangular matrix with diagonal $(2,1,2)$. No swaps, so $\det A=2\cdot1\cdot2=4$.</p></div>
+<h4>The volume interpretation, with numbers</h4>
+<p>Book Ex. 4.2: the three vectors $(2,0,-8)$, $(6,1,0)$, $(1,4,-1)$ as columns have $\det=-186$, so the parallelepiped they span has volume $|\det|=186$ and a flipped orientation. In general $|\det A|$ also equals the factor by which the linear map $\mathbf x\mapsto A\mathbf x$ scales every volume. For $2\times2$ the characteristic polynomial is simply $p_A(\lambda)=\lambda^2-\operatorname{tr}(A)\lambda+\det A$.</p></div>
 <div class="short"><b>In short.</b> $|\det A|$ = volume scaling, sign = orientation, zero = not invertible. Trace = sum of the diagonal. Both survive a change of basis.</div>
 <details><summary>Check yourself</summary>$\det\begin{bmatrix}2&1\\4&3\end{bmatrix}$? And what is $\det(3I_2)$? <br><b>Answer:</b> $2\cdot3-1\cdot4=2$. And $\det(3I_2)=3^2\det(I)=9$ (area scales by 3 in each direction).</details>
 </section>
@@ -92,6 +108,35 @@
 <div class="card"><h3><span class="tag thm">Thm</span>Spectral theorem</h3>
   <p>A <b>symmetric</b> matrix has real eigenvalues and an <b>orthonormal basis of eigenvectors</b>. (In the widget, a symmetric matrix always shows two perpendicular red lines.)</p></div>
 <div class="ml"><b>ML link.</b> Google's PageRank (the book's Example 4.9) is an eigenvector problem: the importance of web pages is the eigenvector of the link matrix with eigenvalue 1. And the covariance matrix of data is symmetric, so its eigenvectors are the principal components in PCA (Ch. 10).</div>
+<div class="deep"><h3>Going deeper: multiplicities, repeated eigenvalues, and a gallery of 2×2 maps</h3>
+<h4>The recipe, as a checklist</h4>
+<ol class="steps">
+  <li>Write $p_A(\lambda)=\det(A-\lambda I)$ and find its roots: the <b>eigenvalues</b> (the <i>spectrum</i>).</li>
+  <li>For each eigenvalue $\lambda$, solve $(A-\lambda I)\mathbf x=\mathbf 0$ (Chapter 2 machinery): the solution space is the <b>eigenspace</b> $E_\lambda$.</li>
+  <li>Compare dimensions: <b>algebraic multiplicity</b> (how often $\lambda$ is a root) versus <b>geometric multiplicity</b> $=\dim E_\lambda$. Always $1\le$ geometric $\le$ algebraic.</li>
+</ol>
+<p>Four facts to remember: <b>(1)</b> eigenvectors belonging to <i>distinct</i> eigenvalues are linearly independent (Thm 4.12), so $n$ distinct eigenvalues give an eigenbasis. <b>(2)</b> A <b>defective</b> matrix has fewer than $n$ independent eigenvectors, which requires some geometric multiplicity $\lt$ algebraic multiplicity. <b>(3)</b> Real matrices can have <b>complex</b> eigenvalues; they come in conjugate pairs. <b>(4)</b> A symmetric matrix always has real eigenvalues and an orthonormal eigenbasis (spectral theorem).</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.6</span> A defective matrix</h4>
+  <p>$A=\begin{bmatrix}2&1\\0&2\end{bmatrix}$: $p_A(\lambda)=(2-\lambda)^2$, so $\lambda=2$ has algebraic multiplicity 2. But $A-2I=\left[\begin{smallmatrix}0&1\\0&0\end{smallmatrix}\right]$ has a one-dimensional kernel $\operatorname{span}[(1,0)]$: geometric multiplicity 1. Only one eigen-direction, so $A$ is defective.</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 4.8</span> Symmetric matrix with a repeated eigenvalue</h4>
+  <p>$A=\begin{bmatrix}3&2&2\\2&3&2\\2&2&3\end{bmatrix}$ has $p_A(\lambda)=-(\lambda-1)^2(\lambda-7)$. Eigenspaces: $E_7=\operatorname{span}[(1,1,1)]$ and $E_1=\operatorname{span}\big[(-1,1,0),(-1,0,1)\big]$ (two-dimensional, so no defect). The spectral theorem promises an <i>orthogonal</i> eigenbasis, but $(-1,1,0)\cdot(-1,0,1)=1\ne0$. Any combination of eigenvectors of the <i>same</i> eigenvalue is again an eigenvector, so apply Gram–Schmidt inside $E_1$: $\mathbf x_1'=(-1,1,0)$, $\mathbf x_2'=\tfrac12(-1,-1,2)$. Now all three are mutually orthogonal (eigenvectors of different eigenvalues of a symmetric matrix are automatically orthogonal). Check: trace $9=1+1+7$ ✓.</p></div>
+<div class="card" style="margin:10px 0"><h3><span class="tag thm">Thm 4.14</span>$A^\top A$ is always symmetric positive semi-definite</h3>
+  <p>For any $A\in\mathbb{R}^{m\times n}$ put $S=A^\top A$. Symmetric: $S^\top=A^\top(A^\top)^\top=S$. Semi-definite: $\mathbf x^\top S\mathbf x=(A\mathbf x)^\top(A\mathbf x)=\|A\mathbf x\|^2\ge0$. If $\operatorname{rk}A=n$ it is positive definite. This is the engine behind the SVD, PCA, and least squares.</p></div>
+<h4>Gallery: five $2\times2$ maps (book Figure 4.4)</h4>
+<table class="t">
+  <tr><th>Matrix</th><th>Eigenvalues</th><th>$\det$</th><th>What it does</th></tr>
+  <tr><td>$\left[\begin{smallmatrix}\frac12&0\\0&2\end{smallmatrix}\right]$</td><td>$\frac12,\,2$</td><td>1</td><td>compress one axis, stretch the other; area preserved</td></tr>
+  <tr><td>$\left[\begin{smallmatrix}1&\frac12\\0&1\end{smallmatrix}\right]$</td><td>$1,1$ (defective)</td><td>1</td><td>shear; only the horizontal direction is an eigendirection</td></tr>
+  <tr><td>rotation by $30^\circ$</td><td>$0.87\pm0.5i$</td><td>1</td><td>no real eigenvector; area preserved</td></tr>
+  <tr><td>$\left[\begin{smallmatrix}1&-1\\-1&1\end{smallmatrix}\right]$</td><td>$0,\,2$</td><td>0</td><td>collapses the plane onto a line (the $\lambda=0$ direction vanishes)</td></tr>
+  <tr><td>$\left[\begin{smallmatrix}1&\frac12\\\frac12&1\end{smallmatrix}\right]$</td><td>$\frac12,\,\frac32$</td><td>$\frac34$</td><td>stretch by 1.5 along one eigenvector, compress by 0.5 along the orthogonal one; area $\times0.75$</td></tr>
+</table>
+<p>Geometric reading of two theorems: if the eigenvectors are orthonormal, the unit square becomes a rectangle with sides $|\lambda_1|,|\lambda_2|$: area $|\lambda_1\lambda_2|=|\det A|$, and perimeter factor $\tfrac12(|\lambda_1|+|\lambda_2|)$. In general $\det A=\prod\lambda_i$ and $\operatorname{tr}A=\sum\lambda_i$ (counting complex and repeated eigenvalues).</p>
+<h4>Two applications from the book</h4>
+<ul>
+  <li><b>PageRank (Ex. 4.9).</b> Model web surfing by a transition matrix $A$ of the link graph. Repeating $\mathbf x,A\mathbf x,A^2\mathbf x,\dots$ converges to a vector $\mathbf x^*$ with $A\mathbf x^*=\mathbf x^*$: an eigenvector with eigenvalue 1. Its entries (normalised) are the importance of each page.</li>
+  <li><b>Eigenspectrum of a network (Ex. 4.7).</b> For the 277-neuron wiring diagram of the worm <i>C. elegans</i>, the symmetrised connectivity matrix $A+A^\top$ has real eigenvalues, and plotting them sorted gives a characteristic S-shaped curve typical of biological neural networks.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Eigenvector = direction that is only stretched. Eigenvalue = the stretch. Roots of $\det(A-\lambda I)$. Sum = trace, product = determinant.</div>
 <details><summary>Check yourself</summary>A $2\times2$ matrix has trace 5 and determinant 6. What are its eigenvalues? <br><b>Answer:</b> they sum to 5 and multiply to 6: $2$ and $3$ (also: $\lambda^2-5\lambda+6=0$).</details>
 </section>
@@ -106,6 +151,14 @@
   <p>$l_{11}=\sqrt9=3$, $l_{21}=6/3=2$, $l_{22}=\sqrt{5-2^2}=1$. So $L=\begin{bmatrix}3&0\\2&1\end{bmatrix}$. Check: $LL^\top=\begin{bmatrix}9&6\\6&5\end{bmatrix}$ ✓.</p></div>
 <p>Why bother? Triangular matrices are cheap: solving $A\mathbf{x}=\mathbf{b}$ becomes two easy triangular solves, and $\det(A)=\det(L)^2=\left(\prod l_{ii}\right)^2$.</p>
 <div class="ml"><b>ML link.</b> To <i>sample</i> from a Gaussian with covariance $\Sigma$, draw $\mathbf z\sim\mathcal N(0,I)$ and compute $L\mathbf z$ with $\Sigma=LL^\top$. You'll watch this happen in Chapter 6.</div>
+<div class="deep"><h3>Going deeper: the $3\times3$ pattern and what Cholesky is used for</h3>
+<p>Multiply out $A=LL^\top$ for $3\times3$ and compare entries; the book's pattern is</p>
+<div class="formula">$$l_{11}=\sqrt{a_{11}},\ \ l_{22}=\sqrt{a_{22}-l_{21}^2},\ \ l_{33}=\sqrt{a_{33}-(l_{31}^2+l_{32}^2)};\qquad l_{21}=\tfrac{a_{21}}{l_{11}},\ \ l_{31}=\tfrac{a_{31}}{l_{11}},\ \ l_{32}=\tfrac1{l_{22}}(a_{32}-l_{31}l_{21}).$$</div>
+<p>Work column by column. If you ever need the square root of a non-positive number, the matrix was <b>not</b> positive definite, so Cholesky doubles as a positive-definiteness test.</p>
+<div class="wex"><h4>Worked example</h4>
+  <p>$A=\begin{bmatrix}4&2&-2\\2&10&2\\-2&2&6\end{bmatrix}$. $l_{11}=2$; $l_{21}=2/2=1$, $l_{31}=-2/2=-1$; $l_{22}=\sqrt{10-1}=3$; $l_{32}=\tfrac13(2-(-1)(1))=1$; $l_{33}=\sqrt{6-(1+1)}=2$. So</p>
+  <div class="formula">$$L=\begin{bmatrix}2&0&0\\1&3&0\\-1&1&2\end{bmatrix},\qquad\det A=(2\cdot3\cdot2)^2=144.$$</div></div>
+<p><b>Uses:</b> (1) $\det A=\big(\prod_il_{ii}\big)^2$ and $\log\det A=2\sum\log l_{ii}$ (this is how Gaussian log-densities are computed in practice). (2) Solving $A\mathbf x=\mathbf b$ in two cheap triangular steps $L\mathbf y=\mathbf b$, $L^\top\mathbf x=\mathbf y$, about twice as fast as general elimination. (3) Sampling Gaussians: $\mathbf x=\boldsymbol\mu+L\mathbf z$.</p></div>
 <div class="short"><b>In short.</b> Cholesky = square root of a symmetric positive definite matrix: $A=LL^\top$, $L$ triangular.</div>
 <details><summary>Check yourself</summary>Cholesky factor of $\begin{bmatrix}4&2\\2&5\end{bmatrix}$? <br><b>Answer:</b> $l_{11}=2$, $l_{21}=1$, $l_{22}=\sqrt{5-1}=2$, so $L=\begin{bmatrix}2&0\\1&2\end{bmatrix}$.</details>
 </section>
@@ -118,6 +171,18 @@
 <p>The payoff is huge. Powers become trivial and the determinant is a product:</p>
 <div class="formula">$$A^k=PD^kP^{-1},\qquad \det(A)=\prod_i\lambda_i$$</div>
 <p>For <b>symmetric</b> $S$, the spectral theorem gives an <i>orthonormal</i> $P$, so $P^{-1}=P^\top$: $S=PDP^\top$. That is "rotate, stretch, rotate back". You'll see precisely this in the next section's widget with the "Symmetric" preset.</p>
+<div class="deep"><h3>Going deeper: why it works, and what you get from it</h3>
+<p><b>The one-line proof.</b> For $P=[\mathbf p_1,\dots,\mathbf p_n]$ and $D=\operatorname{diag}(\lambda_i)$: $AP=[A\mathbf p_1,\dots,A\mathbf p_n]$ and $PD=[\lambda_1\mathbf p_1,\dots,\lambda_n\mathbf p_n]$. So $AP=PD\iff A\mathbf p_i=\lambda_i\mathbf p_i$ for every $i$. We also need $P$ invertible, i.e. $n$ independent eigenvectors. Hence: <b>$A=PDP^{-1}$ exists iff the eigenvectors of $A$ form a basis of $\mathbb{R}^n$</b> (non-defective). Matrices that fail (defective) need the Jordan normal form, outside this book. Symmetric matrices always work, with orthogonal $P$: $D=P^\top AP$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.11</span> Full eigendecomposition</h4>
+  <p>$A=\tfrac12\begin{bmatrix}5&-2\\-2&5\end{bmatrix}$. $p_A(\lambda)=\lambda^2-5\lambda+\tfrac{21}4=(\lambda-\tfrac72)(\lambda-\tfrac32)$. Eigenvectors: $\mathbf p_1=\tfrac1{\sqrt2}(1,-1)$ for $\lambda_1=\tfrac72$, $\mathbf p_2=\tfrac1{\sqrt2}(1,1)$ for $\lambda_2=\tfrac32$. These form an ONB, so</p>
+  <div class="formula">$$\tfrac12\begin{bmatrix}5&-2\\-2&5\end{bmatrix}=\underbrace{\tfrac1{\sqrt2}\begin{bmatrix}1&1\\-1&1\end{bmatrix}}_{P}\underbrace{\begin{bmatrix}\frac72&0\\0&\frac32\end{bmatrix}}_{D}\underbrace{\tfrac1{\sqrt2}\begin{bmatrix}1&-1\\1&1\end{bmatrix}}_{P^{-1}=P^\top}.$$</div></div>
+<h4>Payoffs</h4>
+<ul>
+  <li><b>Powers:</b> $A^k=PD^kP^{-1}$, and $D^k$ just raises each diagonal entry to the $k$th power. Example: $A=\left[\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\right]$ has eigenvalues $3,1$ (basis $(1,1),(1,-1)$), so $A^5=P\operatorname{diag}(243,1)P^{-1}=\left[\begin{smallmatrix}122&121\\121&122\end{smallmatrix}\right]$. Long-run behaviour is controlled by the biggest $|\lambda_i|$.</li>
+  <li><b>Determinant:</b> $\det A=\det P\det D\det P^{-1}=\prod\lambda_i$.</li>
+  <li><b>Inverse:</b> $A^{-1}=PD^{-1}P^{-1}$ (needs all $\lambda_i\ne0$).</li>
+</ul>
+<p><b>Diagonalisable and invertible are unrelated</b> (book exercise 4.5). $I$: both. $\operatorname{diag}(1,0)$: diagonalisable, not invertible. $\left[\begin{smallmatrix}1&1\\0&1\end{smallmatrix}\right]$: invertible, not diagonalisable. $\left[\begin{smallmatrix}0&1\\0&0\end{smallmatrix}\right]$: neither.</p></div>
 <div class="short"><b>In short.</b> Eigendecomposition $A=PDP^{-1}$: change to the eigenbasis, stretch, change back. Needs $n$ independent eigenvectors, so square matrices only.</div>
 <details><summary>Check yourself</summary>$A=PDP^{-1}$ with $D=\operatorname{diag}(2,3)$. What are the eigenvalues of $A^{10}$? <br><b>Answer:</b> $2^{10}=1024$ and $3^{10}=59049$ (same $P$).</details>
 </section>
@@ -144,6 +209,31 @@
   <tr><td>Domain ≠ codomain?</td><td>Same space in and out</td><td>Different bases for input ($V$) and output ($U$)</td></tr>
   <tr><td>Symmetric positive definite</td><td colspan="2">They coincide: $U=V=P$, $\Sigma=D$</td></tr>
 </table>
+<div class="deep"><h3>Going deeper: how the SVD is constructed, and a full worked example</h3>
+<h4>Why it exists (the construction)</h4>
+<ol class="steps">
+  <li>$A^\top A\in\mathbb{R}^{n\times n}$ is symmetric positive semi-definite (Thm 4.14), so by the spectral theorem $A^\top A=P\,\mathrm{diag}(\lambda_1,\dots,\lambda_n)P^\top$ with $\lambda_i\ge0$ and orthonormal columns $\mathbf p_i$. Put $V=P$ and $\sigma_i=\sqrt{\lambda_i}$. If an SVD $A=U\Sigma V^\top$ exists then $A^\top A=V\Sigma^\top\Sigma V^\top$, which says exactly this.</li>
+  <li>The images $A\mathbf v_i$ are <b>orthogonal</b>: $(A\mathbf v_i)^\top(A\mathbf v_j)=\mathbf v_i^\top A^\top A\mathbf v_j=\lambda_j\mathbf v_i^\top\mathbf v_j=0$ for $i\ne j$. And $\|A\mathbf v_i\|=\sigma_i$.</li>
+  <li>So normalise: $\mathbf u_i=\dfrac{1}{\sigma_i}A\mathbf v_i$ for $\sigma_i\gt0$. These are orthonormal. (Extend with any orthonormal vectors to fill up $U$.)</li>
+  <li>The <b>singular value equation</b> $A\mathbf v_i=\sigma_i\mathbf u_i$, collected as $AV=U\Sigma$, gives $A=U\Sigma V^\top$.</li>
+</ol>
+<p>Side bonus: the $\mathbf v_i$ with $\sigma_i=0$ form an orthonormal basis of the kernel of $A$. For symmetric positive semi-definite $S$, the SVD <i>is</i> the eigendecomposition ($U=V=P$, $\Sigma=D$).</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.13</span> Computing an SVD by hand</h4>
+  <p>$A=\begin{bmatrix}1&0&1\\-2&1&0\end{bmatrix}$.</p>
+  <p><b>Step 1.</b> $A^\top A=\left[\begin{smallmatrix}5&-2&1\\-2&1&0\\1&0&1\end{smallmatrix}\right]$ has eigenvalues $6,1,0$ with orthonormal eigenvectors $\mathbf v_1=\tfrac1{\sqrt{30}}(5,-2,1)$, $\mathbf v_2=\tfrac1{\sqrt5}(0,1,2)$, $\mathbf v_3=\tfrac1{\sqrt6}(-1,-2,1)$ (these are the columns of $V$).</p>
+  <p><b>Step 2.</b> Singular values $\sigma_1=\sqrt6$, $\sigma_2=1$; the rank is 2. $\Sigma=\left[\begin{smallmatrix}\sqrt6&0&0\\0&1&0\end{smallmatrix}\right]$ (same shape as $A$).</p>
+  <p><b>Step 3.</b> $\mathbf u_1=\tfrac1{\sqrt6}A\mathbf v_1=\tfrac1{\sqrt5}(1,-2)$ and $\mathbf u_2=A\mathbf v_2=\tfrac1{\sqrt5}(2,1)$, so $U=\tfrac1{\sqrt5}\left[\begin{smallmatrix}1&2\\-2&1\end{smallmatrix}\right]$. Then $A=U\Sigma V^\top$.</p>
+  <p class="why">Computers do <i>not</i> compute the SVD through $A^\top A$ (poor numerical behaviour). This is the by-hand route to understand it.</p></div>
+<h4>Eigendecomposition versus SVD</h4>
+<ul>
+  <li><b>Exists for:</b> eigendecomposition $A=PDP^{-1}$, only some square matrices; SVD $A=U\Sigma V^\top$, <b>every</b> matrix.</li>
+  <li><b>Bases:</b> $P$ need not be orthogonal (so it is not a pure rotation); $U,V$ are always orthogonal (rotations/reflections).</li>
+  <li><b>Input and output:</b> eigendecomposition uses the same basis on both sides; SVD uses different bases ($V$ for the input, $U$ for the output).</li>
+  <li><b>Diagonal entries:</b> eigenvalues (any sign, even complex) versus singular values (always $\ge0$, sorted).</li>
+</ul>
+<p>Both are "change basis, scale each axis, change basis again". The "reduced SVD" (or "thin SVD") keeps only the $r$ non-zero singular values: $U\in\mathbb{R}^{m\times r}$, $\Sigma\in\mathbb{R}^{r\times r}$, $V\in\mathbb{R}^{n\times r}$, so $\Sigma$ is square diagonal.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.14</span> Structure in movie ratings</h4>
+  <p>Rows: Star Wars, Blade Runner, Amelie, Delicatessen. Columns: Ali, Beatrix, Chandra. Ratings (0–5): $A=\left[\begin{smallmatrix}5&4&1\\5&5&0\\0&0&5\\1&0&4\end{smallmatrix}\right]$. Singular values $\approx9.64,\ 6.36,\ 0.71$. The first left-singular vector $\mathbf u_1\approx(-0.67,-0.72,-0.09,-0.15)$ is large on the two sci-fi movies, and $\mathbf v_1\approx(-0.74,-0.65,-0.18)$ is large on Ali and Beatrix: "sci-fi movies" paired with "sci-fi lovers". The second pair, $\mathbf u_2\approx(0.02,0.21,-0.77,-0.60)$ and $\mathbf v_2\approx(0.09,0.18,-0.98)$, picks out the art-house films and Chandra. (Signs of a singular-vector pair can flip together; only magnitudes matter here.) You can reproduce this in the picture-compression widget in 4.6.</p></div></div>
 <div class="short"><b>In short.</b> $A=U\Sigma V^\top$ exists for any matrix. $V^\top$ and $U$ rotate, $\Sigma$ stretches. Singular values $=\sqrt{\text{eigenvalues of }A^\top A}$; the number of nonzero ones is the rank.</div>
 <details><summary>Check yourself</summary>A $3\times3$ matrix has singular values $5,\,2,\,0$. What is its rank, and is it invertible? <br><b>Answer:</b> rank 2 (two nonzero singular values), so it is not invertible.</details>
 </section>
@@ -161,6 +251,16 @@
   <div class="readout"></div></div>
 <p class="why">Movie example (book Ex. 4.14–4.15): rows are movies (Star Wars, Blade Runner, Amelie, Delicatessen), columns are viewers (Ali, Beatrix, Chandra). With $k=1$ you capture the "sci-fi lovers" pattern, with $k=2$ the "French art-house" pattern too, and the result is almost the original. The data really only has two themes.</p>
 <div class="ml"><b>ML link.</b> This is lossy compression, noise filtering, and the core of recommender systems and PCA (Ch. 10): keep the directions that matter, drop the rest.</div>
+<div class="deep"><h3>Going deeper: matrix norms and the Eckart–Young theorem</h3>
+<p>To say how good an approximation is, we need a <b>norm for matrices</b>. The <b>spectral norm</b> is the largest factor by which $A$ can stretch a vector:</p>
+<div class="formula">$$\|A\|_2=\max_{\mathbf x\ne\mathbf 0}\frac{\|A\mathbf x\|_2}{\|\mathbf x\|_2}=\sigma_1\quad\text{(Theorem 4.24)}.$$</div>
+<p><i>Why:</i> $\|A\mathbf x\|^2=\mathbf x^\top A^\top A\mathbf x$. Writing $\mathbf x=\sum c_i\mathbf v_i$ gives $\sum\lambda_ic_i^2\le\lambda_1\sum c_i^2$, with equality at $\mathbf x=\mathbf v_1$. (This is book exercise 4.12.)</p>
+<div class="card" style="margin:10px 0"><h3><span class="tag thm">Thm 4.25</span>Eckart–Young</h3>
+  <p>Of all matrices $B$ of rank $k$, the truncated SVD $\hat A(k)=\sum_{i\le k}\sigma_i\mathbf u_i\mathbf v_i^\top$ is the closest to $A$ in spectral norm, and the error is exactly $\|A-\hat A(k)\|_2=\sigma_{k+1}$. (It also holds for the Frobenius norm $\sqrt{\sum a_{ij}^2}$, where the error is $\sqrt{\sigma_{k+1}^2+\sigma_{k+2}^2+\cdots}$.)</p></div>
+<p><b>Proof idea:</b> $A-\hat A(k)=\sum_{i\gt k}\sigma_i\mathbf u_i\mathbf v_i^\top$ has spectral norm $\sigma_{k+1}$. If some rank-$k$ matrix $B$ were closer, its kernel would have dimension $\ge n-k$ and so must intersect the $(k+1)$-dimensional span of $\mathbf v_1,\dots,\mathbf v_{k+1}$ (where $A$ stretches by at least $\sigma_{k+1}$) in a nonzero vector: on that vector $B$ does nothing, contradiction.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 4.15</span> Movie ratings, continued</h4>
+  <p>The rank-1 building block $A_1=\mathbf u_1\mathbf v_1^\top$ has Star Wars row $\approx(0.49,0.44,0.12)$; scaled by $\sigma_1\approx9.64$ the best rank-1 approximation $\hat A(1)=\sigma_1A_1$ has Star Wars row $\approx(4.77,4.22,1.17)$: it explains the sci-fi lovers (Ali, Beatrix) and misses Chandra. The rank-2 approximation $\hat A(2)=\sigma_1A_1+\sigma_2A_2\approx\left[\begin{smallmatrix}4.78&4.24&1.02\\5.23&4.75&-0.03\\0.25&-0.27&4.97\\0.75&0.28&4.03\end{smallmatrix}\right]$ is already very close to the original ratings, so the data really only has <b>two themes</b>; the third singular value ($0.71$) is small, which equals the error $\|A-\hat A(2)\|_2$.</p></div>
+<p><b>Take-away:</b> a quick check of how compressible a matrix is = look at how fast its singular values drop. Fast drop means a low-rank approximation loses little.</p></div>
 <div class="short"><b>In short.</b> $A=\sum\sigma_i u_iv_i^\top$. Truncate to $k$ terms for the best rank-$k$ approximation, with error $\sigma_{k+1}$.</div>
 <details><summary>Check yourself</summary>How many numbers does a rank-5 approximation of a $100\times100$ matrix need? <br><b>Answer:</b> $5\cdot(100+100+1)=1005$, about 10% of the 10,000 numbers of the original.</details>
 </section>
@@ -192,7 +292,110 @@
         </ul></li>
     </ul></li>
 </ul><p class="why">Note from the book: invertible and diagonalisable are different things. A rotation matrix is invertible but has no real eigenvectors, so it can't be diagonalised over the reals.</p>
+<div class="deep"><h3>Going deeper: which tool for which matrix?</h3>
+<table class="t">
+  <tr><th>Your matrix</th><th>What you can do</th></tr>
+  <tr><td>Any $m\times n$</td><td>SVD, rank, pseudo-inverse, low-rank approximation</td></tr>
+  <tr><td>Square</td><td>determinant, trace, characteristic polynomial, eigenvalues (possibly complex)</td></tr>
+  <tr><td>Square, invertible ($\det\ne0$)</td><td>inverse, unique solution of $A\mathbf x=\mathbf b$</td></tr>
+  <tr><td>Non-defective</td><td>eigendecomposition $PDP^{-1}$, cheap powers</td></tr>
+  <tr><td>Symmetric</td><td>real eigenvalues, orthonormal eigenvectors: $A=PDP^\top$</td></tr>
+  <tr><td>Symmetric positive definite</td><td>all eigenvalues $\gt0$, Cholesky $LL^\top$, defines an inner product</td></tr>
+  <tr><td>Orthogonal</td><td>$A^{-1}=A^\top$, preserves lengths and angles (rotations, reflections)</td></tr>
+</table>
+<p>"Normal" matrices ($A^\top A=AA^\top$) include symmetric and orthogonal ones and are always diagonalisable over the complex numbers. Remember: <b>invertible does not imply diagonalisable</b>. A rotation by $30^\circ$ is invertible, but over the reals it has no eigenvectors.</p></div>
 <div class="short"><b>In short.</b> Know which family your matrix belongs to. Symmetric positive definite matrices (covariance matrices!) are the friendliest: everything works.</div>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>All twelve exercises of the book's Chapter 4 (numbers refer to the book), with full solutions. Every numerical answer was verified by computer.</p>
+
+<div class="exercise"><h4>E4.1 · Determinant two ways <span class="src">book 4.1</span></h4>
+  <p>Compute $\det\left[\begin{smallmatrix}1&3&5\\2&4&6\\0&2&4\end{smallmatrix}\right]$ by Laplace expansion along the first row and by Sarrus' rule.</p>
+  <details><summary>Solution</summary>
+  <p><b>Laplace:</b> $1\cdot\det\left[\begin{smallmatrix}4&6\\2&4\end{smallmatrix}\right]-3\cdot\det\left[\begin{smallmatrix}2&6\\0&4\end{smallmatrix}\right]+5\cdot\det\left[\begin{smallmatrix}2&4\\0&2\end{smallmatrix}\right]=1\cdot4-3\cdot8+5\cdot4=0$.</p>
+  <p><b>Sarrus:</b> $1\cdot4\cdot4+3\cdot6\cdot0+5\cdot2\cdot2-0\cdot4\cdot5-1\cdot6\cdot2-3\cdot2\cdot4=16+0+20-0-12-24=0$.</p>
+  <p>$\det=0$, so the matrix is singular. Indeed (row 2) $-2\cdot$(row 1) $=(0,-2,-4)=-$(row 3): the rows are dependent, rank 2.</p></details></div>
+
+<div class="exercise"><h4>E4.2 · A $5\times5$ determinant, efficiently <span class="src">book 4.2</span></h4>
+  <p>Compute $\det\left[\begin{smallmatrix}2&0&1&2&0\\2&-1&0&1&1\\0&1&2&1&2\\-2&0&2&-1&2\\2&0&0&1&1\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>Column 2 is almost all zeros. Add row 2 to row 3 (determinant unchanged), so column 2 has a single nonzero entry $-1$ in row 2. Expand along column 2: the sign is $(-1)^{2+2}=+1$, so $\det=-1\cdot\det M'$ where $M'$ is the $4\times4$ matrix left after deleting row 2 and column 2:</p>
+  <div class="formula">$$M'=\begin{bmatrix}2&1&2&0\\2&2&2&3\\-2&2&-1&2\\2&0&1&1\end{bmatrix}.$$</div>
+  <p>Clear column 1 below the pivot ($R_2-R_1$, $R_3+R_1$, $R_4-R_1$): $\det M'=2\cdot\det\left[\begin{smallmatrix}1&0&3\\3&1&2\\-1&-1&1\end{smallmatrix}\right]=2\cdot(1\cdot3-0+3\cdot(-2))=2\cdot(-3)=-6$. Therefore $\det=-(-6)=\mathbf{6}$.</p></details></div>
+
+<div class="exercise"><h4>E4.3 · Eigenspaces of $2\times2$ matrices <span class="src">book 4.3</span></h4>
+  <p>(a) $A=\left[\begin{smallmatrix}1&0\\1&1\end{smallmatrix}\right]$ (b) $B=\left[\begin{smallmatrix}-2&2\\2&1\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $p_A(\lambda)=(1-\lambda)^2$, so $\lambda=1$ (algebraic multiplicity 2). $A-I=\left[\begin{smallmatrix}0&0\\1&0\end{smallmatrix}\right]$, kernel $=\operatorname{span}[(0,1)]$: <b>$E_1=\operatorname{span}[(0,1)]$</b>, geometric multiplicity 1: $A$ is defective.</p>
+  <p>(b) $p_B(\lambda)=(-2-\lambda)(1-\lambda)-4=\lambda^2+\lambda-6=(\lambda+3)(\lambda-2)$. $\lambda=-3$: $\left[\begin{smallmatrix}1&2\\2&4\end{smallmatrix}\right]\mathbf x=0\Rightarrow$ <b>$E_{-3}=\operatorname{span}[(-2,1)]$</b>. $\lambda=2$: $\left[\begin{smallmatrix}-4&2\\2&-1\end{smallmatrix}\right]\mathbf x=0\Rightarrow$ <b>$E_2=\operatorname{span}[(1,2)]$</b>. (Symmetric matrix, so the eigenvectors are orthogonal: $(-2)(1)+(1)(2)=0$ ✓. Trace $-1=-3+2$, det $-6=-3\cdot2$ ✓.)</p></details></div>
+
+<div class="exercise"><h4>E4.4 · All eigenspaces of a $4\times4$ <span class="src">book 4.4</span></h4>
+  <p>$A=\left[\begin{smallmatrix}0&-1&1&1\\-1&1&-2&3\\2&-1&0&0\\1&-1&1&0\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>$p_A(\lambda)=(\lambda-2)(\lambda-1)(\lambda+1)^2$ (check: trace $=1=2+1-1-1$, determinant $2=2\cdot1\cdot(-1)^2$). Solving $(A-\lambda I)\mathbf x=\mathbf 0$ for each:</p>
+  <ul class="steps">
+    <li>$\lambda=2$: $E_2=\operatorname{span}[(1,0,1,1)]$.</li>
+    <li>$\lambda=1$: $E_1=\operatorname{span}[(1,1,1,1)]$.</li>
+    <li>$\lambda=-1$ (algebraic multiplicity 2): $E_{-1}=\operatorname{span}[(0,1,1,0)]$, only one-dimensional.</li>
+  </ul>
+  <p>So $-1$ has geometric multiplicity 1 $\lt$ 2: $A$ is <b>defective</b>, only 3 independent eigenvectors.</p></details></div>
+
+<div class="exercise"><h4>E4.5 · Diagonalisable versus invertible <span class="src">book 4.5</span></h4>
+  <p>For $\left[\begin{smallmatrix}1&0\\0&1\end{smallmatrix}\right]$, $\left[\begin{smallmatrix}1&0\\0&0\end{smallmatrix}\right]$, $\left[\begin{smallmatrix}1&1\\0&1\end{smallmatrix}\right]$, $\left[\begin{smallmatrix}0&1\\0&0\end{smallmatrix}\right]$: which are diagonalisable, which invertible?</p>
+  <details><summary>Solution</summary>
+  <table class="t" style="max-width:520px">
+    <tr><th>Matrix</th><th>Diagonalisable?</th><th>Invertible?</th></tr>
+    <tr><td>$I_2$</td><td>yes (already diagonal)</td><td>yes ($\det=1$)</td></tr>
+    <tr><td>$\operatorname{diag}(1,0)$</td><td>yes (diagonal)</td><td>no ($\det=0$)</td></tr>
+    <tr><td>$\left[\begin{smallmatrix}1&1\\0&1\end{smallmatrix}\right]$</td><td>no (eigenvalue 1 twice, one eigenvector)</td><td>yes ($\det=1$)</td></tr>
+    <tr><td>$\left[\begin{smallmatrix}0&1\\0&0\end{smallmatrix}\right]$</td><td>no (eigenvalue 0 twice, one eigenvector)</td><td>no ($\det=0$)</td></tr>
+  </table>
+  <p>All four combinations except "neither implies the other" are realised: the two properties are independent.</p></details></div>
+
+<div class="exercise"><h4>E4.6 · Eigenspaces and diagonalisability <span class="src">book 4.6</span></h4>
+  <p>(a) $A=\left[\begin{smallmatrix}2&3&0\\1&4&3\\0&0&1\end{smallmatrix}\right]$ (b) $A=\left[\begin{smallmatrix}1&1&0&0\\0&0&0&0\\0&0&0&0\\0&0&0&0\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) The matrix is block-triangular with $p_A(\lambda)=(1-\lambda)\big((2-\lambda)(4-\lambda)-3\big)=(1-\lambda)(\lambda-1)(\lambda-5)$. Eigenvalues: $1$ (twice) and $5$. $E_1=\operatorname{span}[(-3,1,0)]$ (one-dimensional) and $E_5=\operatorname{span}[(1,1,0)]$. Total eigenvectors: 2 $\lt3$: <b>not diagonalisable</b>.</p>
+  <p>(b) Triangular, eigenvalues $1$ (once) and $0$ (three times). $E_1=\operatorname{span}[(1,0,0,0)]$; $E_0=\ker A=\operatorname{span}\big[(-1,1,0,0),(0,0,1,0),(0,0,0,1)\big]$, dimension 3 = algebraic multiplicity. Four independent eigenvectors: <b>diagonalisable</b>, with $D=\operatorname{diag}(1,0,0,0)$.</p></details></div>
+
+<div class="exercise"><h4>E4.7 · Diagonalise if possible <span class="src">book 4.7</span></h4>
+  <p>(a) $\left[\begin{smallmatrix}0&1\\-8&4\end{smallmatrix}\right]$ (b) $\left[\begin{smallmatrix}1&1&1\\1&1&1\\1&1&1\end{smallmatrix}\right]$ (c) $\left[\begin{smallmatrix}5&4&2&1\\0&1&-1&-1\\-1&-1&3&0\\1&1&-1&2\end{smallmatrix}\right]$ (d) $\left[\begin{smallmatrix}5&-6&-6\\-1&4&2\\3&-6&-4\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $p(\lambda)=\lambda^2-4\lambda+8$ with roots $2\pm2i$: <b>complex eigenvalues, so not diagonalisable over $\mathbb{R}$</b> (it is over $\mathbb{C}$).</p>
+  <p>(b) Symmetric. Eigenvalues $3$ (eigenvector $(1,1,1)$) and $0$ (twice; $E_0=\ker A=\{x_1+x_2+x_3=0\}$ with basis $(-1,1,0),(-1,0,1)$). <b>Diagonalisable</b>: $D=\operatorname{diag}(3,0,0)$ in the basis $\big((1,1,1),(-1,1,0),(-1,0,1)\big)$.</p>
+  <p>(c) $p(\lambda)=(\lambda-1)(\lambda-2)(\lambda-4)^2$. $E_4=\operatorname{span}[(1,0,-1,1)]$ is only one-dimensional although 4 is a double root: <b>defective, not diagonalisable</b>.</p>
+  <p>(d) $p(\lambda)=(\lambda-1)(\lambda-2)^2$. $E_1=\operatorname{span}[(3,-1,3)]$ and $E_2=\operatorname{span}\big[(2,1,0),(2,0,1)\big]$ (two-dimensional, matching the double root). <b>Diagonalisable</b>: $P=\left[\begin{smallmatrix}3&2&2\\-1&1&0\\3&0&1\end{smallmatrix}\right]$, $D=\operatorname{diag}(1,2,2)$.</p></details></div>
+
+<div class="exercise"><h4>E4.8 · An SVD <span class="src">book 4.8</span></h4>
+  <p>Find the SVD of $A=\begin{bmatrix}3&2&2\\2&3&-2\end{bmatrix}$.</p>
+  <details><summary>Solution</summary>
+  <p>Use the smaller matrix $AA^\top=\left[\begin{smallmatrix}17&8\\8&17\end{smallmatrix}\right]$ (eigenvalues $25$ with $\tfrac1{\sqrt2}(1,1)$ and $9$ with $\tfrac1{\sqrt2}(-1,1)$). So $\sigma_1=5$, $\sigma_2=3$, and the left-singular vectors are $\mathbf u_1=\tfrac1{\sqrt2}(1,1)$, $\mathbf u_2=\tfrac1{\sqrt2}(-1,1)$.</p>
+  <p>Right-singular vectors $\mathbf v_i=\tfrac1{\sigma_i}A^\top\mathbf u_i$: $\mathbf v_1=\tfrac1{5\sqrt2}(5,5,0)=\tfrac1{\sqrt2}(1,1,0)$, $\mathbf v_2=\tfrac1{3\sqrt2}(-1,1,-4)$. The third one spans the kernel and is orthogonal to both: $\mathbf v_3=\tfrac13(2,-2,-1)$ (check $A\mathbf v_3=\mathbf 0$ ✓).</p>
+  <div class="formula">$$A=\underbrace{\tfrac1{\sqrt2}\begin{bmatrix}1&-1\\1&1\end{bmatrix}}_{U}\underbrace{\begin{bmatrix}5&0&0\\0&3&0\end{bmatrix}}_{\Sigma}\underbrace{\begin{bmatrix}\frac1{\sqrt2}&\frac1{\sqrt2}&0\\-\frac1{3\sqrt2}&\frac1{3\sqrt2}&-\frac{4}{3\sqrt2}\\\frac23&-\frac23&-\frac13\end{bmatrix}}_{V^\top}.$$</div>
+  <p>Check: $A\mathbf v_2=\tfrac{1}{3\sqrt2}(-3+2-8,\ -2+3+8)=\tfrac1{3\sqrt2}(-9,9)=3\cdot\tfrac1{\sqrt2}(-1,1)=\sigma_2\mathbf u_2$ ✓. Also $\|A\|_2=\sigma_1=5$.</p></details></div>
+
+<div class="exercise"><h4>E4.9 · Another SVD <span class="src">book 4.9</span></h4>
+  <p>Find the SVD of $A=\begin{bmatrix}2&2\\-1&1\end{bmatrix}$.</p>
+  <details><summary>Solution</summary>
+  <p>$A^\top A=\left[\begin{smallmatrix}5&3\\3&5\end{smallmatrix}\right]$ has eigenvalues $8$ (eigenvector $\tfrac1{\sqrt2}(1,1)$) and $2$ (eigenvector $\tfrac1{\sqrt2}(-1,1)$). So $\sigma_1=\sqrt8=2\sqrt2$, $\sigma_2=\sqrt2$, $V=\tfrac1{\sqrt2}\left[\begin{smallmatrix}1&-1\\1&1\end{smallmatrix}\right]$. Then $\mathbf u_1=\tfrac1{\sigma_1}A\mathbf v_1=\tfrac1{2\sqrt2}\cdot\tfrac1{\sqrt2}(4,0)=(1,0)$ and $\mathbf u_2=\tfrac1{\sigma_2}A\mathbf v_2=\tfrac1{\sqrt2}\cdot\tfrac1{\sqrt2}(0,2)=(0,1)$. So $U=I$ and</p>
+  <div class="formula">$$A=I\begin{bmatrix}2\sqrt2&0\\0&\sqrt2\end{bmatrix}\tfrac1{\sqrt2}\begin{bmatrix}1&1\\-1&1\end{bmatrix}.$$</div>
+  <p>Geometrically: rotate by $-45^\circ$ (so $\mathbf v_1,\mathbf v_2$ become the axes), stretch by $2\sqrt2$ and $\sqrt2$. Check: $\det A=4=\sigma_1\sigma_2=2\sqrt2\cdot\sqrt2$ ✓.</p></details></div>
+
+<div class="exercise"><h4>E4.10 · Best rank-1 approximation <span class="src">book 4.10</span></h4>
+  <p>Find the rank-1 approximation of $A=\left[\begin{smallmatrix}3&2&2\\2&3&-2\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>Use the largest singular value and its vectors from E4.8: $\hat A(1)=\sigma_1\mathbf u_1\mathbf v_1^\top=5\cdot\tfrac1{\sqrt2}\left[\begin{smallmatrix}1\\1\end{smallmatrix}\right]\cdot\tfrac1{\sqrt2}\left[\begin{smallmatrix}1&1&0\end{smallmatrix}\right]=\tfrac52\begin{bmatrix}1&1&0\\1&1&0\end{bmatrix}$. The error is $\|A-\hat A(1)\|_2=\sigma_2=3$ (Eckart–Young). The approximation keeps the "average" pattern of the first two columns and drops the $\pm2$ in the third.</p></details></div>
+
+<div class="exercise"><h4>E4.11 · $A^\top A$ and $AA^\top$ share their nonzero eigenvalues <span class="src">book 4.11</span></h4>
+  <p>Show that for any $A\in\mathbb{R}^{m\times n}$, $A^\top A$ and $AA^\top$ have the same nonzero eigenvalues.</p>
+  <details><summary>Solution</summary>
+  <p>Let $A^\top A\mathbf x=\lambda\mathbf x$ with $\lambda\ne0$, $\mathbf x\ne\mathbf 0$. Then $A\mathbf x\ne\mathbf 0$ (otherwise $A^\top A\mathbf x=\mathbf 0=\lambda\mathbf x$, forcing $\mathbf x=\mathbf 0$). And $AA^\top(A\mathbf x)=A(A^\top A\mathbf x)=\lambda(A\mathbf x)$, so $A\mathbf x$ is an eigenvector of $AA^\top$ with the same eigenvalue $\lambda$. Swapping the roles of $A$ and $A^\top$ gives the converse. The map $\mathbf x\mapsto A\mathbf x$ is injective on each eigenspace for $\lambda\ne0$, so even the multiplicities agree. ∎ (This is why the SVD can use either matrix to find $\sigma_i^2$.)</p></details></div>
+
+<div class="exercise"><h4>E4.12 · The spectral norm is $\sigma_1$ <span class="src">book 4.12</span></h4>
+  <p>Show $\max_{\mathbf x\ne\mathbf 0}\|A\mathbf x\|_2/\|\mathbf x\|_2=\sigma_1$.</p>
+  <details><summary>Solution</summary>
+  <p>Let $A=U\Sigma V^\top$ and expand $\mathbf x=\sum_ic_i\mathbf v_i$ in the orthonormal right-singular basis, so $\|\mathbf x\|^2=\sum c_i^2$. Then $\|A\mathbf x\|^2=\mathbf x^\top A^\top A\mathbf x=\sum_i\sigma_i^2c_i^2\le\sigma_1^2\sum_ic_i^2=\sigma_1^2\|\mathbf x\|^2$ since $\sigma_1$ is the largest. So the ratio is at most $\sigma_1$, and choosing $\mathbf x=\mathbf v_1$ attains it ($A\mathbf v_1=\sigma_1\mathbf u_1$). ∎</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>

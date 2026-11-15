@@ -14,6 +14,7 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 6</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s61">6.1 Probability space</a>
@@ -23,6 +24,7 @@
   <a href="#s65">6.5 Gaussian distribution</a>
   <a href="#s66">6.6 Conjugacy, exponential family</a>
   <a href="#s67">6.7 Change of variables</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
 </nav>
 <main>
@@ -54,6 +56,17 @@
   <p>A bag gives a $ coin with probability $0.3$ (draws are independent). Let $X$ = number of $ coins in two draws.</p>
   <p>$P(X=2)=0.3\cdot0.3=0.09,\quad P(X=1)=2\cdot0.3\cdot0.7=0.42,\quad P(X=0)=0.7\cdot0.7=0.49$.</p>
   <p class="why">$X=1$ gets two outcomes ($\$\pounds$ and $\pounds\$$), so it gets the sum of two probabilities. The widget in 6.2 reproduces this.</p></div>
+<div class="deep"><h3>Going deeper: why probability is "the" logic of uncertainty</h3>
+<p><b>Plausible reasoning.</b> Classical logic only knows true/false. Real reasoning is graded: your friend is late; you can't <i>prove</i> traffic did it, but traffic ($H_2$) becomes more plausible than "on time" ($H_1$, ruled out) and far more plausible than "abducted by aliens" ($H_3$). The <b>Cox–Jaynes theorem</b> says: if plausibilities are real numbers, follow common sense, and are <i>consistent</i> (the same evidence always gives the same value; all available data is used; equal knowledge gives equal plausibility), then they must obey the rules of probability. So probability is not an arbitrary choice, it is the unique consistent extension of logic.</p>
+<p><b>Two interpretations.</b> <b>Bayesian:</b> probability is a degree of belief (subjective, can be assigned to one-off events and to parameters). <b>Frequentist:</b> probability is the long-run relative frequency of an event. Machine learning uses both views; later chapters (maximum likelihood vs Bayesian regression) will show each in action.</p>
+<h4>The three ingredients, precisely</h4>
+<ul>
+  <li><b>Sample space $\Omega$:</b> all outcomes (two coin tosses: $\{hh,ht,th,tt\}$).</li>
+  <li><b>Event space $\mathcal A$:</b> the collection of subsets we can assign probabilities to. For discrete $\Omega$ it is simply all subsets (the power set). For continuous $\Omega$ you must restrict to well-behaved sets (a Borel $\sigma$-algebra), because "all subsets" is too wild. We won't need the technicalities.</li>
+  <li><b>Probability $P$:</b> $P(A)\in[0,1]$, $P(\Omega)=1$, and for disjoint events $P(A\cup B)=P(A)+P(B)$.</li>
+</ul>
+<p><b>Random variable as a pre-image.</b> For $X:\Omega\to\mathcal T$ and $S\subseteq\mathcal T$: $P_X(S)=P(X\in S)=P\big(X^{-1}(S)\big)=P(\{\omega:X(\omega)\in S\})$. In Ex. 6.1, $S=\{1\}$ has pre-image $\{(\$,\pounds),(\pounds,\$)\}$, which is why $P(X=1)=0.3\cdot0.7+0.7\cdot0.3=0.42$. The distribution $P_X$ (also "law") is the probability each value of $\mathcal T$ gets.</p>
+<p><b>Practical tip.</b> First decide whether your quantity is <b>categorical</b> (discrete: class labels, words) or <b>continuous</b> (heights, prices). That tells you which tools (mass functions or densities) to reach for.</p></div>
 <p class="why"><b>Probability vs statistics</b> (book): probability starts from a model and works out what data to expect. Statistics starts from observed data and works out the model. Machine learning lives mostly on the statistics side, using probability's rules.</p>
 </section>
 
@@ -71,6 +84,25 @@
 <h3>Continuous: the density</h3>
 <p>For a continuous variable the probability of <i>exactly</i> one value is 0. Instead, the <b>density</b> $p(x)$ gives probability as <b>area</b>: $P(a\le X\le b)=\int_a^bp(x)\,dx$, and $\int p(x)dx=1$.</p>
 <p class="why"><b>Common trap (from the book):</b> a density can be bigger than 1. A very narrow bump must be tall to have area 1. Only areas are probabilities. You'll see this in the Gaussian widget in 6.5.</p>
+<div class="deep"><h3>Going deeper: joint, marginal, conditional, pdf and cdf</h3>
+<h4>A discrete bivariate distribution from counts</h4>
+<p>If $n_{ij}$ events had $X=x_i$ and $Y=y_j$ out of $N$ total (book Fig. 6.2), then</p>
+<div class="formula">$$P(X=x_i,Y=y_j)=\frac{n_{ij}}N\ \text{(joint)},\quad P(X=x_i)=\frac{c_i}N=\frac{\sum_jn_{ij}}N\ \text{(marginal)},\quad P(Y=y_j\mid X=x_i)=\frac{n_{ij}}{c_i}\ \text{(conditional)}.$$</div>
+<p>$c_i$ is the column sum, $r_j$ the row sum. Marginals add up row/column totals; conditionals are "a cell as a fraction of its column (or row)". Everything sums to 1. (Exercise E6.1 practises exactly this.) Notation warning: texts write $p(x)$ for the mass function, the density, and even the CDF; read the context.</p>
+<table class="t">
+  <tr><th></th><th>Point probability</th><th>Interval probability</th></tr>
+  <tr><td>Discrete</td><td>pmf $P(X=x)$</td><td>sum of masses</td></tr>
+  <tr><td>Continuous</td><td>pdf $p(x)$ (not a probability!)</td><td>cdf $F_X(x)=P(X\le x)=\int_{-\infty}^xp(t)dt$</td></tr>
+</table>
+<h4>Continuous: precise definitions</h4>
+<ul>
+  <li>A <b>pdf</b> is any $f:\mathbb{R}^D\to\mathbb{R}$ with $f(\mathbf x)\ge0$ and $\int f=1$; it defines a random variable via $P(a\le X\le b)=\int_a^bf(x)dx$.</li>
+  <li>$P(X=x)=0$ for every single $x$ (an interval of width zero has no area). That's not a contradiction: individual points have probability 0, intervals don't.</li>
+  <li>The <b>cdf</b> of a multivariate $X$: $F_X(\mathbf x)=P(X_1\le x_1,\dots,X_D\le x_D)=\int_{-\infty}^{x_1}\!\!\cdots\!\int_{-\infty}^{x_D}f$. It is non-decreasing, runs from 0 to 1, and (where differentiable) $f=F'$.</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 6.3</span> Discrete versus continuous uniform</h4>
+  <p>A discrete uniform variable on 3 states $\{-1.1,\,0.3,\,1.5\}$ gives each state mass $\tfrac13$ (the states' numerical values and order are irrelevant). A continuous uniform on $[0.9,1.6]$ has constant density $\frac1{1.6-0.9}\approx1.43$, <b>greater than 1</b>, yet the area $1.43\times0.7=1$. Densities can exceed 1; masses cannot.</p></div>
+<p><b>Named discrete example (Bernoulli, book Ex. 6.8):</b> a yes/no experiment with success probability $\mu$: $p(x\mid\mu)=\mu^x(1-\mu)^{1-x}$, $x\in\{0,1\}$, mean $\mu$, variance $\mu(1-\mu)$. The Binomial counts successes in $N$ Bernoulli trials.</p></div>
 <div class="short"><b>In short.</b> Discrete: heights are probabilities. Continuous: <i>areas</i> are probabilities. The CDF accumulates them.</div>
 <details><summary>Check yourself</summary>For a fair coin tossed 4 times, what is $\mathbb{E}[\text{heads}]$ and $\mathbb{V}$? <br><b>Answer:</b> $N\mu=2$ and $N\mu(1-\mu)=4\cdot0.25=1$.</details>
 </section>
@@ -95,6 +127,17 @@
 <div class="widget wide" id="w-bayes"><canvas style="aspect-ratio:2.6"></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Because the disease is rare, the healthy people who falsely test positive (orange) outnumber the sick people who correctly do (blue). So a positive result means only about 9% chance of being sick. Raise the prior and watch the posterior jump. This is the whole reason priors matter.</p>
 <div class="ml"><b>ML link.</b> Every Bayesian model is this theorem with: $x$ = parameters (or a class label), $y$ = data. Chapter 8–9 build on it.</div>
+<div class="deep"><h3>Going deeper: the fine print of Bayes, and a worked example</h3>
+<ul>
+  <li><b>Sum rule for many variables:</b> $p(x_i)=\int p(x_1,\dots,x_D)\,d\mathbf x_{\setminus i}$ (integrate out all others). Computing such high-dimensional sums/integrals is the main computational difficulty of probabilistic modelling: no known polynomial-time exact algorithm in general.</li>
+  <li><b>Product rule chained:</b> $p(x_1,\dots,x_n)=p(x_1)\,p(x_2\mid x_1)\cdots p(x_n\mid x_1,\dots,x_{n-1})$ (repeat the rule). This factorisation underlies sequence models and graphical models (Chapter 8).</li>
+  <li><b>Prior:</b> beliefs about $x$ <i>before</i> data. Any prior is allowed, but it must be nonzero for every plausible $x$: if $p(x)=0$ no amount of data can ever revive $x$.</li>
+  <li><b>Likelihood</b> $p(y\mid x)$: a distribution over data $y$ for fixed $x$, <i>not</i> a distribution over $x$ (as a function of $x$ it needn't sum to 1). Say "the likelihood of $x$", never "the likelihood of $y$".</li>
+  <li><b>Evidence</b> $p(y)=\int p(y\mid x)p(x)dx=\mathbb{E}_X[p(y\mid x)]$: the expected likelihood under the prior. It only normalises the posterior, but it is also the key quantity for comparing models (Chapter 8).</li>
+  <li><b>Keep the whole posterior if you can.</b> Summaries such as its mode (MAP) discard information; decision-making and active learning often need the full posterior.</li>
+</ul>
+<div class="wex"><h4>Worked example: which coin?</h4>
+  <p>A drawer holds a fair coin ($P(\text{heads})=0.5$) and a biased one ($0.8$). You pick one at random ($p=\tfrac12$ each), flip it, and see heads. Evidence: $p(H)=0.5\cdot0.5+0.8\cdot0.5=0.65$. Posterior: $P(\text{biased}\mid H)=\dfrac{0.8\cdot0.5}{0.65}=\dfrac{0.4}{0.65}\approx0.615$. One flip moved your belief in "biased" from $50\%$ to $61.5\%$. (More flips keep updating it; the Beta–Bernoulli widget in 6.6 does exactly that for a coin with unknown bias.)</p></div></div>
 <div class="short"><b>In short.</b> Sum rule: marginalise. Product rule: joint = conditional × marginal. Bayes: posterior ∝ likelihood × prior.</div>
 <details><summary>Check yourself</summary>In the table above, what is $p(y_3)$? <br><b>Answer:</b> add the column: $0.05+0.10+0.30=0.45$.</details>
 </section>
@@ -125,6 +168,30 @@
 <div class="formula">$$p(x,y)=p(x)\,p(y)\ \Longleftrightarrow\ p(y\mid x)=p(y)$$</div>
 <p>Independent ⇒ uncorrelated (covariance 0), but <b>not</b> the other way round in general. For jointly Gaussian variables, though, uncorrelated does mean independent.</p>
 <p class="why"><b>Fun fact from the book (6.4.6):</b> covariance is an inner product for random variables, and correlation is the cosine of the angle between them. All of Chapter 3's geometry applies.</p>
+<div class="deep"><h3>Going deeper: mean, median, mode, empirical statistics, and independence</h3>
+<h4>Expected value of a function; three "averages"</h4>
+<p>For a function $g$ of $X\sim p$: $\mathbb{E}[g(X)]=\int g(x)p(x)dx$ (or $\sum_xg(x)P(x)$). Linearity: $\mathbb{E}[ag(X)+bh(X)]=a\mathbb{E}[g(X)]+b\mathbb{E}[h(X)]$. For vectors, take it elementwise. The <b>mean</b> is the case $g(x)=x$; the <b>median</b> is the value where the CDF is $0.5$ (robust to outliers; no natural definition in 2D); the <b>mode</b> is a peak of the density (may be several).</p>
+<div class="wex"><h4><span class="tag">Book Ex. 6.4</span> A bimodal mixture: mean $\ne$ median $\ne$ mode</h4>
+  <p>$p(\mathbf x)=0.4\,\mathcal N\big(\left[\begin{smallmatrix}10\\2\end{smallmatrix}\right],I\big)+0.6\,\mathcal N\big(\left[\begin{smallmatrix}0\\0\end{smallmatrix}\right],\left[\begin{smallmatrix}8.4&2\\2&1.7\end{smallmatrix}\right]\big)$. Marginal in the first coordinate: mean $4$, median $\approx2.80$, a mode near $10$ (and a lower local peak at $0$). Second coordinate: mean $0.8$, median $\approx0.87$, a single mode $\approx1.33$. The 2D mean is $(4,0.8)$ but the 2D modes are near $(10,2)$ and $(0,0)$: <b>the mean can lie where there is almost no probability mass</b>.</p></div>
+<h4>Covariance, precisely</h4>
+<ul>
+  <li>$\operatorname{Cov}[x,y]=\mathbb{E}[(x-\mathbb{E}x)(y-\mathbb{E}y)]=\mathbb{E}[xy]-\mathbb{E}[x]\mathbb{E}[y]$. Multivariate: $\operatorname{Cov}[\mathbf x,\mathbf y]=\mathbb{E}[\mathbf x\mathbf y^\top]-\mathbb{E}[\mathbf x]\mathbb{E}[\mathbf y]^\top\in\mathbb{R}^{D\times E}$ (cross-covariance), with $\operatorname{Cov}[\mathbf y,\mathbf x]=\operatorname{Cov}[\mathbf x,\mathbf y]^\top$.</li>
+  <li>The <b>covariance matrix</b> $\mathbb{V}[\mathbf x]=\operatorname{Cov}[\mathbf x,\mathbf x]=\mathbb{E}[(\mathbf x-\boldsymbol\mu)(\mathbf x-\boldsymbol\mu)^\top]$ is symmetric positive semi-definite; the diagonal holds the variances (marginal spreads), off-diagonals the cross-covariances.</li>
+  <li><b>Correlation</b> divides by the standard deviations so it is unit-free in $[-1,1]$; the <i>correlation matrix</i> is the covariance matrix of standardised variables. Two datasets can share all means and variances yet differ in covariance (positively vs negatively tilted clouds, book Fig. 6.5).</li>
+</ul>
+<h4>Empirical (sample) statistics</h4>
+<p>The formulas above are <b>population</b> quantities. From data $\mathbf x_1,\dots,\mathbf x_N$ you compute $\bar{\mathbf x}=\frac1N\sum\mathbf x_n$ and $\Sigma=\frac1N\sum(\mathbf x_n-\bar{\mathbf x})(\mathbf x_n-\bar{\mathbf x})^\top$ (symmetric positive semi-definite). The book uses the factor $\frac1N$ (a biased estimate); the <i>unbiased</i> version divides by $N-1$.</p>
+<div class="wex"><h4>Worked example</h4>
+  <p>Three points $(1,2),(2,1),(3,3)$. Mean $(2,2)$. Deviations $(-1,0),(0,-1),(1,1)$. $\Sigma=\tfrac13\left[\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\right]=\left[\begin{smallmatrix}2/3&1/3\\1/3&2/3\end{smallmatrix}\right]$ and the correlation is $\tfrac{1/3}{2/3}=0.5$. (The widget's empirical readout computes this for 320 samples.)</p></div>
+<h4>Three expressions for the variance</h4>
+<p>(i) the definition $\mathbb{E}[(X-\mu)^2]$; (ii) the <b>raw-score</b> form $\mathbb{E}[X^2]-\mathbb{E}[X]^2$ ("mean of the square minus square of the mean": one pass over data, but numerically risky when the two terms are huge and close); (iii) the <b>pairwise</b> form $\frac1{N^2}\sum_{i,j}(x_i-x_j)^2=2\big(\frac1N\sum x_i^2-(\frac1N\sum x_i)^2\big)$: the average squared distance between all pairs is twice the variance. Exercises E6.6 and E6.7 prove (ii) and (iii).</p>
+<h4>Independence, and what it doesn't mean</h4>
+<p>If $X,Y$ are independent: $p(y\mid x)=p(y)$, $p(x\mid y)=p(x)$, $\mathbb{V}[x+y]=\mathbb{V}[x]+\mathbb{V}[y]$, $\operatorname{Cov}[x,y]=0$. The converse fails because covariance only sees <i>linear</i> dependence.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 6.5</span> Uncorrelated but dependent</h4>
+  <p>Let $\mathbb{E}[X]=0$ and $\mathbb{E}[X^3]=0$ (for instance $X$ symmetric around 0), and $Y=X^2$. $Y$ is a function of $X$, so completely dependent. But $\operatorname{Cov}[X,Y]=\mathbb{E}[X^3]-\mathbb{E}[X]\mathbb{E}[X^2]=0$.</p></div>
+<p><b>i.i.d.</b> ("independent and identically distributed") data points are the standard assumption in ML: each draw independent of the others and from the same distribution. <b>Conditional independence</b> $X\perp\!\!\!\perp Y\mid Z$ means $p(x,y\mid z)=p(x\mid z)p(y\mid z)$ for every $z$, equivalently $p(x\mid y,z)=p(x\mid z)$: once $z$ is known, $y$ tells you nothing more about $x$.</p>
+<h4>Random variables as vectors</h4>
+<p>For zero-mean $X,Y$, $\langle X,Y\rangle:=\operatorname{Cov}[X,Y]$ is an inner product (symmetric, bilinear, positive definite up to constants). Then $\|X\|=\sqrt{\mathbb{V}[X]}=\sigma$ (length = standard deviation; length 0 means deterministic), and $\cos\theta=\dfrac{\operatorname{Cov}[X,Y]}{\sigma_X\sigma_Y}$ is the <b>correlation</b>. Uncorrelated means orthogonal, and $\mathbb{V}[X+Y]=\mathbb{V}[X]+\mathbb{V}[Y]$ is literally Pythagoras. (Caution from the book: Euclidean distance between <i>distributions</i> is not the right tool; use divergences such as KL, from information geometry.)</p></div>
 <div class="short"><b>In short.</b> Mean = weighted average. Variance = spread. Covariance matrix $\Sigma$ = all pairwise co-movements. Linear map: $\mu\to A\mu+b$, $\Sigma\to A\Sigma A^\top$.</div>
 <details><summary>Check yourself</summary>$X$ has variance 4. What is the variance of $3X+7$? <br><b>Answer:</b> $A\Sigma A^\top=3\cdot4\cdot3=36$ (the shift doesn't matter, scaling by 3 multiplies variance by 9).</details>
 </section>
@@ -156,6 +223,20 @@
   <li><b>Linear transformation:</b> $\mathbf x\sim\mathcal N(\boldsymbol\mu,\Sigma)\Rightarrow A\mathbf x\sim\mathcal N(A\boldsymbol\mu,A\Sigma A^\top)$.</li>
 </ul>
 <div class="ml"><b>ML link: sampling.</b> To draw samples from $\mathcal N(\boldsymbol\mu,\Sigma)$: sample $\mathbf z\sim\mathcal N(0,I)$ and output $\boldsymbol\mu+L\mathbf z$, where $\Sigma=LL^\top$ is the Cholesky factorisation (Ch. 4). That is exactly how the dots in the widget above are generated.</div>
+<div class="deep"><h3>Going deeper: worked Gaussian calculations, mixtures, and sampling</h3>
+<div class="wex"><h4><span class="tag">Book Ex. 6.6</span> Marginalising and conditioning a bivariate Gaussian</h4>
+  <p>$\left[\begin{smallmatrix}x_1\\x_2\end{smallmatrix}\right]\sim\mathcal N\big(\left[\begin{smallmatrix}0\\2\end{smallmatrix}\right],\left[\begin{smallmatrix}0.3&-1\\-1&5\end{smallmatrix}\right]\big)$. <b>Marginal</b> (just read off the block): $p(x_1)=\mathcal N(0,\,0.3)$. <b>Conditional</b> on $x_2=-1$: $\mu_{x_1|x_2}=0+(-1)\cdot\tfrac15\cdot(-1-2)=0.6$ and $\sigma^2_{x_1|x_2}=0.3-(-1)\cdot\tfrac15\cdot(-1)=0.1$. So $p(x_1\mid x_2=-1)=\mathcal N(0.6,\,0.1)$: shifted toward the observation (negative covariance: $x_2$ below its mean pushes $x_1$ up) and much narrower than the marginal ($0.1\lt0.3$).</p></div>
+<h4>Product of Gaussian densities (the engine of Bayesian regression)</h4>
+<p>$\mathcal N(\mathbf x\mid\mathbf a,A)\,\mathcal N(\mathbf x\mid\mathbf b,B)=c\,\mathcal N(\mathbf x\mid\mathbf c,C)$ with $C=(A^{-1}+B^{-1})^{-1}$, $\mathbf c=C(A^{-1}\mathbf a+B^{-1}\mathbf b)$ and the scale $c=\mathcal N(\mathbf a\mid\mathbf b,A+B)=\mathcal N(\mathbf b\mid\mathbf a,A+B)$. <b>Precisions add</b> and the new mean is a precision-weighted average. Numeric check in 1D ($a=0,A=1,b=2,B=3$): $C=0.75$, $c=0.5$, $c=\mathcal N(0\mid2,4)\approx0.121$. At $x=1$ the left side is $\mathcal N(1|0,1)\mathcal N(1|2,3)=0.0472$ and the right side $0.121\cdot\mathcal N(1|0.5,0.75)=0.0472$ ✓.</p>
+<h4>Sums and linear maps</h4>
+<p>Independent Gaussians: $p(\mathbf x+\mathbf y)=\mathcal N(\boldsymbol\mu_x+\boldsymbol\mu_y,\Sigma_x+\Sigma_y)$, and $p(a\mathbf x+b\mathbf y)=\mathcal N(a\boldsymbol\mu_x+b\boldsymbol\mu_y,\ a^2\Sigma_x+b^2\Sigma_y)$ (book Ex. 6.7). Linear map: $\mathbf y=A\mathbf x\Rightarrow p(\mathbf y)=\mathcal N(A\boldsymbol\mu,A\Sigma A^\top)$. <b>Reverse direction:</b> if $\mathbf y\sim\mathcal N(A\mathbf x,\Sigma)$ with $A\in\mathbb{R}^{M\times N}$ of full column rank ($M\ge N$), invert the relation with the pseudo-inverse, $\mathbf y=A\mathbf x\iff\mathbf x=(A^\top A)^{-1}A^\top\mathbf y$. Then $\mathbf x$ is a linear map of $\mathbf y$, so (book eq. 6.91)</p>
+<div class="formula">$$p(\mathbf x)=\mathcal N\Big(\mathbf x\ \Big|\ (A^\top A)^{-1}A^\top\mathbf y,\ \ (A^\top A)^{-1}A^\top\Sigma A(A^\top A)^{-1}\Big).$$</div>
+<h4>Mixtures: weighted sum of <i>densities</i> is not a weighted sum of variables</h4>
+<p>For $p(x)=\alpha p_1(x)+(1-\alpha)p_2(x)$ (Theorem 6.12): $\mathbb{E}[x]=\alpha\mu_1+(1-\alpha)\mu_2$ and</p>
+<div class="formula">$$\mathbb{V}[x]=\big(\alpha\sigma_1^2+(1-\alpha)\sigma_2^2\big)+\big(\alpha\mu_1^2+(1-\alpha)\mu_2^2-[\alpha\mu_1+(1-\alpha)\mu_2]^2\big).$$</div>
+<p>Proof idea: compute $\mathbb{E}[x^2]=\alpha(\mu_1^2+\sigma_1^2)+(1-\alpha)(\mu_2^2+\sigma_2^2)$ and subtract the squared mean. The two brackets are "average within-component variance" plus "variance of the component means", an instance of the <b>law of total variance</b> $\mathbb{V}[x]=\mathbb{E}_Y[\mathbb{V}[x\mid y]]+\mathbb{V}_Y[\mathbb{E}[x\mid y]]$. Check with the book's mixture $0.4\,\mathcal N(10,1)+0.6\,\mathcal N(0,8.4)$: $(0.4+5.04)+(40+0-16)=29.44$ ✓. Mixtures of Gaussians return in Chapter 11 (density estimation).</p>
+<h4>Sampling, in two stages</h4>
+<p>(1) Computers supply uniform numbers on $[0,1]$; a transformation such as <b>Box–Müller</b> turns pairs of them into standard normal samples (the "Y = Φ⁻¹(U)" idea of 6.7). (2) To get $\mathcal N(\boldsymbol\mu,\Sigma)$ transform a standard normal vector: $\mathbf y=A\mathbf x+\boldsymbol\mu$ with $AA^\top=\Sigma$; the Cholesky factor (Chapter 4) is the convenient triangular choice.</p></div>
 <div class="short"><b>In short.</b> Gaussian = mean + covariance. Marginals, conditionals, sums, and linear maps of Gaussians stay Gaussian, with closed-form parameters.</div>
 <details><summary>Check yourself</summary>$X\sim\mathcal N(0,1)$. What is the distribution of $2X+3$? <br><b>Answer:</b> $\mathcal N(3,\,4)$: mean $A\mu+b=3$, variance $A\Sigma A^\top=4$.</details>
 </section>
@@ -181,6 +262,21 @@
 <p>A <b>sufficient statistic</b> is a summary of the data that holds <i>all</i> the information about the parameter: for coin flips you only need the counts $h,t$, not the order of the flips. The <b>exponential family</b> is the class of distributions with the form</p>
 <div class="formula">$$p(\mathbf x\mid\boldsymbol\theta)=h(\mathbf x)\exp\big(\langle\boldsymbol\theta,\boldsymbol\phi(\mathbf x)\rangle-A(\boldsymbol\theta)\big)$$</div>
 <p>where $\boldsymbol\phi(\mathbf x)$ are the sufficient statistics. Gaussian, Bernoulli, Binomial, Beta, and many others belong to it (book Examples 6.13–6.14). Why care: exponential-family likelihoods always have a conjugate prior, and they have only finitely many sufficient statistics, which makes learning tractable.</p>
+<div class="deep"><h3>Going deeper: Beta, the Gamma function, sufficient statistics, and the exponential family in detail</h3>
+<h4>Beta distribution facts</h4>
+<p>$\operatorname{Beta}(\alpha,\beta)$ lives on $[0,1]$ with $\mathbb{E}[\mu]=\frac{\alpha}{\alpha+\beta}$ and $\mathbb{V}[\mu]=\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$. The normaliser uses the <b>Gamma function</b> $\Gamma(t)=\int_0^\infty x^{t-1}e^{-x}dx$, with $\Gamma(t+1)=t\,\Gamma(t)$ (so $\Gamma(n)=(n-1)!$ for integers). Intuition: $\alpha$ pulls mass toward 1, $\beta$ toward 0. Special cases: $\alpha=\beta=1$ uniform; $\alpha,\beta\lt1$ U-shaped (bimodal at 0 and 1); $\alpha,\beta\gt1$ unimodal; $\alpha=\beta\gt1$ symmetric around $\tfrac12$.</p>
+<h4>Conjugacy, derived</h4>
+<p>Binomial likelihood times Beta prior: $\mu^h(1-\mu)^{N-h}\cdot\mu^{\alpha-1}(1-\mu)^{\beta-1}=\mu^{h+\alpha-1}(1-\mu)^{N-h+\beta-1}\propto\operatorname{Beta}(\alpha+h,\beta+N-h)$ (book Ex. 6.11). For a single Bernoulli observation $x\in\{0,1\}$ the update is $(\alpha,\beta)\to(\alpha+x,\ \beta+1-x)$ (Ex. 6.12). The Gaussian is conjugate to itself for its mean; the inverse Gamma / inverse Wishart are conjugate for its variance / covariance; the Dirichlet for the multinomial.</p>
+<h4>Sufficient statistics (Fisher–Neyman)</h4>
+<p>A statistic is a deterministic function of the data. $\boldsymbol\phi(\mathbf x)$ is <b>sufficient</b> for $\theta$ if it carries all the information the data holds about $\theta$. Formally: $p(\mathbf x\mid\theta)=h(\mathbf x)\,g_\theta(\boldsymbol\phi(\mathbf x))$, where $h$ doesn't involve $\theta$ and $\theta$ enters only through $\boldsymbol\phi(\mathbf x)$. Examples: for coin flips, the count of heads (not their order); for a Gaussian sample, the sample mean and mean-square. <b>Pitman–Koopman–Darmois (1930s):</b> exponential families are the <i>only</i> families whose sufficient statistics stay finite-dimensional as the number of i.i.d. samples grows.</p>
+<h4>The exponential family</h4>
+<div class="formula">$$p(\mathbf x\mid\boldsymbol\theta)=h(\mathbf x)\exp\big(\langle\boldsymbol\theta,\boldsymbol\phi(\mathbf x)\rangle-A(\boldsymbol\theta)\big)\ \ \propto\ \exp\big(\boldsymbol\theta^\top\boldsymbol\phi(\mathbf x)\big)$$</div>
+<p>$\boldsymbol\phi$: sufficient statistics; $\boldsymbol\theta$: <b>natural parameters</b>; $A(\boldsymbol\theta)$: the <b>log-partition function</b> (the normaliser, so the density integrates to 1); $h$ can be absorbed by adding $\log h(\mathbf x)$ to $\boldsymbol\phi$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 6.13</span> The Gaussian</h4>
+  <p>$\boldsymbol\phi(x)=(x,x^2)$ and $\boldsymbol\theta=\big(\frac{\mu}{\sigma^2},-\frac1{2\sigma^2}\big)$ give $\exp(\theta_1x+\theta_2x^2)\propto\exp\big(-\frac{(x-\mu)^2}{2\sigma^2}\big)$ (complete the square).</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 6.14</span> The Bernoulli, and where the sigmoid comes from</h4>
+  <p>$\mu^x(1-\mu)^{1-x}=\exp\big[x\log\frac{\mu}{1-\mu}+\log(1-\mu)\big]$, so $h=1$, $\phi(x)=x$, natural parameter $\theta=\log\frac{\mu}{1-\mu}$ (the "log-odds"), $A(\theta)=\log(1+e^\theta)$. Inverting: $\mu=\frac1{1+e^{-\theta}}$, the <b>sigmoid</b>. So $\theta\in\mathbb{R}$ is squashed into $\mu\in(0,1)$. That is exactly why the sigmoid appears in logistic regression.</p></div>
+<p><b>Conjugate priors for free:</b> every exponential-family likelihood has a conjugate prior of the form $p(\boldsymbol\theta\mid\boldsymbol\gamma)=h_c(\boldsymbol\theta)\exp\big(\langle\boldsymbol\gamma,[\boldsymbol\theta;\,-A(\boldsymbol\theta)]\rangle-A_c(\boldsymbol\gamma)\big)$. Applying this to the Bernoulli reproduces the Beta distribution (Ex. 6.15). Other benefits: maximum-likelihood estimation reduces to matching empirical sufficient statistics (e.g. sample mean and covariance of a Gaussian), and the log-likelihood is concave, so optimisation (Chapter 7) is well behaved.</p></div>
 <div class="short"><b>In short.</b> Conjugate prior ⇒ posterior in the same family, updated by simple counting (Beta: add heads to α, tails to β).</div>
 <details><summary>Check yourself</summary>Prior Beta(2, 2); you see 3 heads, 1 tail. Posterior? <br><b>Answer:</b> Beta$(2+3,\,2+1)$ = Beta(5, 3), with mean $5/8=0.625$.</details>
 </section>
@@ -193,8 +289,119 @@
 <div class="widget wide" id="w-change"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <h3>Inverse transform sampling</h3>
 <p>The "$Y=\Phi(X)$" preset shows the <b>probability integral transform</b> (book Thm 6.15): feed any continuous variable through its own CDF and you get Uniform(0,1). Reverse it and you can <b>generate samples from any distribution</b> whose CDF you can invert: draw a uniform number $u$ (what computers provide) and output $F^{-1}(u)$.</p>
+<div class="deep"><h3>Going deeper: two techniques, a worked example, and the multivariate version</h3>
+<p><b>Discrete case (easy):</b> for invertible $U$, $P(Y=y)=P(X=U^{-1}(y))$. Probabilities just get relabelled.</p>
+<h4>Technique 1: the distribution-function method</h4>
+<p>(1) Find the CDF of $Y$: $F_Y(y)=P(Y\le y)$. (2) Differentiate: $f_Y(y)=\frac{d}{dy}F_Y(y)$. Mind the new range of $Y$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 6.16</span> $Y=X^2$ with $f_X(x)=3x^2$ on $[0,1]$</h4>
+  <p>$F_X(x)=x^3$. $F_Y(y)=P(X^2\le y)=P(X\le\sqrt y)=F_X(\sqrt y)=y^{3/2}$ for $0\le y\le1$. Differentiate: $f_Y(y)=\tfrac32\sqrt y$. Via the change-of-variable recipe: $U^{-1}(y)=\sqrt y$, $f_X(\sqrt y)=3y$, $\big|\frac{d}{dy}\sqrt y\big|=\frac1{2\sqrt y}$, product $\frac{3y}{2\sqrt y}=\tfrac32\sqrt y$ ✓ (same answer).</p></div>
+<h4>Technique 2: change of variables, and why the factor appears</h4>
+<p>It is the substitution rule of integration in disguise: $\int f(g(x))g'(x)dx=\int f(u)du$. Starting from $F_Y(y)=F_X(U^{-1}(y))$ (for increasing $U$), differentiating with the chain rule gives $f_Y(y)=f_X(U^{-1}(y))\frac{d}{dy}U^{-1}(y)$. For a decreasing $U$ the same derivation gives a minus sign, so the absolute value covers both cases. The factor measures "how much a unit length is stretched by $U^{-1}$". (Probability mass in a small piece $dx$ is conserved: $f_Y(y)\,|dy|=f_X(x)\,|dx|$.)</p>
+<div class="card" style="margin:10px 0"><h3><span class="tag thm">Thm 6.16</span>Multivariate change of variables</h3>
+  <p>If $\mathbf y=U(\mathbf x)$ is differentiable and invertible, then $f(\mathbf y)=f_{\mathbf x}\big(U^{-1}(\mathbf y)\big)\cdot\Big|\det\frac{\partial}{\partial\mathbf y}U^{-1}(\mathbf y)\Big|$. Same recipe: invert, substitute, multiply by the absolute Jacobian determinant (Chapter 5: the polar-coordinates widget showed $|\det J|=r$).</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 6.17</span> A linear map of a standard bivariate Gaussian</h4>
+  <p>$f(\mathbf x)=\frac1{2\pi}\exp(-\frac12\mathbf x^\top\mathbf x)$ and $\mathbf y=A\mathbf x$, $A=\left[\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right]$. Inverse: $\mathbf x=A^{-1}\mathbf y$, Jacobian $\frac{\partial}{\partial\mathbf y}A^{-1}\mathbf y=A^{-1}$ with determinant $\frac1{ad-bc}$. So</p>
+  <div class="formula">$$f(\mathbf y)=\frac1{2\pi}\exp\!\big(-\tfrac12\mathbf y^\top A^{-\top}A^{-1}\mathbf y\big)\,|ad-bc|^{-1},$$</div>
+  <p>a bivariate Gaussian with covariance $AA^\top$, confirming "linear maps of Gaussians are Gaussian".</p></div>
+<div class="card" style="margin:10px 0"><h3><span class="tag thm">Thm 6.15</span>Probability integral transform</h3>
+  <p>If $X$ is continuous with a strictly increasing CDF $F_X$, then $Y=F_X(X)$ is uniform on $[0,1]$. (Exercise E6.13.) Used backwards ($X=F_X^{-1}(U)$) it is <b>inverse transform sampling</b>: it generates samples from any distribution with an invertible CDF using only uniform random numbers.</p></div></div>
 <div class="short"><b>In short.</b> $p_Y(y)=p_X(U^{-1}(y))\,|dU^{-1}/dy|$. The extra factor accounts for stretching. In many dimensions it's the Jacobian determinant.</div>
 <details><summary>Check yourself</summary>$X\sim$ Uniform(0,1) and $Y=3X$. What is the density of $Y$ on $[0,3]$? <br><b>Answer:</b> $p_Y(y)=1\cdot|d(y/3)/dy|=1/3$: spread over three times the length, so one third as tall.</details>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>All thirteen exercises of the book's Chapter 6 (numbers refer to the book). Numeric answers were verified by computer. The later ones (6.5, 6.10, 6.12) are the Gaussian calculations behind Bayesian linear regression and Kalman filters; take them slowly.</p>
+
+<div class="exercise"><h4>E6.1 · Marginals and conditionals from a table <span class="src">book 6.1</span></h4>
+  <p>The joint distribution of discrete $X$ (columns) and $Y$ (rows):</p>
+  <table class="t" style="max-width:460px"><tr><th></th><th>$x_1$</th><th>$x_2$</th><th>$x_3$</th><th>$x_4$</th><th>$x_5$</th></tr>
+    <tr><th>$y_1$</th><td>0.01</td><td>0.02</td><td>0.03</td><td>0.10</td><td>0.10</td></tr>
+    <tr><th>$y_2$</th><td>0.05</td><td>0.10</td><td>0.05</td><td>0.07</td><td>0.20</td></tr>
+    <tr><th>$y_3$</th><td>0.10</td><td>0.05</td><td>0.03</td><td>0.05</td><td>0.04</td></tr></table>
+  <p>(a) Marginals $p(x)$, $p(y)$. (b) $p(x\mid Y=y_1)$ and $p(y\mid X=x_3)$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Sum rule. Column sums: $p(x)=(0.16,\ 0.17,\ 0.11,\ 0.22,\ 0.34)$ (total 1). Row sums: $p(y)=(0.26,\ 0.47,\ 0.27)$ (total 1).</p>
+  <p>(b) Divide a row/column by its total. $p(x\mid y_1)=\dfrac{(0.01,0.02,0.03,0.10,0.10)}{0.26}\approx(0.038,\ 0.077,\ 0.115,\ 0.385,\ 0.385)$, and $p(y\mid x_3)=\dfrac{(0.03,0.05,0.03)}{0.11}=(\tfrac3{11},\tfrac5{11},\tfrac3{11})\approx(0.273,\ 0.455,\ 0.273)$. Each sums to 1.</p></details></div>
+
+<div class="exercise"><h4>E6.2 · Mean, mode and median of a mixture <span class="src">book 6.2</span></h4>
+  <p>$p(\mathbf x)=0.4\,\mathcal N\big(\left[\begin{smallmatrix}10\\2\end{smallmatrix}\right],I\big)+0.6\,\mathcal N\big(\left[\begin{smallmatrix}0\\0\end{smallmatrix}\right],\left[\begin{smallmatrix}8.4&2\\2&1.7\end{smallmatrix}\right]\big)$. (a) Marginals. (b) Mean, mode, median of each marginal. (c) Mean and mode of the 2D distribution.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Marginals of a Gaussian are read off the mean and the diagonal of the covariance, and marginalising a mixture marginalises each component: $p(x_1)=0.4\,\mathcal N(x_1\mid10,1)+0.6\,\mathcal N(x_1\mid0,8.4)$ and $p(x_2)=0.4\,\mathcal N(x_2\mid2,1)+0.6\,\mathcal N(x_2\mid0,1.7)$.</p>
+  <p>(b) Means: $0.4\cdot10+0.6\cdot0=\mathbf 4$ and $0.4\cdot2+0=\mathbf{0.8}$. Medians (solve $F(m)=0.5$ numerically): $x_1$: $\approx\mathbf{2.80}$; $x_2$: $\approx\mathbf{0.87}$. Modes (peak of the density, numerically): $x_1$: $\approx\mathbf{10}$ (a second, lower peak near 0); $x_2$: $\approx\mathbf{1.33}$ (single peak, between the two component means).</p>
+  <p>(c) 2D mean: $(4,\ 0.8)$. 2D mode: the global peak is the first component's peak, $\approx(10,2)$ (height $\approx0.064$), versus a lower local peak at $(0,0)$ (height $\approx0.030$). Note the mean $(4,0.8)$ sits in a region of low density, and "the median of a 2D distribution" has no natural definition.</p></details></div>
+
+<div class="exercise"><h4>E6.3 · Conjugate prior for a Bernoulli <span class="src">book 6.3</span></h4>
+  <p>A program compiles ($x=1$) or not ($x=0$) with $p(x\mid\mu)=\mu^x(1-\mu)^{1-x}$. Choose a conjugate prior and compute $p(\mu\mid x_1,\dots,x_N)$.</p>
+  <details><summary>Solution</summary>
+  <p>The Beta distribution is conjugate to the Bernoulli. Prior $\mu\sim\operatorname{Beta}(\alpha,\beta)\propto\mu^{\alpha-1}(1-\mu)^{\beta-1}$. For i.i.d. observations with $s=\sum_nx_n$ successes, the likelihood is $\prod_n\mu^{x_n}(1-\mu)^{1-x_n}=\mu^s(1-\mu)^{N-s}$. Bayes: posterior $\propto\mu^{s+\alpha-1}(1-\mu)^{N-s+\beta-1}$, i.e.</p>
+  <div class="formula">$$p(\mu\mid x_1,\dots,x_N)=\operatorname{Beta}(\alpha+s,\ \beta+N-s),\qquad\mathbb{E}[\mu\mid\text{data}]=\frac{\alpha+s}{\alpha+\beta+N}.$$</div>
+  <p>Counts of successes and failures are simply added to $\alpha$ and $\beta$.</p></details></div>
+
+<div class="exercise"><h4>E6.4 · Mangos and bags <span class="src">book 6.4</span></h4>
+  <p>Bag 1: 4 mangos, 2 apples. Bag 2: 4 mangos, 4 apples. A biased coin shows heads with probability $0.6$ (then draw from bag 1) else tails $0.4$ (bag 2). You are handed a mango. What is the probability it came from bag 2?</p>
+  <details><summary>Solution</summary>
+  <p>$P(\text{bag 1})=0.6$, $P(\text{bag 2})=0.4$, $P(M\mid1)=\tfrac46=\tfrac23$, $P(M\mid2)=\tfrac48=\tfrac12$. Evidence: $P(M)=0.6\cdot\tfrac23+0.4\cdot\tfrac12=0.4+0.2=0.6$. Bayes:</p>
+  <div class="formula">$$P(\text{bag 2}\mid M)=\frac{P(M\mid2)P(\text{bag 2})}{P(M)}=\frac{\frac12\cdot0.4}{0.6}=\frac{0.2}{0.6}=\frac13.$$</div>
+  <p>Bag 2 is a priori less likely (0.4) and has fewer mangos in proportion, so the mango points toward bag 1.</p></details></div>
+
+<div class="exercise"><h4>E6.5 · A linear-Gaussian time series (the Kalman filter) <span class="src">book 6.5</span></h4>
+  <p>$\mathbf x_{t+1}=A\mathbf x_t+\mathbf w$, $\mathbf w\sim\mathcal N(0,Q)$; $\mathbf y_t=C\mathbf x_t+\mathbf v$, $\mathbf v\sim\mathcal N(0,R)$; $p(\mathbf x_0)=\mathcal N(\boldsymbol\mu_0,\Sigma_0)$; noises independent. (a) What is the form of $p(\mathbf x_0,\dots,\mathbf x_T)$? (b) Assume $p(\mathbf x_t\mid\mathbf y_{1:t})=\mathcal N(\boldsymbol\mu_t,\Sigma_t)$. Compute (1) $p(\mathbf x_{t+1}\mid\mathbf y_{1:t})$, (2) $p(\mathbf x_{t+1},\mathbf y_{t+1}\mid\mathbf y_{1:t})$, (3) $p(\mathbf x_{t+1}\mid\mathbf y_{1:t+1})$ when $\mathbf y_{t+1}=\hat{\mathbf y}$ is observed.</p>
+  <details><summary>Solution</summary>
+  <p>(a) By the product rule $p(\mathbf x_0,\dots,\mathbf x_T)=p(\mathbf x_0)\prod_{t}p(\mathbf x_{t+1}\mid\mathbf x_t)$ with each factor $\mathcal N(\mathbf x_{t+1}\mid A\mathbf x_t,Q)$. Every $\mathbf x_t$ is a linear function of the independent Gaussians $\mathbf x_0,\mathbf w_0,\mathbf w_1,\dots$, and linear maps of Gaussians are Gaussian, so the <b>joint is a (multivariate) Gaussian</b>.</p>
+  <p>(b1) Prediction: $\mathbf x_{t+1}=A\mathbf x_t+\mathbf w$ gives $p(\mathbf x_{t+1}\mid\mathbf y_{1:t})=\mathcal N(\bar{\boldsymbol\mu},\bar\Sigma)$ with $\bar{\boldsymbol\mu}=A\boldsymbol\mu_t$, $\bar\Sigma=A\Sigma_tA^\top+Q$.</p>
+  <p>(b2) With $\mathbf y_{t+1}=C\mathbf x_{t+1}+\mathbf v$: jointly Gaussian with mean $(\bar{\boldsymbol\mu},\,C\bar{\boldsymbol\mu})$ and covariance $\left[\begin{smallmatrix}\bar\Sigma&\bar\Sigma C^\top\\C\bar\Sigma&C\bar\Sigma C^\top+R\end{smallmatrix}\right]$.</p>
+  <p>(b3) Condition on $\mathbf y_{t+1}=\hat{\mathbf y}$ with the Gaussian conditioning rule:</p>
+  <div class="formula">$$\boldsymbol\mu_{t+1}=\bar{\boldsymbol\mu}+\bar\Sigma C^\top(C\bar\Sigma C^\top+R)^{-1}(\hat{\mathbf y}-C\bar{\boldsymbol\mu}),\qquad\Sigma_{t+1}=\bar\Sigma-\bar\Sigma C^\top(C\bar\Sigma C^\top+R)^{-1}C\bar\Sigma.$$</div>
+  <p class="why">This predict-then-correct loop is the <b>Kalman filter</b>. The term $\hat{\mathbf y}-C\bar{\boldsymbol\mu}$ is the "surprise", and the matrix $\bar\Sigma C^\top(\cdot)^{-1}$ (the Kalman gain) decides how much of it to believe.</p></details></div>
+
+<div class="exercise"><h4>E6.6 · The raw-score formula <span class="src">book 6.6</span></h4>
+  <p>Prove $\mathbb{V}[X]=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$.</p>
+  <details><summary>Solution</summary>
+  <p>With $\mu=\mathbb{E}[X]$ and linearity of expectation: $\mathbb{V}[X]=\mathbb{E}[(X-\mu)^2]=\mathbb{E}[X^2-2\mu X+\mu^2]=\mathbb{E}[X^2]-2\mu\,\mathbb{E}[X]+\mu^2=\mathbb{E}[X^2]-2\mu^2+\mu^2=\mathbb{E}[X^2]-\mu^2$. ∎ (Same with sample means for the empirical version.)</p></details></div>
+
+<div class="exercise"><h4>E6.7 · Variance as pairwise differences <span class="src">book 6.7</span></h4>
+  <p>Prove $\dfrac1{N^2}\sum_{i,j=1}^N(x_i-x_j)^2=2\Big(\dfrac1N\sum_ix_i^2-\big(\dfrac1N\sum_ix_i\big)^2\Big)$.</p>
+  <details><summary>Solution</summary>
+  <p>Expand the square: $(x_i-x_j)^2=x_i^2-2x_ix_j+x_j^2$. Summing over all $N^2$ pairs: $\sum_{i,j}x_i^2=N\sum_ix_i^2$, likewise $\sum_{i,j}x_j^2=N\sum_jx_j^2$, and $\sum_{i,j}x_ix_j=\big(\sum_ix_i\big)^2$. So $\dfrac1{N^2}\Big[2N\sum x_i^2-2\big(\sum x_i\big)^2\Big]=2\Big(\dfrac1N\sum x_i^2-\big(\dfrac1N\sum x_i\big)^2\Big)$. ∎ The right side is twice the raw-score variance: the average squared distance between pairs is twice the variance. (Checked numerically on random data.)</p></details></div>
+
+<div class="exercise"><h4>E6.8 · Bernoulli in exponential-family form <span class="src">book 6.8</span></h4>
+  <p>Write $p(x\mid\mu)=\mu^x(1-\mu)^{1-x}$ as $h(x)\exp(\theta\,\phi(x)-A(\theta))$.</p>
+  <details><summary>Solution</summary>
+  <p>$\mu^x(1-\mu)^{1-x}=\exp\big[x\log\mu+(1-x)\log(1-\mu)\big]=\exp\big[x\log\tfrac{\mu}{1-\mu}+\log(1-\mu)\big]$. So $h(x)=1$, $\phi(x)=x$, natural parameter $\theta=\log\frac\mu{1-\mu}$, and $A(\theta)=-\log(1-\mu)=\log(1+e^\theta)$ (since $\mu=\frac{1}{1+e^{-\theta}}$).</p></details></div>
+
+<div class="exercise"><h4>E6.9 · Binomial and Beta as exponential families <span class="src">book 6.9</span></h4>
+  <p>Express the Binomial and the Beta distributions in exponential-family form and show their product is again of that form.</p>
+  <details><summary>Solution</summary>
+  <p><b>Binomial:</b> $\binom Nx\mu^x(1-\mu)^{N-x}=\binom Nx\exp\big[x\theta-N\log(1+e^\theta)\big]$ with $\theta=\log\frac\mu{1-\mu}$: $h(x)=\binom Nx$, $\phi(x)=x$, $A(\theta)=N\log(1+e^\theta)$.</p>
+  <p><b>Beta:</b> $p(\mu\mid\alpha,\beta)=\exp\big[(\alpha-1)\log\mu+(\beta-1)\log(1-\mu)-\log B(\alpha,\beta)\big]$ with $B(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}$: $h=1$, $\boldsymbol\phi(\mu)=(\log\mu,\log(1-\mu))$, $\boldsymbol\theta=(\alpha-1,\beta-1)$, $A=\log B(\alpha,\beta)$.</p>
+  <p><b>Product</b> (as a function of $\mu$): $\mu^x(1-\mu)^{N-x}\cdot\mu^{\alpha-1}(1-\mu)^{\beta-1}=\exp\big[(\alpha+x-1)\log\mu+(\beta+N-x-1)\log(1-\mu)\big]$: the same sufficient statistics $(\log\mu,\log(1-\mu))$ with natural parameters $(\alpha+x-1,\ \beta+N-x-1)$, i.e. an (unnormalised) member of the family, namely a Beta$(\alpha+x,\beta+N-x)$. This is conjugacy seen through natural parameters: <b>the natural parameters simply add</b>.</p></details></div>
+
+<div class="exercise"><h4>E6.10 · The product of two Gaussians <span class="src">book 6.10</span></h4>
+  <p>Show $\mathcal N(\mathbf x\mid\mathbf a,A)\,\mathcal N(\mathbf x\mid\mathbf b,B)=c\,\mathcal N(\mathbf x\mid\mathbf c,C)$ with $C=(A^{-1}+B^{-1})^{-1}$, $\mathbf c=C(A^{-1}\mathbf a+B^{-1}\mathbf b)$, $c=\mathcal N(\mathbf a\mid\mathbf b,A+B)$. (a) by completing the square, (b) via exponential-family form.</p>
+  <details><summary>Solution</summary>
+  <p><b>(a)</b> Multiply the densities; the exponent is $-\tfrac12\big[(\mathbf x-\mathbf a)^\top A^{-1}(\mathbf x-\mathbf a)+(\mathbf x-\mathbf b)^\top B^{-1}(\mathbf x-\mathbf b)\big]=-\tfrac12\big[\mathbf x^\top(A^{-1}+B^{-1})\mathbf x-2\mathbf x^\top(A^{-1}\mathbf a+B^{-1}\mathbf b)+\mathbf a^\top A^{-1}\mathbf a+\mathbf b^\top B^{-1}\mathbf b\big]$. With $C^{-1}=A^{-1}+B^{-1}$ and $\mathbf c=C(A^{-1}\mathbf a+B^{-1}\mathbf b)$ the $\mathbf x$-terms become $(\mathbf x-\mathbf c)^\top C^{-1}(\mathbf x-\mathbf c)-\mathbf c^\top C^{-1}\mathbf c$. The leftover constant $\mathbf a^\top A^{-1}\mathbf a+\mathbf b^\top B^{-1}\mathbf b-\mathbf c^\top C^{-1}\mathbf c$ simplifies (matrix identities) to $(\mathbf a-\mathbf b)^\top(A+B)^{-1}(\mathbf a-\mathbf b)$, which together with the determinant identity $|A+B|=|A||B||C^{-1}|$ gives $c=(2\pi)^{-D/2}|A+B|^{-1/2}\exp\!\big(-\tfrac12(\mathbf a-\mathbf b)^\top(A+B)^{-1}(\mathbf a-\mathbf b)\big)=\mathcal N(\mathbf a\mid\mathbf b,A+B)$.</p>
+  <p><b>(b)</b> A Gaussian is $\propto\exp(\boldsymbol\theta^\top\boldsymbol\phi(\mathbf x))$ with $\boldsymbol\phi(\mathbf x)=(\mathbf x,\mathbf x\mathbf x^\top)$ and natural parameters $(\Sigma^{-1}\boldsymbol\mu,\ -\tfrac12\Sigma^{-1})$. Multiplying exponential-family densities with the same $\boldsymbol\phi$ <b>adds the natural parameters</b>: $\Sigma^{-1}\boldsymbol\mu=A^{-1}\mathbf a+B^{-1}\mathbf b$ and $\Sigma^{-1}=A^{-1}+B^{-1}$, i.e. exactly $C$ and $\mathbf c$ above.</p>
+  <p>Numeric check (1D, $a=0,A=1,b=2,B=3$): both sides equal $0.0472$ at $x=1$. A multivariate random example also matched.</p></details></div>
+
+<div class="exercise"><h4>E6.11 · Iterated expectations <span class="src">book 6.11</span></h4>
+  <p>Show $\mathbb{E}_X[x]=\mathbb{E}_Y\big[\mathbb{E}_X[x\mid y]\big]$.</p>
+  <details><summary>Solution</summary>
+  <p>$\mathbb{E}_Y[\mathbb{E}_X[x\mid y]]=\int\Big(\int x\,p(x\mid y)\,dx\Big)p(y)\,dy=\iint x\,p(x\mid y)p(y)\,dx\,dy=\iint x\,p(x,y)\,dx\,dy=\int x\Big(\int p(x,y)dy\Big)dx=\int x\,p(x)\,dx=\mathbb{E}_X[x]$. ∎ (Product rule, then sum rule.) Intuition: the overall average is the average of the group averages, weighted by group size. This is also the source of the mixture-mean formula.</p></details></div>
+
+<div class="exercise"><h4>E6.12 · Gaussian manipulation (the backbone of Bayesian linear regression) <span class="src">book 6.12</span></h4>
+  <p>$\mathbf x\sim\mathcal N(\boldsymbol\mu_x,\Sigma_x)$, $\mathbf x\in\mathbb{R}^D$; $\mathbf y=A\mathbf x+\mathbf b+\mathbf w$ with $\mathbf w\sim\mathcal N(0,Q)$ independent of $\mathbf x$. (a) $p(\mathbf y\mid\mathbf x)$. (b) $p(\mathbf y)$. (c) For $\mathbf z=C\mathbf y+\mathbf v$, $\mathbf v\sim\mathcal N(0,R)$: $p(\mathbf z\mid\mathbf y)$ and $p(\mathbf z)$. (d) The posterior $p(\mathbf x\mid\hat{\mathbf y})$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Given $\mathbf x$, the only randomness is $\mathbf w$: $p(\mathbf y\mid\mathbf x)=\mathcal N(\mathbf y\mid A\mathbf x+\mathbf b,\ Q)$.</p>
+  <p>(b) $\mathbf y$ is a linear function of independent Gaussians, so it is Gaussian. Mean: $\boldsymbol\mu_y=A\boldsymbol\mu_x+\mathbf b+0$. Covariance: by independence of $\mathbf x$ and $\mathbf w$, $\Sigma_y=A\Sigma_xA^\top+Q$. So $p(\mathbf y)=\mathcal N(A\boldsymbol\mu_x+\mathbf b,\ A\Sigma_xA^\top+Q)$.</p>
+  <p>(c) $p(\mathbf z\mid\mathbf y)=\mathcal N(C\mathbf y,R)$, and by the same argument $\boldsymbol\mu_z=C\boldsymbol\mu_y=C(A\boldsymbol\mu_x+\mathbf b)$, $\Sigma_z=C\Sigma_yC^\top+R=C(A\Sigma_xA^\top+Q)C^\top+R$.</p>
+  <p>(d) The cross-covariance is $\operatorname{Cov}[\mathbf x,\mathbf y]=\mathbb{E}[(\mathbf x-\boldsymbol\mu_x)(A(\mathbf x-\boldsymbol\mu_x)+\mathbf w)^\top]=\Sigma_xA^\top$ (the noise term vanishes). So $(\mathbf x,\mathbf y)$ is jointly Gaussian with blocks $\Sigma_x$, $\Sigma_xA^\top$, $\Sigma_y$ and the conditioning rule gives</p>
+  <div class="formula">$$p(\mathbf x\mid\hat{\mathbf y})=\mathcal N\Big(\boldsymbol\mu_x+\Sigma_xA^\top(A\Sigma_xA^\top+Q)^{-1}(\hat{\mathbf y}-A\boldsymbol\mu_x-\mathbf b),\ \ \Sigma_x-\Sigma_xA^\top(A\Sigma_xA^\top+Q)^{-1}A\Sigma_x\Big).$$</div>
+  <p>Equivalent "precision form" (verified numerically): posterior precision $=\Sigma_x^{-1}+A^\top Q^{-1}A$: prior precision plus data precision. With $\mathbf x$ as regression weights, this is Bayesian linear regression (Chapter 9).</p></details></div>
+
+<div class="exercise"><h4>E6.13 · The probability integral transform <span class="src">book 6.13</span></h4>
+  <p>For a continuous $X$ with strictly increasing CDF $F_X$, show $Y:=F_X(X)$ is uniformly distributed on $[0,1]$.</p>
+  <details><summary>Solution</summary>
+  <p>$Y\in[0,1]$. For $y\in[0,1]$: $P(Y\le y)=P(F_X(X)\le y)=P\big(X\le F_X^{-1}(y)\big)$ (apply the increasing function $F_X^{-1}$ to both sides) $=F_X\big(F_X^{-1}(y)\big)=y$. A CDF equal to $y$ on $[0,1]$ is the CDF of the uniform distribution. ∎ Reverse it to sample: draw $U\sim\mathrm{Uniform}(0,1)$ and output $F_X^{-1}(U)$. (Try "Y = Φ(X) → uniform" in the change-of-variables widget.)</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>

@@ -13,6 +13,7 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 3</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s31">3.1 Norms</a>
@@ -24,6 +25,7 @@
   <a href="#s37">3.7 Functions as vectors</a>
   <a href="#s38">3.8 Orthogonal projections</a>
   <a href="#s39">3.9 Rotations</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
 </nav>
 <main>
@@ -54,6 +56,13 @@
 <p>Manhattan length is what a taxi drives in a city grid (only along streets). Euclidean is the crow's flight. The book uses $\ell_2$ unless it says otherwise. Below, the orange curve is the set of all vectors with the <i>same length as $\mathbf{x}$</i>. Change $p$ and watch the shape of "equally long" change:</p>
 <div class="widget" id="w-norm"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Side note beyond the book: the corners of the $\ell_1$ diamond sit on the axes. That is the usual intuition for why $\ell_1$ regularisation pushes some weights to exactly zero.</p>
+<div class="deep"><h3>Going deeper: more norms, and what a norm can't do</h3>
+<ul>
+  <li><b>The $\ell_p$ family:</b> $\|\mathbf x\|_p=\big(\sum_i|x_i|^p\big)^{1/p}$ for $p\ge1$ is a norm ($p=1$ Manhattan, $p=2$ Euclidean). The limit $p\to\infty$ is the <b>max norm</b> $\|\mathbf x\|_\infty=\max_i|x_i|$. This is the shape-morphing the widget shows. For $p\lt1$ the triangle inequality fails, so it is not a norm.</li>
+  <li><b>Example:</b> $\mathbf x=(1,-2,2)$ has $\|\mathbf x\|_1=5$, $\|\mathbf x\|_2=\sqrt{1+4+4}=3$, $\|\mathbf x\|_\infty=2$. Always $\|\mathbf x\|_\infty\le\|\mathbf x\|_2\le\|\mathbf x\|_1$.</li>
+  <li><b>Normalising:</b> for $\mathbf x\ne\mathbf 0$ the vector $\mathbf x/\|\mathbf x\|$ has norm 1 (a <i>unit vector</i>), by absolute homogeneity.</li>
+  <li><b>Limits of a norm:</b> a norm gives lengths (and distances) but no notion of <i>angle</i> between vectors. For angles you need an inner product, next section. Not every norm comes from an inner product ($\ell_1$ doesn't), but every inner product gives a norm.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Norm = length with three sensible rules. Different norms, different shapes of "unit ball".</div>
 <details><summary>Check yourself</summary>Compute $\|(3,-4)\|_1$ and $\|(3,-4)\|_2$. <br><b>Answer:</b> $3+4=7$ and $\sqrt{9+16}=5$.</details>
 </section>
@@ -77,6 +86,23 @@
 <p>Play with it: the three sliders fill in a symmetric $2\times2$ matrix. The vectors $\mathbf{x}=(2,2)$ and $\mathbf{y}=(-2,2)$ never move, but their <i>lengths and angle</i> do, because the ruler (the inner product) changes. The dot product says they are perpendicular. Try "diag(2,1)".</p>
 <div class="widget" id="w-inner"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Takeaway: "orthogonal" and "length" are not absolute. They depend on which inner product you picked. Vectors orthogonal under the dot product need not be orthogonal under another.</p>
+<div class="deep"><h3>Going deeper: the definitions, and how to test positive definiteness</h3>
+<p>A map $\Omega:V\times V\to\mathbb{R}$ is <b>bilinear</b> if it is linear in each argument separately: $\Omega(\lambda\mathbf x+\psi\mathbf y,\mathbf z)=\lambda\Omega(\mathbf x,\mathbf z)+\psi\Omega(\mathbf y,\mathbf z)$, and the same in the second slot. It is <b>symmetric</b> if $\Omega(\mathbf x,\mathbf y)=\Omega(\mathbf y,\mathbf x)$ and <b>positive definite</b> if $\Omega(\mathbf x,\mathbf x)\gt0$ for all $\mathbf x\ne\mathbf 0$. A symmetric, positive definite bilinear map is an <b>inner product</b> $\langle\cdot,\cdot\rangle$, and $(V,\langle\cdot,\cdot\rangle)$ is an <b>inner product space</b> (a <b>Euclidean vector space</b> if it is the dot product).</p>
+<h4>Why every inner product is a matrix</h4>
+<p>Pick a basis $B=(\mathbf b_1,\dots,\mathbf b_n)$ and write $\mathbf x=\sum\psi_i\mathbf b_i$, $\mathbf y=\sum\lambda_j\mathbf b_j$. Bilinearity gives</p>
+<div class="formula">$$\langle\mathbf x,\mathbf y\rangle=\sum_{i,j}\psi_i\langle\mathbf b_i,\mathbf b_j\rangle\lambda_j=\hat{\mathbf x}^\top A\hat{\mathbf y},\qquad A_{ij}=\langle\mathbf b_i,\mathbf b_j\rangle.$$</div>
+<p>$A$ is symmetric (the inner product is) and positive definite. Conversely, <b>any symmetric positive definite $A$ defines an inner product</b> (book Thm 3.5). The dot product is $A=I$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 3.3</span> An inner product that is not the dot product</h4>
+  <p>$\langle\mathbf x,\mathbf y\rangle=x_1y_1-(x_1y_2+x_2y_1)+2x_2y_2=\mathbf x^\top\begin{bmatrix}1&-1\\-1&2\end{bmatrix}\mathbf y$. It is symmetric, and $\langle\mathbf x,\mathbf x\rangle=(x_1-x_2)^2+x_2^2\gt0$ unless $\mathbf x=\mathbf 0$, so it is an inner product. (Exercise E3.1 asks you to prove it.)</p></div>
+<h4>Three ways to test "symmetric positive definite"</h4>
+<ul>
+  <li><b>Complete the square:</b> show $\mathbf x^\top A\mathbf x$ is a sum of squares that vanishes only at $\mathbf 0$.</li>
+  <li><b>Eigenvalues (Ch. 4):</b> symmetric $A$ is positive definite iff all eigenvalues are $\gt0$.</li>
+  <li><b>$2\times2$ shortcut:</b> $\left[\begin{smallmatrix}a&b\\b&d\end{smallmatrix}\right]$ is positive definite iff $a\gt0$ and $ad-b^2\gt0$.</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 3.4</span> Positive definite or not?</h4>
+  <p>$A_1=\begin{bmatrix}9&6\\6&5\end{bmatrix}$: $\mathbf x^\top A_1\mathbf x=9x_1^2+12x_1x_2+5x_2^2=(3x_1+2x_2)^2+x_2^2\gt0$: <b>positive definite</b> (eigenvalues $7\pm2\sqrt{10}\gt0$, determinant $9\gt0$). $A_2=\begin{bmatrix}9&6\\6&3\end{bmatrix}$: $\mathbf x^\top A_2\mathbf x=(3x_1+2x_2)^2-x_2^2$, and at $\mathbf x=(2,-3)$ this is $36-72+27=-9\lt0$: <b>not positive definite</b> (determinant $-9$).</p></div>
+<p>Handy consequences for SPD $A$: its kernel is $\{\mathbf 0\}$ (so it is invertible), and its diagonal entries are positive ($a_{ii}=\mathbf e_i^\top A\mathbf e_i\gt0$). Covariance matrices (Ch. 6) are the standard source of SPD matrices in ML.</p></div>
 <div class="short"><b>In short.</b> Inner product = bilinear + symmetric + positive definite. In coordinates it is $\mathbf{x}^\top A\mathbf{y}$ with $A$ symmetric positive definite. Dot product is the case $A=I$.</div>
 <details><summary>Check yourself</summary>Is $\begin{bmatrix}1&2\\2&1\end{bmatrix}$ positive definite? <br><b>Answer:</b> No. For $\mathbf{x}=(1,-1)$: $1-4+1=-2<0$. (The widget's "Not positive definite" preset is the same idea.)</details>
 </section>
@@ -91,6 +117,11 @@
 <div class="formula">$$d(\mathbf{x},\mathbf{y})=\|\mathbf{x}-\mathbf{y}\|=\sqrt{\langle\mathbf{x}-\mathbf{y},\,\mathbf{x}-\mathbf{y}\rangle}$$</div>
 <p>A distance function (a <b>metric</b>) must be positive definite ($d(\mathbf{x},\mathbf{y})=0\iff\mathbf{x}=\mathbf{y}$), symmetric, and satisfy the triangle inequality $d(\mathbf{x},\mathbf{z})\le d(\mathbf{x},\mathbf{y})+d(\mathbf{y},\mathbf{z})$.</p>
 <p class="why">Subtle point from the book: inner product and distance move in <i>opposite</i> directions. Two very similar vectors have a <b>large</b> inner product but a <b>small</b> distance.</p>
+<div class="deep"><h3>Going deeper: why Cauchy–Schwarz holds, and lengths under other inner products</h3>
+<p><b>Proof of Cauchy–Schwarz.</b> For $\mathbf y\ne\mathbf 0$ let $t=\langle\mathbf x,\mathbf y\rangle/\langle\mathbf y,\mathbf y\rangle$. Then $0\le\|\mathbf x-t\mathbf y\|^2=\langle\mathbf x,\mathbf x\rangle-\dfrac{\langle\mathbf x,\mathbf y\rangle^2}{\langle\mathbf y,\mathbf y\rangle}$, which rearranges to $\langle\mathbf x,\mathbf y\rangle^2\le\|\mathbf x\|^2\|\mathbf y\|^2$. (Geometrically $t\mathbf y$ is the projection of $\mathbf x$ onto $\mathbf y$; the leftover has non-negative length.) The triangle inequality follows: $\|\mathbf x+\mathbf y\|^2=\|\mathbf x\|^2+2\langle\mathbf x,\mathbf y\rangle+\|\mathbf y\|^2\le(\|\mathbf x\|+\|\mathbf y\|)^2$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 3.5</span> Same vector, different length</h4>
+  <p>Let $\mathbf x=(1,1)$. Dot product: $\|\mathbf x\|=\sqrt2$. With $A=\begin{bmatrix}1&-\frac12\\-\frac12&1\end{bmatrix}$: $\langle\mathbf x,\mathbf x\rangle=1-1+1=1$, so $\|\mathbf x\|=1$. Lengths depend on the inner product you chose.</p></div>
+<p><b>Distance and metric.</b> $d(\mathbf x,\mathbf y)=\|\mathbf x-\mathbf y\|$ is a <b>metric</b>: $d\ge0$ with $d(\mathbf x,\mathbf y)=0\iff\mathbf x=\mathbf y$ (positive definite), $d(\mathbf x,\mathbf y)=d(\mathbf y,\mathbf x)$ (symmetric), and $d(\mathbf x,\mathbf z)\le d(\mathbf x,\mathbf y)+d(\mathbf y,\mathbf z)$ (triangle inequality). A norm alone suffices to define a distance; if the norm comes from an inner product, the distance changes when you change the inner product.</p></div>
 <div class="short"><b>In short.</b> Length = $\sqrt{\langle x,x\rangle}$. Distance = length of $x-y$. Cauchy–Schwarz bounds the inner product by the product of lengths.</div>
 <details><summary>Check yourself</summary>Euclidean distance between $(1,2)$ and $(4,6)$? <br><b>Answer:</b> $\|(-3,-4)\|=5$.</details>
 </section>
@@ -108,6 +139,10 @@
   <p>Inverting it costs nothing: just transpose. And it moves vectors without distorting them, since $\|A\mathbf{x}\|^2=\mathbf{x}^\top A^\top A\mathbf{x}=\mathbf{x}^\top\mathbf{x}=\|\mathbf{x}\|^2$. <b>Lengths and angles are preserved.</b> These are the rotations and flips (see 3.9).</p>
 </div>
 <div class="ml"><b>ML link.</b> The cosine of the angle is "cosine similarity", the standard way to compare word embeddings and documents. It ignores length and only asks "do they point the same way?"</div>
+<div class="deep"><h3>Going deeper: angles depend on the inner product; why orthogonal matrices are rigid</h3>
+<div class="wex"><h4><span class="tag">Book Ex. 3.7</span> Orthogonal under one inner product, not under another</h4>
+  <p>$\mathbf x=(1,1)$, $\mathbf y=(-1,1)$. With the dot product $\mathbf x^\top\mathbf y=-1+1=0$: $\omega=90^\circ$, orthogonal. With $A=\left[\begin{smallmatrix}2&0\\0&1\end{smallmatrix}\right]$: $\langle\mathbf x,\mathbf y\rangle=-2+1=-1$, $\|\mathbf x\|=\|\mathbf y\|=\sqrt3$, so $\cos\omega=-\tfrac13$ and $\omega\approx109.5^\circ$: <b>not</b> orthogonal.</p></div>
+<p><b>Orthogonal matrices.</b> $A\in\mathbb{R}^{n\times n}$ with orthonormal columns satisfies $A^\top A=AA^\top=I$, so $A^{-1}=A^\top$. Proof that it preserves length: $\|A\mathbf x\|^2=(A\mathbf x)^\top(A\mathbf x)=\mathbf x^\top A^\top A\mathbf x=\mathbf x^\top\mathbf x=\|\mathbf x\|^2$. Angles are preserved because the dot product is: $(A\mathbf x)^\top(A\mathbf y)=\mathbf x^\top\mathbf y$. These maps are exactly rotations and reflections (their determinant is $\pm1$, Ch. 4). The usual name "orthogonal" is slightly unfortunate; "orthonormal matrix" would be more accurate.</p></div>
 <div class="short"><b>In short.</b> Angle from $\cos\omega=\langle x,y\rangle/(\|x\|\|y\|)$. Orthogonal = inner product 0. Orthogonal matrices keep lengths and angles, with $A^{-1}=A^\top$.</div>
 <details><summary>Check yourself</summary>Angle between $(1,0)$ and $(0,5)$? <br><b>Answer:</b> dot product $0$, so $\cos\omega=0$ and $\omega=90^\circ$. (Length 5 doesn't matter.)</details>
 </section>
@@ -120,6 +155,11 @@
 <p>The payoff: with an ONB, <b>finding coordinates needs no equation solving</b>. Each coordinate is a single dot product, $\lambda_i=\mathbf{b}_i^\top\mathbf{x}$.</p>
 <div class="widget" id="w-onb"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Rotate the basis with θ. The coordinates change but the recipe never does: just dot with each basis vector. Gram–Schmidt (3.8) turns any basis into an ONB.</p>
+<div class="deep"><h3>Going deeper: why ONBs are so convenient</h3>
+<p>In an ONB $(\mathbf b_1,\dots,\mathbf b_n)$, taking the inner product of $\mathbf x=\sum\lambda_i\mathbf b_i$ with $\mathbf b_j$ kills every term except $\lambda_j$ (orthogonality) and leaves $\lambda_j\langle\mathbf b_j,\mathbf b_j\rangle=\lambda_j$ (unit length), hence $\lambda_j=\langle\mathbf x,\mathbf b_j\rangle$. Pythagoras comes for free: $\|\mathbf x\|^2=\sum_i\lambda_i^2$. Stacking the basis vectors as columns of $B$ gives an orthogonal matrix, with coordinates $\boldsymbol\lambda=B^\top\mathbf x$ and reconstruction $\mathbf x=B\boldsymbol\lambda$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 3.8</span> A non-standard ONB</h4>
+  <p>$\mathbf b_1=\tfrac1{\sqrt2}(1,1)$, $\mathbf b_2=\tfrac1{\sqrt2}(1,-1)$: $\mathbf b_1^\top\mathbf b_2=\tfrac12(1-1)=0$ and each has length $\sqrt{\tfrac12+\tfrac12}=1$. So it is an ONB of $\mathbb{R}^2$. For $\mathbf x=(3,1)$: $\lambda_1=\tfrac{4}{\sqrt2}$, $\lambda_2=\tfrac{2}{\sqrt2}$ and $\lambda_1^2+\lambda_2^2=8+2=10=\|\mathbf x\|^2$ ✓.</p></div>
+<p><b>Making one:</b> the <b>Gram–Schmidt process</b> (section 3.8) turns any basis into an orthogonal/orthonormal one. For an orthogonal-but-not-normalised basis, divide each vector by its length.</p></div>
 <div class="short"><b>In short.</b> ONB = orthogonal + unit length. Coordinates are $\lambda_i=\mathbf{b}_i^\top\mathbf{x}$.</div>
 <details><summary>Check yourself</summary>Is $\{(1,0),(1,1)\}$ an ONB? <br><b>Answer:</b> No. Their dot product is $1\ne0$ (and $(1,1)$ has length $\sqrt2$).</details>
 </section>
@@ -131,6 +171,10 @@
 <p>(with $\mathbf{b}_m$ a basis of $U$ and $\mathbf{b}^\perp_j$ a basis of $U^\perp$). Every vector splits into "the part in $U$" plus "the part perpendicular to $U$":</p>
 <div class="widget" id="w-compl"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">In 3D: a plane $U$ through the origin has a 1-dimensional complement, the line along its <b>normal vector</b> $\mathbf{w}$. That is why a plane can be described by one vector: "all vectors orthogonal to $\mathbf{w}$".</p>
+<div class="deep"><h3>Going deeper: normal vectors and hyperplanes</h3>
+<p>If $U$ is a hyperplane (dimension $D-1$) in $\mathbb{R}^D$, then $U^\perp$ is a line spanned by a unit <b>normal vector</b> $\mathbf w$, and $U=\{\mathbf x:\mathbf w^\top\mathbf x=0\}$. Example: $U=\{x_1+x_2+x_3=0\}\subset\mathbb{R}^3$ has $\mathbf w=\tfrac1{\sqrt3}(1,1,1)$, $\dim U^\perp=3-2=1$. Any $\mathbf x$ splits as $\mathbf x=(\mathbf x-\lambda\mathbf w)+\lambda\mathbf w$ with $\lambda=\mathbf w^\top\mathbf x$: the second part is the component perpendicular to the plane.</p>
+<p><b>A fact worth remembering</b> (not in the book's text but standard, and it ties back to Chapter 2): for a matrix $A$, the <b>kernel</b> of $A$ is the orthogonal complement of its <b>row space</b>, because $A\mathbf x=\mathbf 0$ says $\mathbf x$ is perpendicular to every row. Dimensions agree: $(n-\operatorname{rk}A)+\operatorname{rk}A=n$.</p>
+<p>Hyperplanes also describe <b>decision boundaries</b>: a linear classifier (Ch. 12) splits space by the sign of $\mathbf w^\top\mathbf x+b$.</p></div>
 <div class="short"><b>In short.</b> $U^\perp$ = everything perpendicular to $U$; dimensions add up to the whole space; every vector splits uniquely into a $U$-part and a $U^\perp$-part.</div>
 <details><summary>Check yourself</summary>$U$ is a line through the origin in $\mathbb{R}^3$. What is $\dim U^\perp$? <br><b>Answer:</b> $3-1=2$. It is the plane perpendicular to the line.</details>
 </section>
@@ -142,6 +186,10 @@
 <p>All the geometry still works. If the integral is $0$, the functions are <b>orthogonal</b>. The area under $u\cdot v$ is the inner product, so orthogonal means "positive and negative areas cancel":</p>
 <div class="widget wide" id="w-funcs"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Book Example 3.9: $\sin$ and $\cos$ are orthogonal on $[-\pi,\pi]$, because $\sin x\cos x$ is an odd function. More generally $\{1,\cos x,\cos 2x,\dots\}$ are mutually orthogonal there. Projecting a function onto such a family is the idea of <b>Fourier series</b>. (The book notes that making this fully rigorous needs more analysis than it covers.)</p>
+<div class="deep"><h3>Going deeper: lengths of functions, and a warning</h3>
+<p>Everything from the dot product carries over: $\|u\|=\sqrt{\int_a^bu(x)^2dx}$ is the length of a function and $\|u-v\|$ the distance between two. Example on $[-\pi,\pi]$: $\|\sin\|^2=\int_{-\pi}^{\pi}\sin^2x\,dx=\pi$, so $\|\sin\|=\sqrt\pi$, while $\langle\sin,\cos\rangle=0$ (odd integrand). The set $\{1,\cos x,\cos2x,\dots\}$ is mutually orthogonal there; projecting a function onto a family like this is exactly what a <b>Fourier series</b> does.</p>
+<p><b>Warning:</b> unlike finite-dimensional vectors, such integrals can be infinite, and a rigorous treatment needs measure theory (Hilbert spaces). The book stays informal here, and so will we.</p>
+<p>Same idea for <b>random variables</b>: $\mathbb{E}[XY]$ behaves like an inner product (Ch. 6.4.6), so covariance is an inner product and correlation is a cosine.</p></div>
 <div class="short"><b>In short.</b> Functions are vectors; sum → integral; orthogonal ⇔ the integral of the product is 0.</div>
 <details><summary>Check yourself</summary>Why is $\int_{-\pi}^{\pi}x\cos x\,dx=0$ without computing? <br><b>Answer:</b> $x$ is odd and $\cos x$ is even, so the product is odd, and an odd function integrates to 0 over a symmetric interval.</details>
 </section>
@@ -181,6 +229,24 @@
 <h3>Onto an affine subspace</h3>
 <p>For a shifted subspace $L=\mathbf{x}_0+U$: subtract the support point, project onto $U$, add it back:</p>
 <div class="formula">$$\pi_L(\mathbf{x})=\mathbf{x}_0+\pi_U(\mathbf{x}-\mathbf{x}_0),\qquad d(\mathbf{x},L)=d(\mathbf{x}-\mathbf{x}_0,\,\pi_U(\mathbf{x}-\mathbf{x}_0))$$</div>
+<div class="deep"><h3>Going deeper: worked projections, the projection error, and the details behind the formulas</h3>
+<h4>Why the normal equation is "closest point"</h4>
+<p>The point $\pi_U(\mathbf x)\in U$ closest to $\mathbf x$ must make the error $\mathbf x-\pi_U(\mathbf x)$ orthogonal to all of $U$ (otherwise a small move inside $U$ would shrink it). Orthogonality to each basis vector $\mathbf b_i$ is $B^\top(\mathbf x-B\boldsymbol\lambda)=\mathbf 0$, the normal equation $B^\top B\boldsymbol\lambda=B^\top\mathbf x$. $B^\top B$ is invertible because the $\mathbf b_i$ are independent. If your spanning set is <i>not</i> a basis, find a basis first (Chapter 2). The distance from $\mathbf x$ to $U$ is the <b>projection (reconstruction) error</b> $\|\mathbf x-\pi_U(\mathbf x)\|$.</p>
+<p>Also true: $P_\pi^2=P_\pi$ (project twice = project once) and $P_\pi$ is symmetric. With a general inner product replace $B^\top$ by $B^\top A$ throughout (see E3.6).</p>
+<div class="wex"><h4><span class="tag">Book Ex. 3.10</span> Projection onto a line in $\mathbb{R}^3$</h4>
+  <p>$\mathbf b=(1,2,2)$, $\mathbf b^\top\mathbf b=9$, so $P_\pi=\tfrac19\begin{bmatrix}1&2&2\\2&4&4\\2&4&4\end{bmatrix}$. For $\mathbf x=(1,1,1)$: $\pi_U(\mathbf x)=\tfrac19(5,10,10)=\tfrac59\mathbf b$, so $\lambda=\tfrac59$. It lies in $\operatorname{span}[\mathbf b]$, and projecting again changes nothing ($P_\pi\pi_U(\mathbf x)=\pi_U(\mathbf x)$).</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 3.11</span> Projection onto a plane in $\mathbb{R}^3$</h4>
+  <p>$U=\operatorname{span}\big[(1,1,1),(0,1,2)\big]$, $\mathbf x=(6,0,0)$. $B=\left[\begin{smallmatrix}1&0\\1&1\\1&2\end{smallmatrix}\right]$, $B^\top B=\left[\begin{smallmatrix}3&3\\3&5\end{smallmatrix}\right]$, $B^\top\mathbf x=(6,0)$. Solving $B^\top B\boldsymbol\lambda=B^\top\mathbf x$: $\boldsymbol\lambda=(5,-3)$. Then</p>
+  <div class="formula">$$\pi_U(\mathbf x)=B\boldsymbol\lambda=(5,2,-1),\qquad \|\mathbf x-\pi_U(\mathbf x)\|=\|(1,-2,1)\|=\sqrt6,\qquad P_\pi=\tfrac16\begin{bmatrix}5&2&-1\\2&2&2\\-1&2&5\end{bmatrix}.$$</div>
+  <p>Checks: $(1,-2,1)\cdot(1,1,1)=0$ and $(1,-2,1)\cdot(0,1,2)=0$ ✓ (error is orthogonal to $U$).</p></div>
+<h4>Gram–Schmidt in detail</h4>
+<p>From a basis $(\mathbf b_1,\dots,\mathbf b_n)$ build orthogonal $(\mathbf u_1,\dots,\mathbf u_n)$ with the same spans: $\mathbf u_1=\mathbf b_1$, $\mathbf u_k=\mathbf b_k-\pi_{\operatorname{span}[\mathbf u_1,\dots,\mathbf u_{k-1}]}(\mathbf b_k)$. Because the $\mathbf u_i$ are already orthogonal, that projection is just the sum of the 1-D projections $\sum_{i\lt k}\frac{\mathbf u_i^\top\mathbf b_k}{\mathbf u_i^\top\mathbf u_i}\mathbf u_i$. Normalise at the end for an ONB.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 3.12</span> Gram–Schmidt in $\mathbb{R}^2$</h4>
+  <p>$\mathbf b_1=(2,0)$, $\mathbf b_2=(1,1)$. $\mathbf u_1=(2,0)$; $\pi_{\operatorname{span}[\mathbf u_1]}(\mathbf b_2)=\frac{2\cdot1}{4}(2,0)=(1,0)$; $\mathbf u_2=\mathbf b_2-(1,0)=(0,1)$. Orthogonal ✓ ($\mathbf u_1^\top\mathbf u_2=0$).</p></div>
+<h4>Numerical note (from the book)</h4>
+<p>In practice one often adds a small "jitter" $\epsilon I$ to $B^\top B$ for numerical stability, and avoids explicit inverses. This "ridge" idea returns in Chapter 9.</p>
+<h4>Projections onto affine subspaces</h4>
+<p>$L=\mathbf x_0+U$: shift by $-\mathbf x_0$, project onto $U$, shift back: $\pi_L(\mathbf x)=\mathbf x_0+\pi_U(\mathbf x-\mathbf x_0)$ and $d(\mathbf x,L)=d(\mathbf x-\mathbf x_0,U)$. This is how the distance from a point to a hyperplane (the SVM margin, Ch. 12) is computed.</p></div>
 <div class="short"><b>In short.</b> Projection = closest point in the subspace; error ⟂ subspace. Line: $P=bb^\top/\|b\|^2$. General: $P=B(B^\top B)^{-1}B^\top$. ONB: $P=BB^\top$. Gram–Schmidt = subtract projections.</div>
 <details><summary>Check yourself</summary>Project $(3,4)$ onto the $x_1$-axis. What are $\pi$, $P_\pi$ and the error? <br><b>Answer:</b> $b=(1,0)$: $\pi=(3,0)$, $P=\begin{bmatrix}1&0\\0&0\end{bmatrix}$, error $\|(0,4)\|=4$.</details>
 </section>
@@ -203,8 +269,86 @@
     <li>In 2D, rotations <b>commute</b>: $R(\phi)R(\theta)=R(\theta)R(\phi)$. In 3D and higher they generally <b>do not</b>: order matters (try turning a book 90° about two different axes in both orders).</li>
   </ul>
 </div>
+<div class="deep"><h3>Going deeper: rotations in 3D and beyond, with a non-commuting example</h3>
+<p>Rotating the basis by $\theta$ in the plane gives the columns $(\cos\theta,\sin\theta)$ and $(-\sin\theta,\cos\theta)$: $R(\theta)=\left[\begin{smallmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{smallmatrix}\right]$. Book Figure 3.14 uses $\theta=112.5^\circ$, giving $R\approx\left[\begin{smallmatrix}-0.38&-0.92\\0.92&-0.38\end{smallmatrix}\right]$. Positive angles turn counterclockwise.</p>
+<p>In $\mathbb{R}^3$ there is one rotation matrix per axis (the coordinate along the axis stays fixed; "counterclockwise" is as seen looking from the axis tip toward the origin):</p>
+<div class="formula">$$R_1(\theta)=\begin{bmatrix}1&0&0\\0&\cos\theta&-\sin\theta\\0&\sin\theta&\cos\theta\end{bmatrix},\ R_2(\theta)=\begin{bmatrix}\cos\theta&0&\sin\theta\\0&1&0\\-\sin\theta&0&\cos\theta\end{bmatrix},\ R_3(\theta)=\begin{bmatrix}\cos\theta&-\sin\theta&0\\\sin\theta&\cos\theta&0\\0&0&1\end{bmatrix}.$$</div>
+<p>In $n$ dimensions, rotate in one plane and fix the rest. The <b>Givens rotation</b> $R_{ij}(\theta)$ equals $I_n$ except $r_{ii}=\cos\theta$, $r_{ij}=-\sin\theta$, $r_{ji}=\sin\theta$, $r_{jj}=\cos\theta$.</p>
+<div class="wex"><h4>3D rotations do not commute</h4>
+  <p>Take $\mathbf x=\mathbf e_2$ and angle $90^\circ$. Rotate about $\mathbf e_1$ first, then about $\mathbf e_3$: $R_1(90^\circ)\mathbf e_2=\mathbf e_3$, then $R_3(90^\circ)\mathbf e_3=\mathbf e_3$. Reverse the order: $R_3(90^\circ)\mathbf e_2=-\mathbf e_1$, then $R_1(90^\circ)(-\mathbf e_1)=-\mathbf e_1$. Results $\mathbf e_3$ versus $-\mathbf e_1$: <b>order matters</b> (in 2D it doesn't: $R(\phi)R(\theta)=R(\theta)R(\phi)$).</p></div>
+<p>Properties (all because $R$ is orthogonal): distances and angles are preserved, $R^{-1}=R^\top=R(-\theta)$ in 2D, and rotations about the <i>same</i> point in 2D form an Abelian group. Uses: computer graphics, robot joints, and "augmenting" image data by rotating it.</p></div>
 <div class="short"><b>In short.</b> $R(\theta)$ = columns are the rotated basis vectors. Orthogonal, so $R^{-1}=R^\top$ and nothing gets distorted.</div>
 <details><summary>Check yourself</summary>Where does $R(90^\circ)$ send $(1,0)$? <br><b>Answer:</b> First column of $R(90^\circ)$ is $(\cos90^\circ,\sin90^\circ)=(0,1)$.</details>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>All ten exercises from the book's Chapter 3 (numbers refer to the book). Try them first, then open the solutions. Every numerical answer was checked by computer.</p>
+
+<div class="exercise"><h4>E3.1 · Show a function is an inner product <span class="src">book 3.1</span></h4>
+  <p>Show that $\langle\mathbf x,\mathbf y\rangle:=x_1y_1-(x_1y_2+x_2y_1)+2x_2y_2$ is an inner product on $\mathbb{R}^2$.</p>
+  <details><summary>Solution</summary>
+  <p><b>Bilinear:</b> each term is (a coordinate of $\mathbf x$)$\times$(a coordinate of $\mathbf y$) times a constant, so the map is linear in $\mathbf x$ for fixed $\mathbf y$ and vice versa. <b>Symmetric:</b> swapping $\mathbf x\leftrightarrow\mathbf y$ gives $y_1x_1-(y_1x_2+y_2x_1)+2y_2x_2$, the same expression. <b>Positive definite:</b> $\langle\mathbf x,\mathbf x\rangle=x_1^2-2x_1x_2+2x_2^2=(x_1-x_2)^2+x_2^2\ge0$, and it is $0$ only if $x_2=0$ and $x_1=x_2$, i.e. $\mathbf x=\mathbf 0$. ✓ (Equivalently $A=\left[\begin{smallmatrix}1&-1\\-1&2\end{smallmatrix}\right]$ is symmetric with $a_{11}=1\gt0$, $\det=1\gt0$.)</p></details></div>
+
+<div class="exercise"><h4>E3.2 · Is it an inner product? <span class="src">book 3.2</span></h4>
+  <p>On $\mathbb{R}^2$ let $\langle\mathbf x,\mathbf y\rangle:=\mathbf x^\top A\mathbf y$ with $A=\left[\begin{smallmatrix}2&0\\1&2\end{smallmatrix}\right]$. Is this an inner product?</p>
+  <details><summary>Solution</summary>
+  <p><b>No.</b> $A$ is not symmetric, so the map is not symmetric: $\langle\mathbf e_1,\mathbf e_2\rangle=A_{12}=0$ but $\langle\mathbf e_2,\mathbf e_1\rangle=A_{21}=1$. (Positive definiteness of the <i>quadratic form</i> alone is not enough; symmetry is a separate requirement.)</p></details></div>
+
+<div class="exercise"><h4>E3.3 · Distances with two inner products <span class="src">book 3.3</span></h4>
+  <p>Compute $d(\mathbf x,\mathbf y)$ for $\mathbf x=(1,2,3)$, $\mathbf y=(-1,-1,0)$ using (a) the dot product (b) $\langle\mathbf x,\mathbf y\rangle=\mathbf x^\top A\mathbf y$, $A=\left[\begin{smallmatrix}2&1&0\\1&3&-1\\0&-1&2\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>$\mathbf v=\mathbf x-\mathbf y=(2,3,3)$. (a) $d=\sqrt{4+9+9}=\sqrt{22}\approx4.69$. (b) $A\mathbf v=(2\cdot2+3,\ 2+9-3,\ -3+6)=(7,8,3)$ and $\mathbf v^\top A\mathbf v=14+24+9=47$, so $d=\sqrt{47}\approx6.86$. Same two points, different distance.</p></details></div>
+
+<div class="exercise"><h4>E3.4 · Angles with two inner products <span class="src">book 3.4</span></h4>
+  <p>Angle between $\mathbf x=(1,2)$ and $\mathbf y=(-1,-1)$ using (a) the dot product (b) $\mathbf x^\top B\mathbf y$ with $B=\left[\begin{smallmatrix}2&1\\1&3\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $\mathbf x^\top\mathbf y=-3$, $\|\mathbf x\|=\sqrt5$, $\|\mathbf y\|=\sqrt2$: $\cos\omega=-3/\sqrt{10}\approx-0.949$, so $\omega\approx2.82$ rad $\approx161.6^\circ$.</p>
+  <p>(b) $B\mathbf y=(-3,-4)$, so $\langle\mathbf x,\mathbf y\rangle=-3-8=-11$. $B\mathbf x=(4,7)$, so $\langle\mathbf x,\mathbf x\rangle=4+14=18$. $\langle\mathbf y,\mathbf y\rangle=(-1)(-3)+(-1)(-4)=7$. $\cos\omega=-11/\sqrt{18\cdot7}=-11/\sqrt{126}\approx-0.980$, so $\omega\approx2.94$ rad $\approx168.5^\circ$.</p></details></div>
+
+<div class="exercise"><h4>E3.5 · Projection onto a subspace of $\mathbb{R}^5$ <span class="src">book 3.5</span></h4>
+  <p>Let $U\subseteq\mathbb{R}^5$ be</p>
+  <div class="formula">$$U=\operatorname{span}\big[(0,-1,2,0,2),\ (1,-3,1,-1,2),\ (-3,4,1,2,1),\ (-1,-3,5,0,7)\big]$$</div>
+  <p>and $\mathbf x=(-1,-9,-1,4,1)$. (a) Find $\pi_U(\mathbf x)$. (b) Find $d(\mathbf x,U)$.</p>
+  <details><summary>Solution</summary>
+  <p><b>Step 1: a basis.</b> Row-reducing the four vectors shows the rank is 3; the 4th vector is $1\cdot\mathbf v_1+2\cdot\mathbf v_2+1\cdot\mathbf v_3$. So $\mathbf v_1,\mathbf v_2,\mathbf v_3$ is a basis; let $B=[\mathbf v_1\ \mathbf v_2\ \mathbf v_3]$.</p>
+  <p><b>Step 2: normal equation.</b> $B^\top B=\left[\begin{smallmatrix}9&9&0\\9&16&-14\\0&-14&31\end{smallmatrix}\right]$, $B^\top\mathbf x=(9,23,-25)$. Solving gives $\boldsymbol\lambda=(-3,4,1)$ (check row 2: $-27+64-14=23$ ✓).</p>
+  <p>(a) $\pi_U(\mathbf x)=B\boldsymbol\lambda=(1,-5,-1,-2,3)$.</p>
+  <p>(b) $\mathbf x-\pi_U(\mathbf x)=(-2,-4,0,6,-2)$, so $d(\mathbf x,U)=\sqrt{4+16+0+36+4}=\sqrt{60}=2\sqrt{15}\approx7.75$. (It is orthogonal to each $\mathbf v_i$: e.g. $(-2,-4,0,6,-2)\cdot\mathbf v_1=4+0+0-4=0$ ✓.)</p></details></div>
+
+<div class="exercise"><h4>E3.6 · Projection with a non-standard inner product <span class="src">book 3.6</span></h4>
+  <p>On $\mathbb{R}^3$ use $\langle\mathbf x,\mathbf y\rangle=\mathbf x^\top A\mathbf y$ with $A=\left[\begin{smallmatrix}2&1&0\\1&2&-1\\0&-1&2\end{smallmatrix}\right]$. (a) Project $\mathbf e_2$ onto $U=\operatorname{span}[\mathbf e_1,\mathbf e_3]$. (b) Compute $d(\mathbf e_2,U)$.</p>
+  <details><summary>Solution</summary>
+  <p>Orthogonality now means $\langle\cdot,\cdot\rangle=0$, so the normal equation is $(B^\top AB)\boldsymbol\lambda=B^\top A\mathbf x$ with $B=[\mathbf e_1\ \mathbf e_3]$.</p>
+  <p>$B^\top AB=\left[\begin{smallmatrix}A_{11}&A_{13}\\A_{31}&A_{33}\end{smallmatrix}\right]=\left[\begin{smallmatrix}2&0\\0&2\end{smallmatrix}\right]$ and $B^\top A\mathbf e_2=(A_{12},A_{32})=(1,-1)$. So $\boldsymbol\lambda=(\tfrac12,-\tfrac12)$.</p>
+  <p>(a) $\pi_U(\mathbf e_2)=\tfrac12\mathbf e_1-\tfrac12\mathbf e_3=(\tfrac12,0,-\tfrac12)$.</p>
+  <p>(b) Error $\mathbf v=\mathbf e_2-\pi_U(\mathbf e_2)=(-\tfrac12,1,\tfrac12)$, $A\mathbf v=(0,1,0)$, so $\|\mathbf v\|_A^2=\mathbf v^\top A\mathbf v=1$ and <b>$d(\mathbf e_2,U)=1$</b>. Check: $B^\top A\mathbf v=(0,0)$, so the error is $A$-orthogonal to $U$ ✓. (Under the ordinary dot product the answer would be different, since "closest" depends on the inner product.)</p>
+  <p>(c) Sketch: the plane $U$ is the $x_1x_3$-plane; $\mathbf e_2$ sticks out of it, and its projection is the point $(\tfrac12,0,-\tfrac12)$ in the plane.</p></details></div>
+
+<div class="exercise"><h4>E3.7 · Projections and their complements <span class="src">book 3.7</span></h4>
+  <p>Let $\pi$ be an endomorphism of $V$. (a) Show $\pi$ is a projection iff $\mathrm{id}_V-\pi$ is. (b) If $\pi$ is a projection, find $\operatorname{Im}(\mathrm{id}-\pi)$ and $\ker(\mathrm{id}-\pi)$ in terms of $\operatorname{Im}\pi$, $\ker\pi$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) If $\pi^2=\pi$ then $(\mathrm{id}-\pi)^2=\mathrm{id}-2\pi+\pi^2=\mathrm{id}-\pi$. Conversely, if $\sigma=\mathrm{id}-\pi$ satisfies $\sigma^2=\sigma$, apply the same computation to $\sigma$: $\pi=\mathrm{id}-\sigma$ is a projection. ✓</p>
+  <p>(b) <b>$\operatorname{Im}(\mathrm{id}-\pi)=\ker\pi$ and $\ker(\mathrm{id}-\pi)=\operatorname{Im}\pi$.</b> Proof: if $\pi\mathbf x=\mathbf 0$ then $(\mathrm{id}-\pi)\mathbf x=\mathbf x$, so $\mathbf x\in\operatorname{Im}(\mathrm{id}-\pi)$; conversely $\pi(\mathbf x-\pi\mathbf x)=\pi\mathbf x-\pi^2\mathbf x=\mathbf 0$. Next, $(\mathrm{id}-\pi)\mathbf x=\mathbf 0\iff\mathbf x=\pi\mathbf x$; this forces $\mathbf x\in\operatorname{Im}\pi$, and if $\mathbf x=\pi\mathbf y$ then $\pi\mathbf x=\pi^2\mathbf y=\pi\mathbf y=\mathbf x$. ✓ (Intuition: $\mathrm{id}-\pi$ keeps the part that $\pi$ throws away.)</p></details></div>
+
+<div class="exercise"><h4>E3.8 · Gram–Schmidt in $\mathbb{R}^3$ <span class="src">book 3.8</span></h4>
+  <p>Turn the basis $\mathbf b_1=(1,1,1)$, $\mathbf b_2=(-1,2,0)$ of a plane $U\subseteq\mathbb{R}^3$ into an ONB.</p>
+  <details><summary>Solution</summary>
+  <p>$\mathbf u_1=\mathbf b_1=(1,1,1)$. $\mathbf u_1^\top\mathbf b_2=1$, $\mathbf u_1^\top\mathbf u_1=3$, so $\pi(\mathbf b_2)=\tfrac13(1,1,1)$ and $\mathbf u_2=\mathbf b_2-\tfrac13\mathbf u_1=(-\tfrac43,\tfrac53,-\tfrac13)=\tfrac13(-4,5,-1)$. Check $\mathbf u_1^\top\mathbf u_2=\tfrac13(-4+5-1)=0$ ✓. Normalising ($\|\mathbf u_1\|=\sqrt3$, $\|(-4,5,-1)\|=\sqrt{42}$):</p>
+  <div class="formula">$$\mathbf c_1=\tfrac1{\sqrt3}(1,1,1),\qquad\mathbf c_2=\tfrac1{\sqrt{42}}(-4,5,-1).$$</div></details></div>
+
+<div class="exercise"><h4>E3.9 · Inequalities via Cauchy–Schwarz <span class="src">book 3.9</span></h4>
+  <p>Let $x_1,\dots,x_n\gt0$ with $x_1+\dots+x_n=1$. Show (a) $\sum x_i^2\ge\frac1n$ (b) $\sum\frac1{x_i}\ge n^2$.</p>
+  <details><summary>Solution</summary>
+  <p>Use $(\mathbf a^\top\mathbf b)^2\le\|\mathbf a\|^2\|\mathbf b\|^2$ with the dot product.</p>
+  <p>(a) $\mathbf a=(x_1,\dots,x_n)$, $\mathbf b=(1,\dots,1)$: $\big(\sum x_i\big)^2\le\big(\sum x_i^2\big)\cdot n$, i.e. $1\le n\sum x_i^2$. ✓</p>
+  <p>(b) $\mathbf a=(\sqrt{x_1},\dots,\sqrt{x_n})$, $\mathbf b=(1/\sqrt{x_1},\dots,1/\sqrt{x_n})$: $\mathbf a^\top\mathbf b=n$, so $n^2\le\big(\sum x_i\big)\big(\sum\frac1{x_i}\big)=\sum\frac1{x_i}$. ✓ (Equality in both when all $x_i=\tfrac1n$.)</p></details></div>
+
+<div class="exercise"><h4>E3.10 · Rotate vectors <span class="src">book 3.10</span></h4>
+  <p>Rotate $\mathbf x_1=(2,3)$ and $\mathbf x_2=(0,-1)$ by $30^\circ$.</p>
+  <details><summary>Solution</summary>
+  <p>$R(30^\circ)=\begin{bmatrix}\frac{\sqrt3}{2}&-\frac12\\\frac12&\frac{\sqrt3}{2}\end{bmatrix}$. Then</p>
+  <div class="formula">$$R\mathbf x_1=\Big(\sqrt3-\tfrac32,\ 1+\tfrac{3\sqrt3}{2}\Big)\approx(0.232,\ 3.598),\qquad R\mathbf x_2=\Big(\tfrac12,\ -\tfrac{\sqrt3}{2}\Big)\approx(0.5,\ -0.866).$$</div>
+  <p>Sanity check: lengths are preserved ($\|\mathbf x_1\|=\sqrt{13}$ before and after). Try these in the rotation widget above.</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>

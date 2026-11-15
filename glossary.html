@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notation and Glossary — MML Study Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="assets/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head><body>
+<div class="layout">
+<nav class="side">
+  <a class="home" href="index.html">← All chapters</a>
+  <h2>Reference</h2>
+  <a href="#notation">Notation</a>
+  <a href="#glossary">Glossary A–Z</a>
+  <a href="#abbr">Abbreviations</a>
+</nav>
+<main>
+<h1>Notation and Glossary</h1>
+<p class="sub">Every symbol and key term from Part I, with a link to where it is explained.</p>
+
+<section id="notation" style="margin-top:20px"><h2>Notation</h2>
+<p>Follows the book's conventions: scalars lowercase, <b>vectors bold lowercase</b>, <b>matrices uppercase</b>; vectors are columns; gradients are rows.</p>
+<table class="t"><tr><th>Symbol</th><th>Meaning</th></tr>
+<tr><td>$a,b,c,\alpha,\beta,\gamma$</td><td>Scalars (lowercase)</td></tr>
+<tr><td>$\mathbf x,\mathbf y,\mathbf z$</td><td>Vectors (bold lowercase)</td></tr>
+<tr><td>$A,B,C$</td><td>Matrices (uppercase)</td></tr>
+<tr><td>$\mathbf x^\top,A^\top$ / $A^{-1}$</td><td>Transpose / inverse</td></tr>
+<tr><td>$\langle\mathbf x,\mathbf y\rangle$ / $\mathbf x^\top\mathbf y$</td><td>Inner product / dot product</td></tr>
+<tr><td>$B=(\mathbf b_1,\mathbf b_2,\mathbf b_3)$ ; $[\mathbf b_1,\mathbf b_2,\mathbf b_3]$ ; $\{\mathbf b_1,\mathbf b_2,\mathbf b_3\}$</td><td>Ordered tuple ; matrix with these columns ; unordered set</td></tr>
+<tr><td>$\mathbb{Z},\mathbb{N}$ / $\mathbb{R},\mathbb{C}$ / $\mathbb{R}^n$</td><td>Integers, naturals / reals, complex / $n$-dim. real vector space</td></tr>
+<tr><td>$\forall x$ / $\exists x$</td><td>For all $x$ / there exists $x$</td></tr>
+<tr><td>$a:=b$ ; $a\propto b$</td><td>$a$ is defined as $b$ ; $a$ proportional to $b$</td></tr>
+<tr><td>$g\circ f$</td><td>Composition: $g$ after $f$</td></tr>
+<tr><td>$\iff$ ; $\Rightarrow$</td><td>If and only if ; implies</td></tr>
+<tr><td>$a\in\mathcal A$ ; $\emptyset$ ; $\mathcal A\setminus\mathcal B$</td><td>Element of ; empty set ; $\mathcal A$ without $\mathcal B$</td></tr>
+<tr><td>$D$ ; $N$</td><td>Number of dimensions ($d=1..D$) ; number of data points ($n=1..N$)</td></tr>
+<tr><td>$I_m$ ; $\mathbf 0_{m,n}$ ; $\mathbf 1_{m,n}$ ; $\mathbf e_i$</td><td>Identity ; zeros ; ones ; standard basis vector</td></tr>
+<tr><td>$\dim$ ; $\operatorname{rk}(A)$</td><td>Dimension ; rank</td></tr>
+<tr><td>$\operatorname{Im}(\Phi)$ ; $\ker(\Phi)$ ; $\operatorname{span}[\mathbf b_1]$</td><td>Image ; kernel ; span</td></tr>
+<tr><td>$\operatorname{tr}(A)$ ; $\det(A)$ ; $|\cdot|$</td><td>Trace ; determinant ; absolute value or determinant</td></tr>
+<tr><td>$\|\cdot\|$ ; $\lambda$ ; $E_\lambda$</td><td>Norm (Euclidean by default) ; eigenvalue or Lagrange multiplier ; eigenspace</td></tr>
+<tr><td>$\mathbf x\perp\mathbf y$ ; $V^\perp$</td><td>Orthogonal ; orthogonal complement</td></tr>
+<tr><td>$\sum_{n=1}^N x_n$ ; $\prod_{n=1}^N x_n$</td><td>Sum ; product</td></tr>
+<tr><td>$\boldsymbol\theta$</td><td>Parameter vector</td></tr>
+<tr><td>$\frac{\partial f}{\partial x}$ ; $\frac{df}{dx}$ ; $\nabla$</td><td>Partial derivative ; total derivative ; gradient</td></tr>
+<tr><td>$f^*=\min_xf(x)$ ; $\mathbf x^*\in\arg\min_xf(x)$</td><td>Smallest value ; a minimiser (arg min returns a set)</td></tr>
+<tr><td>$\mathfrak L$ ; $\mathcal L$</td><td>Lagrangian ; negative log-likelihood</td></tr>
+<tr><td>$\binom nk$</td><td>Binomial coefficient, $n$ choose $k$</td></tr>
+<tr><td>$\mathbb{V}_X[x]$ ; $\mathbb{E}_X[x]$ ; $\operatorname{Cov}_{X,Y}[x,y]$</td><td>Variance ; expectation ; covariance</td></tr>
+<tr><td>$X\perp\!\!\!\perp Y\mid Z$</td><td>$X$ conditionally independent of $Y$ given $Z$</td></tr>
+<tr><td>$X\sim p$</td><td>$X$ is distributed according to $p$</td></tr>
+<tr><td>$\mathcal N(\boldsymbol\mu,\Sigma)$ ; $\mathrm{Ber}(\mu)$ ; $\mathrm{Bin}(N,\mu)$ ; $\mathrm{Beta}(\alpha,\beta)$</td><td>Gaussian ; Bernoulli ; Binomial ; Beta</td></tr>
+</table></section>
+
+<section id="glossary"><h2>Glossary A–Z</h2>
+<input id="q" type="search" placeholder="Filter terms (e.g. eigen, bayes, rank)…" style="width:100%;font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:10px;margin:6px 0 14px;background:#fffdf9">
+<dl class="gl" id="gl">
+<dt>Affine subspace <a class="loc" href="chapter2.html#s28">§2.8</a></dt><dd>A subspace shifted by a support point: $\mathbf x_0+U$. Solution sets of $A\mathbf x=\mathbf b$ are affine.</dd>
+<dt>Angle <a class="loc" href="chapter3.html#s34">§3.4</a></dt><dd>$\cos\omega=\langle\mathbf x,\mathbf y\rangle/(\|\mathbf x\|\|\mathbf y\|)$.</dd>
+<dt>Augmented matrix <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>The matrix $[A\,|\,\mathbf b]$ used to solve $A\mathbf x=\mathbf b$ by row operations.</dd>
+<dt>Automatic differentiation <a class="loc" href="chapter5.html#s56">§5.6</a></dt><dd>Exact derivatives computed by applying the chain rule to elementary steps of a program.</dd>
+<dt>Backpropagation <a class="loc" href="chapter5.html#s56">§5.6</a></dt><dd>Reverse-mode automatic differentiation: forward pass for values, backward pass for gradients.</dd>
+<dt>Basis <a class="loc" href="chapter2.html#s26">§2.6</a></dt><dd>A minimal generating set of a vector space = a maximal independent set. Gives unique coordinates.</dd>
+<dt>Bayes&#x27; theorem <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>$p(x\mid y)=p(y\mid x)p(x)/p(y)$: posterior $\propto$ likelihood $\times$ prior.</dd>
+<dt>Bernoulli / Binomial / Beta <a class="loc" href="chapter6.html#s66">§6.6</a></dt><dd>Yes-no outcome / number of successes in $N$ trials / distribution over a probability $\mu\in[0,1]$.</dd>
+<dt>Cauchy–Schwarz inequality <a class="loc" href="chapter3.html#s33">§3.3</a></dt><dd>$|\langle\mathbf x,\mathbf y\rangle|\le\|\mathbf x\|\|\mathbf y\|$.</dd>
+<dt>CDF, pdf, pmf <a class="loc" href="chapter6.html#s62">§6.2</a></dt><dd>Cumulative distribution function; probability density (continuous); probability mass function (discrete).</dd>
+<dt>Chain rule <a class="loc" href="chapter5.html#s51">§5.1</a></dt><dd>$(g\circ f)'=g'(f)f'$; for vectors, multiply Jacobians.</dd>
+<dt>Change of variables <a class="loc" href="chapter6.html#s67">§6.7</a></dt><dd>$p_Y(y)=p_X(U^{-1}(y))\,|dU^{-1}/dy|$ (Jacobian determinant in higher dimensions).</dd>
+<dt>Characteristic polynomial <a class="loc" href="chapter4.html#s41">§4.1</a></dt><dd>$p_A(\lambda)=\det(A-\lambda I)$; its roots are the eigenvalues.</dd>
+<dt>Cholesky decomposition <a class="loc" href="chapter4.html#s43">§4.3</a></dt><dd>$A=LL^\top$ for symmetric positive definite $A$, $L$ lower-triangular.</dd>
+<dt>Column space (image) <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>Span of the columns of $A$; has dimension $\operatorname{rk}(A)$.</dd>
+<dt>Condition number <a class="loc" href="chapter7.html#s71">§7.1</a></dt><dd>$\kappa=\sigma_{\max}/\sigma_{\min}$; large $\kappa$ means a thin valley and slow gradient descent.</dd>
+<dt>Conditional independence <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>$p(x,y\mid z)=p(x\mid z)p(y\mid z)$.</dd>
+<dt>Conjugate prior <a class="loc" href="chapter6.html#s66">§6.6</a></dt><dd>A prior whose posterior is in the same family (Beta with Bernoulli).</dd>
+<dt>Convex conjugate (Legendre–Fenchel) <a class="loc" href="chapter7.html#s73">§7.3</a></dt><dd>$f^*(\mathbf s)=\sup_{\mathbf x}(\langle\mathbf s,\mathbf x\rangle-f(\mathbf x))$.</dd>
+<dt>Convex function / set <a class="loc" href="chapter7.html#s73">§7.3</a></dt><dd>Chord above the graph / segment stays inside. Every local minimum of a convex problem is global.</dd>
+<dt>Coordinates <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>The unique coefficients of a vector with respect to an ordered basis.</dd>
+<dt>Correlation <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>Covariance divided by the standard deviations; in $[-1,1]$; the cosine of the angle between random variables.</dd>
+<dt>Covariance (matrix) <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>$\operatorname{Cov}[x,y]=\mathbb{E}[xy]-\mathbb{E}[x]\mathbb{E}[y]$; the covariance matrix is symmetric positive semi-definite.</dd>
+<dt>Defective matrix <a class="loc" href="chapter4.html#s42">§4.2</a></dt><dd>Fewer than $n$ independent eigenvectors; not diagonalisable.</dd>
+<dt>Derivative <a class="loc" href="chapter5.html#s51">§5.1</a></dt><dd>$f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}h$: the slope of the tangent.</dd>
+<dt>Determinant <a class="loc" href="chapter4.html#s41">§4.1</a></dt><dd>Signed volume scaling of a square matrix; $\ne0\iff$ invertible.</dd>
+<dt>Diagonalisable <a class="loc" href="chapter4.html#s44">§4.4</a></dt><dd>$A=PDP^{-1}$ with diagonal $D$; needs $n$ independent eigenvectors.</dd>
+<dt>Difference quotient <a class="loc" href="chapter5.html#s51">§5.1</a></dt><dd>Slope of the secant line, $\frac{f(x+\delta x)-f(x)}{\delta x}$.</dd>
+<dt>Dimension <a class="loc" href="chapter2.html#s26">§2.6</a></dt><dd>The number of vectors in any basis of a vector space.</dd>
+<dt>Distance (metric) <a class="loc" href="chapter3.html#s33">§3.3</a></dt><dd>$d(\mathbf x,\mathbf y)=\|\mathbf x-\mathbf y\|$; positive definite, symmetric, triangle inequality.</dd>
+<dt>Dot product <a class="loc" href="chapter3.html#s32">§3.2</a></dt><dd>$\mathbf x^\top\mathbf y=\sum x_iy_i$: the standard inner product.</dd>
+<dt>Dual problem / duality <a class="loc" href="chapter7.html#s72">§7.2</a></dt><dd>$\max_{\boldsymbol\lambda\ge0}\min_{\mathbf x}\mathfrak L$; weak duality: dual $\le$ primal; strong duality for convex problems.</dd>
+<dt>Eckart–Young theorem <a class="loc" href="chapter4.html#s46">§4.6</a></dt><dd>The truncated SVD is the best rank-$k$ approximation; error $\sigma_{k+1}$ (spectral norm).</dd>
+<dt>Eigenvalue / eigenvector / eigenspace <a class="loc" href="chapter4.html#s42">§4.2</a></dt><dd>$A\mathbf x=\lambda\mathbf x$; the eigenspace $E_\lambda=\ker(A-\lambda I)$.</dd>
+<dt>Elementary row operations <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>Swap two rows, scale a row by a nonzero number, add a multiple of one row to another. They keep the solution set unchanged.</dd>
+<dt>Evidence (marginal likelihood) <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>$p(y)=\int p(y\mid x)p(x)dx$; normalises the posterior.</dd>
+<dt>Expected value <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>$\mathbb{E}[g(X)]=\int g(x)p(x)dx$ (or sum); a linear operator.</dd>
+<dt>Exponential family <a class="loc" href="chapter6.html#s66">§6.6</a></dt><dd>$p(\mathbf x\mid\boldsymbol\theta)=h(\mathbf x)\exp(\langle\boldsymbol\theta,\boldsymbol\phi(\mathbf x)\rangle-A(\boldsymbol\theta))$.</dd>
+<dt>Free / basic variables <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>In row-echelon form, variables of pivot columns are basic, the others free (they parametrise the solutions).</dd>
+<dt>Gaussian (normal) distribution <a class="loc" href="chapter6.html#s65">§6.5</a></dt><dd>Defined by mean and covariance; closed under marginals, conditionals, sums, linear maps.</dd>
+<dt>Gaussian elimination <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>Row-reducing the augmented matrix to (reduced) row-echelon form to solve systems, invert matrices, find ranks and bases.</dd>
+<dt>General / particular solution <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>One solution of $A\mathbf x=\mathbf b$ plus all solutions of $A\mathbf x=\mathbf 0$.</dd>
+<dt>Geometric vs algebraic multiplicity <a class="loc" href="chapter4.html#s42">§4.2</a></dt><dd>Dimension of $E_\lambda$ vs how often $\lambda$ is a root; geometric $\le$ algebraic.</dd>
+<dt>Gradient <a class="loc" href="chapter5.html#s52">§5.2</a></dt><dd>The row vector of partial derivatives; direction of steepest ascent.</dd>
+<dt>Gradient descent <a class="loc" href="chapter7.html#s71">§7.1</a></dt><dd>$\mathbf x\leftarrow\mathbf x-\gamma\nabla f^\top$; finds a local minimum.</dd>
+<dt>Gram–Schmidt process <a class="loc" href="chapter3.html#s38">§3.8</a></dt><dd>Turns a basis into an orthogonal/orthonormal one by subtracting projections.</dd>
+<dt>Group <a class="loc" href="chapter2.html#s24">§2.4</a></dt><dd>A set with an operation that is closed, associative, has a neutral element and inverses. Abelian if commutative.</dd>
+<dt>Hessian <a class="loc" href="chapter5.html#s57">§5.7</a></dt><dd>Matrix of second derivatives; symmetric; measures curvature.</dd>
+<dt>Hyperplane <a class="loc" href="chapter3.html#s36">§3.6</a></dt><dd>An affine subspace of dimension $n-1$; described by a normal vector.</dd>
+<dt>i.i.d. <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>Independent and identically distributed.</dd>
+<dt>Identity matrix <a class="loc" href="chapter2.html#s22">§2.2</a></dt><dd>$I_n$: ones on the diagonal; $I A=AI=A$.</dd>
+<dt>Independence <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>$p(x,y)=p(x)p(y)$; implies zero covariance, not conversely.</dd>
+<dt>Inner product <a class="loc" href="chapter3.html#s32">§3.2</a></dt><dd>Symmetric, positive definite bilinear map; in coordinates $\mathbf x^\top A\mathbf y$ with $A$ symmetric positive definite.</dd>
+<dt>Inverse matrix <a class="loc" href="chapter2.html#s22">§2.2</a></dt><dd>$A^{-1}$ with $AA^{-1}=A^{-1}A=I$. Exists only for square, regular (non-singular) matrices.</dd>
+<dt>Jacobian <a class="loc" href="chapter5.html#s53">§5.3</a></dt><dd>$m\times n$ matrix of partial derivatives of $\mathbf f:\mathbb{R}^n\to\mathbb{R}^m$; the local linear map.</dd>
+<dt>Joint, marginal, conditional <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>$p(x,y)$; $p(x)=\sum_yp(x,y)$; $p(y\mid x)=p(x,y)/p(x)$.</dd>
+<dt>Kernel (null space) <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>$\{\mathbf x:\Phi(\mathbf x)=\mathbf 0\}$; for a matrix, the solutions of $A\mathbf x=\mathbf 0$. Dimension $n-\operatorname{rk}A$.</dd>
+<dt>Lagrangian / Lagrange multiplier <a class="loc" href="chapter7.html#s72">§7.2</a></dt><dd>$\mathfrak L=f+\boldsymbol\lambda^\top\mathbf g$; multipliers $\lambda_i\ge0$ for inequalities.</dd>
+<dt>Laplace expansion <a class="loc" href="chapter4.html#s41">§4.1</a></dt><dd>Determinant by expanding along a row or column into smaller determinants.</dd>
+<dt>Law of total variance <a class="loc" href="chapter6.html#s65">§6.5</a></dt><dd>$\mathbb{V}[x]=\mathbb{E}_y[\mathbb{V}[x\mid y]]+\mathbb{V}_y[\mathbb{E}[x\mid y]]$.</dd>
+<dt>Likelihood <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>$p(y\mid x)$ as a function of the parameters $x$; not a distribution over $x$.</dd>
+<dt>Linear combination <a class="loc" href="chapter2.html#s25">§2.5</a></dt><dd>A sum $\lambda_1\mathbf x_1+\dots+\lambda_k\mathbf x_k$.</dd>
+<dt>Linear independence <a class="loc" href="chapter2.html#s25">§2.5</a></dt><dd>No vector is a combination of the others; only the trivial combination gives $\mathbf 0$.</dd>
+<dt>Linear mapping <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>A map preserving addition and scaling. Every matrix is one, and vice versa given bases.</dd>
+<dt>Linear program (LP) <a class="loc" href="chapter7.html#s73">§7.3</a></dt><dd>$\min\mathbf c^\top\mathbf x$ s.t. $A\mathbf x\le\mathbf b$; optimum at a vertex.</dd>
+<dt>Linearization <a class="loc" href="chapter5.html#s58">§5.8</a></dt><dd>$f(\mathbf x)\approx f(\mathbf x_0)+\nabla f(\mathbf x_0)(\mathbf x-\mathbf x_0)$.</dd>
+<dt>Low-rank approximation <a class="loc" href="chapter4.html#s46">§4.6</a></dt><dd>$\hat A(k)=\sum_{i\le k}\sigma_i\mathbf u_i\mathbf v_i^\top$.</dd>
+<dt>Mean, median, mode <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>Average; value where the CDF is $0.5$; peak of the density.</dd>
+<dt>Minus-1 trick <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>Reading a basis of the kernel off a reduced row-echelon form by inserting $-1$ pivots.</dd>
+<dt>Momentum <a class="loc" href="chapter7.html#s71">§7.1</a></dt><dd>Adds $\alpha\Delta\mathbf x_i$ to the gradient step: a moving average of past gradients.</dd>
+<dt>Norm <a class="loc" href="chapter3.html#s31">§3.1</a></dt><dd>A length function with absolute homogeneity, triangle inequality and positive definiteness ($\ell_1,\ell_2,\dots$).</dd>
+<dt>Normal equation <a class="loc" href="chapter3.html#s38">§3.8</a></dt><dd>$B^\top B\boldsymbol\lambda=B^\top\mathbf x$: finds the projection coordinates onto $\operatorname{span}(B)$.</dd>
+<dt>Orthogonal / orthonormal <a class="loc" href="chapter3.html#s34">§3.4</a></dt><dd>Inner product zero / orthogonal with unit length.</dd>
+<dt>Orthogonal complement <a class="loc" href="chapter3.html#s36">§3.6</a></dt><dd>$U^\perp$: all vectors orthogonal to every vector of $U$; $\dim U+\dim U^\perp=\dim V$.</dd>
+<dt>Orthogonal matrix <a class="loc" href="chapter3.html#s34">§3.4</a></dt><dd>$A^\top A=I$, $A^{-1}=A^\top$; preserves lengths and angles.</dd>
+<dt>Orthonormal basis (ONB) <a class="loc" href="chapter3.html#s35">§3.5</a></dt><dd>Orthonormal basis: coordinates are $\lambda_i=\mathbf b_i^\top\mathbf x$.</dd>
+<dt>Partial derivative <a class="loc" href="chapter5.html#s52">§5.2</a></dt><dd>Derivative with respect to one variable, others held fixed.</dd>
+<dt>Pivot <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>The first nonzero entry of a nonzero row in row-echelon form.</dd>
+<dt>Positive definite matrix <a class="loc" href="chapter3.html#s32">§3.2</a></dt><dd>Symmetric $A$ with $\mathbf x^\top A\mathbf x\gt0$ for $\mathbf x\ne\mathbf 0$ (all eigenvalues $\gt0$).</dd>
+<dt>Posterior / prior <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>Belief after / before seeing data.</dd>
+<dt>Probability integral transform <a class="loc" href="chapter6.html#s67">§6.7</a></dt><dd>$F_X(X)\sim\mathrm{Uniform}(0,1)$; basis of inverse-transform sampling.</dd>
+<dt>Product rule / sum rule <a class="loc" href="chapter6.html#s63">§6.3</a></dt><dd>$p(x,y)=p(y\mid x)p(x)$; $p(x)=\sum_yp(x,y)$.</dd>
+<dt>Projection <a class="loc" href="chapter3.html#s38">§3.8</a></dt><dd>A linear map with $\pi^2=\pi$; orthogonal projection gives the closest point in a subspace.</dd>
+<dt>Projection matrix <a class="loc" href="chapter3.html#s38">§3.8</a></dt><dd>$P=bb^\top/\|b\|^2$ (line) or $B(B^\top B)^{-1}B^\top$ (subspace); symmetric, $P^2=P$.</dd>
+<dt>Pseudo-inverse <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>$(A^\top A)^{-1}A^\top$ for $A$ with independent columns; gives the least-squares solution.</dd>
+<dt>Quadratic program (QP) <a class="loc" href="chapter7.html#s73">§7.3</a></dt><dd>$\min\tfrac12\mathbf x^\top Q\mathbf x+\mathbf c^\top\mathbf x$ s.t. $A\mathbf x\le\mathbf b$.</dd>
+<dt>Random variable <a class="loc" href="chapter6.html#s61">§6.1</a></dt><dd>A function from outcomes $\Omega$ to a target space $\mathcal T$ (neither random nor a variable).</dd>
+<dt>Rank <a class="loc" href="chapter2.html#s26">§2.6</a></dt><dd>Number of independent columns (= rows). Invertible $\iff$ full rank.</dd>
+<dt>Rank–nullity theorem <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>$\dim\ker\Phi+\dim\operatorname{Im}\Phi=\dim V$.</dd>
+<dt>Reconstruction (projection) error <a class="loc" href="chapter3.html#s38">§3.8</a></dt><dd>$\|\mathbf x-\pi_U(\mathbf x)\|$.</dd>
+<dt>Regular / singular matrix <a class="loc" href="chapter2.html#s22">§2.2</a></dt><dd>Regular = invertible; singular = not invertible ($\det=0$).</dd>
+<dt>Rotation <a class="loc" href="chapter3.html#s39">§3.9</a></dt><dd>Orthogonal map of the plane by angle $\theta$; $R(\theta)$. Givens rotations generalise to $n$ dimensions.</dd>
+<dt>Row-echelon form (REF / RREF) <a class="loc" href="chapter2.html#s23">§2.3</a></dt><dd>Staircase of pivots; reduced form has pivots equal to 1 with zeros above and below.</dd>
+<dt>Similar matrices <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>$\tilde A=S^{-1}AS$: the same linear map in two bases.</dd>
+<dt>Singular value decomposition (SVD) <a class="loc" href="chapter4.html#s45">§4.5</a></dt><dd>$A=U\Sigma V^\top$ for any matrix; singular values $\sigma_i=\sqrt{\lambda_i(A^\top A)}$.</dd>
+<dt>Span <a class="loc" href="chapter2.html#s26">§2.6</a></dt><dd>All linear combinations of a set of vectors; the smallest subspace containing them.</dd>
+<dt>Spectral norm <a class="loc" href="chapter4.html#s46">§4.6</a></dt><dd>$\|A\|_2=\max\|A\mathbf x\|/\|\mathbf x\|=\sigma_1$.</dd>
+<dt>Spectral theorem <a class="loc" href="chapter4.html#s42">§4.2</a></dt><dd>Symmetric matrices have real eigenvalues and an orthonormal eigenbasis.</dd>
+<dt>Step size (learning rate) <a class="loc" href="chapter7.html#s71">§7.1</a></dt><dd>The factor $\gamma$ multiplying the gradient.</dd>
+<dt>Stochastic gradient descent (SGD) <a class="loc" href="chapter7.html#s71">§7.1</a></dt><dd>Gradient descent with a random mini-batch gradient estimate.</dd>
+<dt>Subspace <a class="loc" href="chapter2.html#s24">§2.4</a></dt><dd>A subset closed under addition and scaling (contains $\mathbf 0$).</dd>
+<dt>Sufficient statistic <a class="loc" href="chapter6.html#s66">§6.6</a></dt><dd>A function of the data containing all the information about the parameter (Fisher–Neyman).</dd>
+<dt>Symmetric matrix <a class="loc" href="chapter2.html#s22">§2.2</a></dt><dd>$A=A^\top$.</dd>
+<dt>Taylor series / polynomial <a class="loc" href="chapter5.html#s51">§5.1</a></dt><dd>A function as a polynomial built from its derivatives at $x_0$.</dd>
+<dt>Trace <a class="loc" href="chapter4.html#s41">§4.1</a></dt><dd>Sum of the diagonal $=$ sum of the eigenvalues; $\operatorname{tr}(AB)=\operatorname{tr}(BA)$.</dd>
+<dt>Transformation matrix <a class="loc" href="chapter2.html#s27">§2.7</a></dt><dd>Columns are the images of the basis vectors in coordinates of the target basis.</dd>
+<dt>Transpose <a class="loc" href="chapter2.html#s22">§2.2</a></dt><dd>$(A^\top)_{ij}=A_{ji}$; $(AB)^\top=B^\top A^\top$.</dd>
+<dt>Variance <a class="loc" href="chapter6.html#s64">§6.4</a></dt><dd>$\mathbb{E}[(X-\mu)^2]=\mathbb{E}[X^2]-\mathbb{E}[X]^2$.</dd>
+<dt>Vector space <a class="loc" href="chapter2.html#s24">§2.4</a></dt><dd>A set closed under addition and scalar multiplication (with the usual axioms).</dd>
+</dl></section>
+
+<section id="abbr"><h2>Abbreviations</h2>
+<table class="t" style="max-width:560px"><tr><th>Abbr.</th><th>Meaning</th></tr>
+<tr><td><b>GMM</b></td><td>Gaussian mixture model</td></tr>
+<tr><td><b>i.i.d.</b></td><td>Independent, identically distributed</td></tr>
+<tr><td><b>MAP</b></td><td>Maximum a posteriori</td></tr>
+<tr><td><b>MLE</b></td><td>Maximum likelihood estimation / estimator</td></tr>
+<tr><td><b>ONB</b></td><td>Orthonormal basis</td></tr>
+<tr><td><b>PCA</b></td><td>Principal component analysis</td></tr>
+<tr><td><b>PPCA</b></td><td>Probabilistic PCA</td></tr>
+<tr><td><b>REF</b></td><td>Row-echelon form</td></tr>
+<tr><td><b>SPD</b></td><td>Symmetric, positive definite</td></tr>
+<tr><td><b>SVM</b></td><td>Support vector machine</td></tr>
+<tr><td><b>LP / QP</b></td><td>Linear / quadratic program</td></tr>
+<tr><td><b>SGD</b></td><td>Stochastic gradient descent</td></tr>
+<tr><td><b>SVD</b></td><td>Singular value decomposition</td></tr>
+</table></section>
+
+<p class="note">Unofficial study notes based on <i>Mathematics for Machine Learning</i> (Deisenroth, Faisal, Ong). The notation table follows the book's own table of symbols.</p>
+</main></div>
+<script>
+const q=document.getElementById('q'), dts=[...document.querySelectorAll('#gl dt')];
+q.addEventListener('input',()=>{ const s=q.value.trim().toLowerCase(); dts.forEach(dt=>{ const dd=dt.nextElementSibling, hit=!s||(dt.textContent+' '+dd.textContent).toLowerCase().includes(s); dt.style.display=hit?'':'none'; dd.style.display=hit?'':'none'; }); });
+</script>
+</body></html>

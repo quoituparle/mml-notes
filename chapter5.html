@@ -14,6 +14,7 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 5</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s51">5.1 Univariate functions</a>
@@ -24,6 +25,7 @@
   <a href="#s56">5.6 Backpropagation</a>
   <a href="#s57">5.7 Higher-order derivatives</a>
   <a href="#s58">5.8 Linearization, Taylor</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
 </nav>
 <main>
@@ -58,6 +60,27 @@
 <p>Degree 0 is a flat line at $f(x_0)$, degree 1 is the tangent line, degree 2 adds curvature, and so on. For $x_0=0$ it's called a Maclaurin series.</p>
 <div class="widget wide" id="w-taylor"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Book Example 5.4: for $\sin x+\cos x$ at $0$, the coefficients are $1,1,-\tfrac12,-\tfrac16,\dots$ (each sign twice). Book Example 5.3: $x^4$ at $x_0=1$ is a polynomial, so $T_4$ is <i>exactly</i> $x^4$ (the "x⁴" preset: the error drops to zero at degree 4).</p>
+<div class="deep"><h3>Going deeper: deriving a derivative, a derivative table, and Taylor in detail</h3>
+<div class="wex"><h4><span class="tag">Book Ex. 5.2</span> Why $\frac{d}{dx}x^n=nx^{n-1}$ (from the definition)</h4>
+  <p>Expand $(x+h)^n=\sum_{i=0}^n\binom nix^{n-i}h^i$. The $i=0$ term is $x^n$ and cancels with $-x^n$, so</p>
+  <div class="formula">$$\frac{(x+h)^n-x^n}{h}=\sum_{i=1}^n\binom nix^{n-i}h^{i-1}=nx^{n-1}+\underbrace{\sum_{i=2}^n\binom nix^{n-i}h^{i-1}}_{\to0\text{ as }h\to0}\ \longrightarrow\ nx^{n-1}.$$</div></div>
+<h4>Derivatives you should know by heart</h4>
+<table class="t">
+  <tr><th>$f(x)$</th><th>$f'(x)$</th><th>$f(x)$</th><th>$f'(x)$</th></tr>
+  <tr><td>$x^n$</td><td>$nx^{n-1}$</td><td>$\sin x$</td><td>$\cos x$</td></tr>
+  <tr><td>$e^x$</td><td>$e^x$</td><td>$\cos x$</td><td>$-\sin x$</td></tr>
+  <tr><td>$\ln x$</td><td>$1/x$</td><td>$\tanh x$</td><td>$1-\tanh^2x$</td></tr>
+  <tr><td>$\sigma(x)=\frac1{1+e^{-x}}$ (sigmoid)</td><td>$\sigma(x)(1-\sigma(x))$</td><td>$e^{-(x-\mu)^2/2\sigma^2}$</td><td>$-\frac{x-\mu}{\sigma^2}e^{-(x-\mu)^2/2\sigma^2}$</td></tr>
+</table>
+<p>Differentiable implies continuous, but not the other way around: $|x|$ is continuous at 0 with no derivative there (the slopes from left and right disagree). The book assumes differentiability throughout and notes that sub-gradients extend most ideas to such kinks.</p>
+<h4>Taylor series: the details</h4>
+<ul>
+  <li>The coefficient of $(x-x_0)^k$ is $f^{(k)}(x_0)/k!$; the factorial makes the $k$th derivative of the polynomial match $f^{(k)}(x_0)$ exactly. So $T_n$ agrees with $f$ in value and its first $n$ derivatives at $x_0$.</li>
+  <li>If $f$ is itself a polynomial of degree $\le n$, then $T_n=f$ <b>exactly</b>. Book Ex. 5.3: $f(x)=x^4$ at $x_0=1$ has $f(1)=1,f'(1)=4,f''(1)=12,f^{(3)}(1)=24,f^{(4)}(1)=24$ and $T_6(x)=1+4(x-1)+6(x-1)^2+4(x-1)^3+(x-1)^4=x^4$.</li>
+  <li><b>Taylor series:</b> $T_\infty(x)=\sum_{k=0}^\infty\frac{f^{(k)}(x_0)}{k!}(x-x_0)^k$ for smooth ($C^\infty$) $f$; at $x_0=0$ it is called the <b>Maclaurin series</b>. If $T_\infty=f$ the function is <b>analytic</b>.</li>
+  <li>Book Ex. 5.4 splits cleanly: $\sin x+\cos x=\sum_k(-1)^k\frac{x^{2k}}{(2k)!}+\sum_k(-1)^k\frac{x^{2k+1}}{(2k+1)!}$, the cosine series plus the sine series.</li>
+  <li><b>Caveat:</b> the approximation is good only near $x_0$ (and some series converge only on a limited interval). Higher degree widens the good region, as the widget shows.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Derivative = limit of slopes. Chain rule: derivatives of nested functions multiply. Taylor: a function ≈ polynomial built from its derivatives.</div>
 <details><summary>Check yourself</summary>Differentiate $(3x^2+1)^5$. <br><b>Answer:</b> chain rule: $5(3x^2+1)^4\cdot6x=30x(3x^2+1)^4$.</details>
 </section>
@@ -74,6 +97,14 @@
 <p>The gradient points in the direction of <b>steepest ascent</b>, and its length is how steep that is. It is always perpendicular to the contour (level) line through the point. So $-\nabla f$ is the steepest <b>descent</b> direction, which is exactly what gradient descent (Ch. 7) follows. The colours show $f$ (orange high, blue low):</p>
 <div class="widget" id="w-grad"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p><b>Chain rule for several variables</b> stays the same shape: $\dfrac{\partial}{\partial\mathbf x}g(f(\mathbf x))=\dfrac{\partial g}{\partial f}\dfrac{\partial f}{\partial\mathbf x}$, just with matrices (order matters). Product and sum rules extend likewise.</p>
+<div class="deep"><h3>Going deeper: partial derivatives and the multivariate chain rule</h3>
+<p><b>Definition.</b> $\dfrac{\partial f}{\partial x_i}=\lim_{h\to0}\dfrac{f(x_1,\dots,x_i+h,\dots,x_n)-f(\mathbf x)}{h}$: nudge one input, hold the others fixed. All the usual product, sum and chain rules apply (just mind the order when matrices appear).</p>
+<h4>Chain rule with several paths</h4>
+<p>If $f(x_1,x_2)$ and each $x_i$ depends on $t$, then $\dfrac{df}{dt}=\dfrac{\partial f}{\partial x_1}\dfrac{dx_1}{dt}+\dfrac{\partial f}{\partial x_2}\dfrac{dx_2}{dt}$: sum over all paths from $t$ to $f$. In matrix form this is the product (row gradient)$\times$(column of derivatives), and if the $x_i$ depend on two variables $s,t$ you get a row times a $2\times2$ matrix.</p>
+<div class="wex"><h4>Worked example</h4>
+  <p>$f(x_1,x_2)=x_1^2+2x_2$ with $x_1=\sin t$, $x_2=\cos t$. Then $\partial f/\partial x_1=2x_1$, $\partial f/\partial x_2=2$, so $\dfrac{df}{dt}=2\sin t\cos t+2(-\sin t)=2\sin t\cos t-2\sin t$. (Direct check: $f=\sin^2t+2\cos t$ gives the same.)</p></div>
+<h4>Which way is uphill? The directional derivative</h4>
+<p>The rate of change of $f$ in the unit direction $\mathbf u$ is $\nabla f\,\mathbf u=\|\nabla f\|\cos\omega$, where $\omega$ is the angle between $\mathbf u$ and the gradient (Chapter 3). It is largest ($\|\nabla f\|$) when $\mathbf u$ points along the gradient, zero when $\mathbf u$ is perpendicular to it (along a contour line), and most negative against it. That is the precise statement behind "gradient = steepest ascent".</p></div>
 <div class="short"><b>In short.</b> Gradient = vector of partial derivatives = direction of steepest ascent, ⟂ to contour lines. Go against it to descend.</div>
 <details><summary>Check yourself</summary>Gradient of $f(x,y)=x^2+3y$ at $(1,2)$? <br><b>Answer:</b> $[2x,\ 3]=[2,\ 3]$.</details>
 </section>
@@ -91,6 +122,15 @@
   <p>Linear model $\mathbf y=\Phi\boldsymbol\theta$ with $\Phi\in\mathbb{R}^{N\times D}$. Loss $L(\mathbf e)=\|\mathbf e\|^2$, error $\mathbf e(\boldsymbol\theta)=\mathbf y-\Phi\boldsymbol\theta$. By the chain rule:</p>
   <div class="formula">$$\frac{\partial L}{\partial\boldsymbol\theta}=\underbrace{2\mathbf e^\top}_{\partial L/\partial\mathbf e}\ \underbrace{(-\Phi)}_{\partial\mathbf e/\partial\boldsymbol\theta}=-2(\mathbf y-\Phi\boldsymbol\theta)^\top\Phi\ \in\mathbb{R}^{1\times D}$$</div></div>
 <div class="ml"><b>ML link.</b> That last formula is the gradient of linear regression. Set it to zero and you recover the normal equations from Ch. 3. Chapter 9 does exactly this.</div>
+<div class="deep"><h3>Going deeper: shapes, the chain rule as matrix multiplication, and worked examples</h3>
+<p><b>Shape rule.</b> For $\mathbf f:\mathbb{R}^n\to\mathbb{R}^m$ the Jacobian is $m\times n$: row $i$ is the gradient of output $f_i$. A scalar function is the case $m=1$ (a row). Chain rule for $\mathbb{R}^n\xrightarrow{\ \mathbf g\ }\mathbb{R}^k\xrightarrow{\ \mathbf f\ }\mathbb{R}^m$: $\dfrac{d}{d\mathbf x}\mathbf f(\mathbf g(\mathbf x))=\underbrace{\dfrac{\partial\mathbf f}{\partial\mathbf g}}_{m\times k}\underbrace{\dfrac{\partial\mathbf g}{\partial\mathbf x}}_{k\times n}$, and the inner dimensions must match, which is a handy check.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 5.10</span> Chain rule through a vector function</h4>
+  <p>$f(\mathbf x)=\exp(x_1x_2^2)$ and $\mathbf x=\mathbf g(t)=(t\cos t,\ t\sin t)$, $h=f\circ\mathbf g$. Shapes: $\partial f/\partial\mathbf x\in\mathbb{R}^{1\times2}$, $\partial\mathbf g/\partial t\in\mathbb{R}^{2\times1}$. Then</p>
+  <div class="formula">$$\frac{dh}{dt}=\begin{bmatrix}e^{x_1x_2^2}x_2^2&2e^{x_1x_2^2}x_1x_2\end{bmatrix}\begin{bmatrix}\cos t-t\sin t\\\sin t+t\cos t\end{bmatrix}=e^{x_1x_2^2}\big(x_2^2(\cos t-t\sin t)+2x_1x_2(\sin t+t\cos t)\big)$$</div>
+  <p>with $x_1=t\cos t$, $x_2=t\sin t$ substituted.</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 5.11</span> Gradient of the least-squares loss, step by step</h4>
+  <p>Model $\mathbf y=\Phi\boldsymbol\theta$ with $\Phi\in\mathbb{R}^{N\times D}$ (features), $\boldsymbol\theta\in\mathbb{R}^D$ (parameters). Loss $L=\|\mathbf e\|^2$, error $\mathbf e=\mathbf y-\Phi\boldsymbol\theta$. Shapes: $\partial L/\partial\mathbf e=2\mathbf e^\top\in\mathbb{R}^{1\times N}$, $\partial\mathbf e/\partial\boldsymbol\theta=-\Phi\in\mathbb{R}^{N\times D}$, so $\dfrac{\partial L}{\partial\boldsymbol\theta}=-2\mathbf e^\top\Phi=-2(\mathbf y-\Phi\boldsymbol\theta)^\top\Phi\in\mathbb{R}^{1\times D}$. Setting it to zero gives $\Phi^\top\Phi\boldsymbol\theta=\Phi^\top\mathbf y$: the normal equations (Chapter 3.8) and the closed-form linear regression solution of Chapter 9. Expanding $L=(\mathbf y-\Phi\boldsymbol\theta)^\top(\mathbf y-\Phi\boldsymbol\theta)$ first and differentiating gives the same answer without the chain rule, but that doesn't scale to deep compositions.</p></div>
+<p>The Jacobian also tells you how a map stretches space locally: $|\det J|$ for square $J$ is the local area/volume scale factor (the polar-coordinates widget, $|\det J|=r$). This is exactly the factor needed to change variables in probability (Chapter 6.7).</p></div>
 <div class="short"><b>In short.</b> Jacobian = matrix of all partial derivatives ($m\times n$) = local linear map. Chain rule = multiply Jacobians.</div>
 <details><summary>Check yourself</summary>$\mathbf f(x,y)=(xy,\ x+y)$. What is $J$? <br><b>Answer:</b> $\begin{bmatrix}y&x\\1&1\end{bmatrix}$.</details>
 </section>
@@ -103,6 +143,16 @@
   <li><b>Compute entry by entry</b>: $\partial f_i/\partial A_{jk}$, then collect into the tensor. It is mechanical (and book Example 5.12 shows only the entries with $i=j$ are nonzero: $\partial f_i/\partial A_{iq}=x_q$).</li>
   <li><b>Vectorise:</b> reshape each matrix into one long vector ($A\in\mathbb{R}^{4\times2}\to\mathbb{R}^8$), then use ordinary Jacobians.</li>
 </ol>
+<div class="deep"><h3>Going deeper: the two approaches, with the book's examples</h3>
+<p>The gradient of a matrix $A\in\mathbb{R}^{m\times n}$ with respect to a matrix $B\in\mathbb{R}^{p\times q}$ is a four-dimensional array with entries $J_{ijkl}=\partial A_{ij}/\partial B_{kl}$. Two equivalent ways to handle it:</p>
+<ol class="steps">
+  <li><b>Tensor approach:</b> compute each partial derivative $\partial A/\partial B_{kl}$ (an $m\times n$ matrix) and stack them.</li>
+  <li><b>Flatten approach:</b> reshape each matrix into a long vector (stack the columns), $A\to\tilde A\in\mathbb{R}^{mn}$, $B\to\tilde B\in\mathbb{R}^{pq}$. Then the Jacobian is an ordinary $mn\times pq$ matrix and the chain rule is plain matrix multiplication. This is usually easier in practice.</li>
+</ol>
+<div class="wex"><h4><span class="tag">Book Ex. 5.12</span> Gradient of $\mathbf f=A\mathbf x$ with respect to $A$</h4>
+  <p>$\mathbf f\in\mathbb{R}^M$, $A\in\mathbb{R}^{M\times N}$, so $d\mathbf f/dA\in\mathbb{R}^{M\times(M\times N)}$. Write $f_i=\sum_jA_{ij}x_j$; then $\partial f_i/\partial A_{iq}=x_q$ and $\partial f_i/\partial A_{kq}=0$ for $k\ne i$. So $\partial f_i/\partial A$ is a "matrix" that holds $\mathbf x^\top$ in row $i$ and zeros in every other row.</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 5.13</span> Gradient of $K=R^\top R$ with respect to $R$</h4>
+  <p>$R\in\mathbb{R}^{M\times N}$, $K\in\mathbb{R}^{N\times N}$, so $dK/dR\in\mathbb{R}^{(N\times N)\times(M\times N)}$. Entry $K_{pq}=\sum_mR_{mp}R_{mq}$ (dot product of columns $p$ and $q$). Differentiating with respect to $R_{ij}$: $\partial K_{pq}/\partial R_{ij}=R_{iq}$ if $j=p\ne q$; $=R_{ip}$ if $j=q\ne p$; $=2R_{iq}$ if $j=p=q$; and $0$ otherwise.</p></div></div>
 <p class="why">Don't memorise tensor shapes. Always track dimensions: "gradient of $\mathbb{R}^a$-valued thing with respect to $\mathbb{R}^b$-valued thing is $a\times b$".</p>
 </section>
 
@@ -119,6 +169,13 @@
   <tr><td>$\dfrac{\partial}{\partial X}f(X)^{-1}$</td><td>$-f(X)^{-1}\dfrac{\partial f}{\partial X}f(X)^{-1}$</td></tr>
   <tr><td>$\dfrac{\partial}{\partial X}\operatorname{tr}f(X)$</td><td>$\operatorname{tr}\!\big(\tfrac{\partial f}{\partial X}\big)$</td></tr>
 </table>
+<div class="deep"><h3>Going deeper: using the identities, with checks</h3>
+<div class="wex"><h4>Quadratic form</h4>
+  <p>$f(\mathbf x)=\mathbf x^\top B\mathbf x$ with $B=\begin{bmatrix}2&1\\1&3\end{bmatrix}$. Identity: $\nabla f=\mathbf x^\top(B+B^\top)=2\mathbf x^\top B=(4x_1+2x_2,\ 2x_1+6x_2)$. Direct check: $f=2x_1^2+2x_1x_2+3x_2^2$, so $\partial f/\partial x_1=4x_1+2x_2$ ✓ and $\partial f/\partial x_2=2x_1+6x_2$ ✓.</p></div>
+<div class="wex"><h4>Bilinear form</h4>
+  <p>$g(X)=\mathbf a^\top X\mathbf b$ with $X\in\mathbb{R}^{E\times F}$: $\partial g/\partial X_{ij}=a_ib_j$, i.e. the outer product $\mathbf a\mathbf b^\top\in\mathbb{R}^{E\times F}$ (same shape as $X$).</p></div>
+<p>Two more used all the time in statistics (consequences of the determinant/inverse identities): for $f(X)=X$, $\partial\det X/\partial X=\det(X)\,X^{-\top}$, hence $\partial\log\det X/\partial X=X^{-\top}$ (it appears in every Gaussian log-likelihood); and $\partial(X^{-1})=-X^{-1}(\partial X)X^{-1}$ (the matrix version of $\frac{d}{dx}\frac1x=-\frac1{x^2}$).</p>
+<p><b>Always sanity-check a matrix gradient</b> by (1) confirming the shape and (2) comparing with a finite difference $\frac{f(\mathbf x+h\mathbf e_i)-f(\mathbf x-h\mathbf e_i)}{2h}$ on a small random example. This is exactly how deep-learning libraries test their own derivatives.</p></div>
 <p class="why">The 4th row is the least-squares gradient from 5.3, generalised with a weight matrix $W$.</p>
 </section>
 
@@ -143,6 +200,19 @@
 <p>A network is a long chain $\mathbf f_K\circ\dots\circ\mathbf f_1(\mathbf x)$ with each layer $\mathbf f_i=\sigma(A_{i-1}\mathbf f_{i-1}+\mathbf b_{i-1})$. To get $\partial L/\partial\theta_i$ for layer $i$, the chain rule multiplies Jacobians from the output down to layer $i$. Computing layer $i$ <b>reuses</b> everything already computed for layer $i+1$, so one backward sweep gives all the gradients.</p>
 <h3>Reverse vs forward mode</h3>
 <p>Because $\frac{dy}{dx}=\frac{dy}{db}\frac{db}{da}\frac{da}{dx}$ is a product, you can multiply from the right end (<b>forward mode</b>) or from the left end (<b>reverse mode</b> = backprop). Reverse mode is far cheaper when there are many inputs (parameters) and one output (the loss), which is the neural-network case. In general this technique is <b>automatic differentiation</b>: exact (up to rounding), unlike finite differences, and not symbolic like algebra.</p>
+<div class="deep"><h3>Going deeper: backprop in a deep network, a numeric example, and the general algorithm</h3>
+<h4>Deep networks</h4>
+<p>With $\mathbf f_0=\mathbf x$ and $\mathbf f_i=\sigma_i(A_{i-1}\mathbf f_{i-1}+\mathbf b_{i-1})$ for layers $i=1..K$, and loss $L=\|\mathbf y-\mathbf f_K\|^2$, the chain rule gives, for the parameters $\theta_{i}=\{A_i,\mathbf b_i\}$ of layer $i+1$,</p>
+<div class="formula">$$\frac{\partial L}{\partial\theta_i}=\frac{\partial L}{\partial\mathbf f_K}\frac{\partial\mathbf f_K}{\partial\mathbf f_{K-1}}\cdots\frac{\partial\mathbf f_{i+2}}{\partial\mathbf f_{i+1}}\ \frac{\partial\mathbf f_{i+1}}{\partial\theta_i}.$$</div>
+<p>The first factors (output of a layer with respect to its <i>input</i>) are shared by every earlier layer, so they are computed once while sweeping backward: keep a running row $\boldsymbol\delta_i=\partial L/\partial\mathbf f_i$ and update $\boldsymbol\delta_{i}=\boldsymbol\delta_{i+1}\,\partial\mathbf f_{i+1}/\partial\mathbf f_i$. The price: the forward pass must <b>store</b> its intermediate values for use on the way back.</p>
+<div class="wex"><h4>A tiny numeric example</h4>
+  <p>One neuron: $z=wx+b$, $\hat y=\sigma(z)$, $L=(y-\hat y)^2$ with $x=2$, $y=1$, $w=0.5$, $b=-1$. Forward: $z=0$, $\hat y=0.5$, $L=0.25$. Backward: $\partial L/\partial\hat y=-2(y-\hat y)=-1$; $\partial\hat y/\partial z=\hat y(1-\hat y)=0.25$; $\partial z/\partial w=x=2$, $\partial z/\partial b=1$. Multiply along the path: $\dfrac{\partial L}{\partial w}=(-1)(0.25)(2)=-0.5$ and $\dfrac{\partial L}{\partial b}=(-1)(0.25)(1)=-0.25$. Both negative: increasing $w$ or $b$ would <i>reduce</i> the loss, so gradient descent will raise them.</p></div>
+<h4>The general algorithm</h4>
+<p>Write the computation as a graph: inputs $x_1..x_d$, intermediate variables $x_{d+1},\dots,x_{D-1}$, output $x_D$, each defined by an elementary function of its parent nodes: $x_i=g_i(x_{\mathrm{Pa}(x_i)})$ (forward propagation). Set $\partial f/\partial x_D=1$ and sweep backward: $\dfrac{\partial f}{\partial x_i}=\sum_{j:\,x_i\in\mathrm{Pa}(x_j)}\dfrac{\partial f}{\partial x_j}\dfrac{\partial g_j}{\partial x_i}$ (back-propagation; the sum collects all paths).</p>
+<ul>
+  <li><b>Forward vs reverse mode:</b> for a function with $n$ inputs and $m$ outputs, forward mode needs about $n$ sweeps, reverse mode about $m$. A training loss has one output and millions of inputs (parameters), so reverse mode (backprop) wins.</li>
+  <li><b>Automatic differentiation</b> is exact up to rounding, unlike finite differences (which are approximate) and unlike symbolic differentiation (which can produce huge expressions). It works on computer programs, but loops and <code>if</code>-statements need care, and every elementary operation must be differentiable.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Break a function into small steps, then propagate derivatives backward: multiply along paths, add at joins. Cost ≈ cost of the forward pass.</div>
 <details><summary>Check yourself</summary>For $f=(x+1)^2$ split as $a=x+1,\ f=a^2$, what are $\partial f/\partial a$ and $\partial f/\partial x$ at $x=2$? <br><b>Answer:</b> $a=3$, $\partial f/\partial a=2a=6$, and $\partial a/\partial x=1$, so $\partial f/\partial x=6$.</details>
 </section>
@@ -152,6 +222,8 @@
 <p>The derivative of the derivative tells you about <b>curvature</b>. For $f(x,y)$ the second derivatives collect into the <b>Hessian</b>:</p>
 <div class="formula">$$H=\nabla^2f=\begin{bmatrix}\dfrac{\partial^2f}{\partial x^2}&\dfrac{\partial^2f}{\partial x\partial y}\\[2mm]\dfrac{\partial^2f}{\partial y\partial x}&\dfrac{\partial^2f}{\partial y^2}\end{bmatrix}$$</div>
 <p>For nice functions it is <b>symmetric</b> (mixed partials agree). Its eigenvalues (Ch. 4!) are the curvatures in the principal directions: all positive → a bowl (a minimum candidate), all negative → a dome, mixed signs → a saddle. The readout of the gradient widget in 5.2 shows the Hessian and its eigenvalues at the chosen point: try the saddle.</p>
+<div class="deep"><h3>Going deeper: notation and symmetry</h3>
+<p>Second partial derivatives: $\dfrac{\partial^2f}{\partial x^2}$ (twice in $x$), $\dfrac{\partial^2f}{\partial y\,\partial x}=\dfrac{\partial}{\partial y}\Big(\dfrac{\partial f}{\partial x}\Big)$ (first $x$, then $y$), and so on. If $f$ is twice continuously differentiable the order doesn't matter, $\dfrac{\partial^2f}{\partial x\partial y}=\dfrac{\partial^2f}{\partial y\partial x}$, so the Hessian is <b>symmetric</b>. For $f:\mathbb{R}^n\to\mathbb{R}$ it is $n\times n$ and measures curvature: curvature along a unit direction $\mathbf u$ is $\mathbf u^\top H\mathbf u$. For a vector field $\mathbf f:\mathbb{R}^n\to\mathbb{R}^m$ the "Hessian" is an $m\times n\times n$ tensor. Example (book Ex. 5.15): $f=x^2+2xy+y^3$ has $H=\begin{bmatrix}2&2\\2&6y\end{bmatrix}$, so $H(1,2)=\begin{bmatrix}2&2\\2&12\end{bmatrix}$ (positive definite: a bowl there).</p></div>
 <div class="ml"><b>ML link.</b> Second-order optimisation methods (Newton's method) use the Hessian to take smarter steps than plain gradient descent.</div>
 </section>
 
@@ -160,8 +232,99 @@
 <p>The 1D Taylor idea extends. Near a point $\mathbf x_0$, with $\boldsymbol\delta=\mathbf x-\mathbf x_0$:</p>
 <div class="formula">$$f(\mathbf x)\approx\underbrace{f(\mathbf x_0)}_{\text{height}}+\underbrace{\nabla f(\mathbf x_0)\,\boldsymbol\delta}_{\text{tilted plane}}+\underbrace{\tfrac12\boldsymbol\delta^\top H(\mathbf x_0)\,\boldsymbol\delta}_{\text{curvature}}+\cdots$$</div>
 <p>Keeping the first two terms is <b>linearization</b>: replace the function by its tangent plane. Add the third and you capture curvature with a quadratic. These approximations are the reason local methods work: zoom in far enough and everything looks like a plane or a bowl.</p>
+<div class="deep"><h3>Going deeper: the full multivariate Taylor series, with a worked example</h3>
+<p>For $f:\mathbb{R}^D\to\mathbb{R}$ smooth at $\mathbf x_0$ and $\boldsymbol\delta=\mathbf x-\mathbf x_0$, $f(\mathbf x)=\sum_{k=0}^\infty\dfrac{D^k_{\mathbf x}f(\mathbf x_0)}{k!}\boldsymbol\delta^k$, where $D^kf$ is the $k$th-order derivative tensor and $\boldsymbol\delta^k=\boldsymbol\delta\otimes\cdots\otimes\boldsymbol\delta$ is a $k$-fold outer product. The first terms:</p>
+<table class="t">
+  <tr><th>$k$</th><th>Term</th><th>What it is</th></tr>
+  <tr><td>0</td><td>$f(\mathbf x_0)$</td><td>constant (height)</td></tr>
+  <tr><td>1</td><td>$\nabla f(\mathbf x_0)\,\boldsymbol\delta$</td><td>linear (tilt), $\sum_i\partial_if\,\delta_i$</td></tr>
+  <tr><td>2</td><td>$\tfrac12\boldsymbol\delta^\top H(\mathbf x_0)\boldsymbol\delta$</td><td>quadratic (curvature), $\tfrac12\sum_{ij}H_{ij}\delta_i\delta_j$</td></tr>
+  <tr><td>3</td><td>$\tfrac1{3!}\sum_{ijk}D^3f[i,j,k]\delta_i\delta_j\delta_k$</td><td>cubic</td></tr>
+</table>
+<div class="wex"><h4><span class="tag">Book Ex. 5.15</span> Taylor expansion of a two-variable polynomial</h4>
+  <p>$f(x,y)=x^2+2xy+y^3$ at $(x_0,y_0)=(1,2)$. A cubic polynomial should be reproduced exactly by terms up to order 3.</p>
+  <ul class="steps">
+    <li>$k=0$: $f(1,2)=1+4+8=13$.</li>
+    <li>$k=1$: $\nabla f=[2x+2y,\ 2x+3y^2]$, so $\nabla f(1,2)=[6,\ 14]$. Term: $6(x-1)+14(y-2)$.</li>
+    <li>$k=2$: $H(1,2)=\left[\begin{smallmatrix}2&2\\2&12\end{smallmatrix}\right]$. Term: $\tfrac12\boldsymbol\delta^\top H\boldsymbol\delta=(x-1)^2+2(x-1)(y-2)+6(y-2)^2$.</li>
+    <li>$k=3$: the only nonzero third derivative is $\partial^3f/\partial y^3=6$. Term: $\tfrac16\cdot6\,(y-2)^3=(y-2)^3$.</li>
+  </ul>
+  <div class="formula">$$f(x,y)=13+6(x-1)+14(y-2)+(x-1)^2+2(x-1)(y-2)+6(y-2)^2+(y-2)^3.$$</div>
+  <p>Expanding the right-hand side returns $x^2+2xy+y^3$ exactly (verified).</p></div>
+<p><b>Why ML cares:</b> if $\mathbf x$ is Gaussian and $f$ is nonlinear, a first-order Taylor expansion around the mean linearises $f$, and the output is then approximately Gaussian with mean $f(\boldsymbol\mu)$ and covariance $J\Sigma J^\top$ (Chapter 6). That idea powers the <b>extended Kalman filter</b>. The <b>Laplace approximation</b> uses a second-order expansion (needs the Hessian) to approximate a distribution by a Gaussian around its mode.</p></div>
 <div class="short"><b>In short.</b> $f(\mathbf x)\approx f(\mathbf x_0)+\nabla f\,\boldsymbol\delta+\tfrac12\boldsymbol\delta^\top H\boldsymbol\delta$. Gradient = slope of the tangent plane, Hessian = curvature.</div>
 <details><summary>Check yourself</summary>$f(x)=x^2$ at $x_0=1$: what is the linear approximation? <br><b>Answer:</b> $f(1)+f'(1)(x-1)=1+2(x-1)$, the tangent line.</details>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>All nine exercises from the book's Chapter 5 (numbers refer to the book). Every answer was checked symbolically or numerically (finite differences) by computer. Track the shape of each derivative: it's the best error detector.</p>
+
+<div class="exercise"><h4>E5.1 · Product and chain rule <span class="src">book 5.1</span></h4>
+  <p>Differentiate $f(x)=\log(x^4)\sin(x^3)$.</p>
+  <details><summary>Solution</summary>
+  <p>For $x\gt0$, $\log(x^4)=4\log x$ with derivative $4/x$. By the product rule and the chain rule ($\frac{d}{dx}\sin(x^3)=3x^2\cos(x^3)$):</p>
+  <div class="formula">$$f'(x)=\frac4x\sin(x^3)+4\log x\cdot3x^2\cos(x^3)=\frac{4\sin(x^3)}{x}+12x^2\log x\cos(x^3).$$</div></details></div>
+
+<div class="exercise"><h4>E5.2 · Derivative of the logistic sigmoid <span class="src">book 5.2</span></h4>
+  <p>Differentiate $f(x)=\dfrac1{1+\exp(-x)}$.</p>
+  <details><summary>Solution</summary>
+  <p>Write $f=(1+e^{-x})^{-1}$. Chain rule: $f'=-(1+e^{-x})^{-2}\cdot(-e^{-x})=\dfrac{e^{-x}}{(1+e^{-x})^2}$. Nicer form: since $1-f=\dfrac{e^{-x}}{1+e^{-x}}$, we get</p>
+  <div class="formula">$$f'(x)=f(x)\,\big(1-f(x)\big).$$</div>
+  <p>The derivative is cheap to compute from the output itself: that's why the sigmoid was popular in early neural networks. It peaks at $0.25$ (at $x=0$) and vanishes for large $|x|$ (the "vanishing gradient" problem).</p></details></div>
+
+<div class="exercise"><h4>E5.3 · Derivative of a Gaussian shape <span class="src">book 5.3</span></h4>
+  <p>Differentiate $f(x)=\exp\!\big(-\frac1{2\sigma^2}(x-\mu)^2\big)$ ($\mu,\sigma$ constants).</p>
+  <details><summary>Solution</summary>
+  <p>Chain rule with inner function $u=-\frac{(x-\mu)^2}{2\sigma^2}$, $u'=-\frac{x-\mu}{\sigma^2}$:</p>
+  <div class="formula">$$f'(x)=-\frac{x-\mu}{\sigma^2}\exp\!\Big(-\frac{(x-\mu)^2}{2\sigma^2}\Big)=-\frac{x-\mu}{\sigma^2}f(x).$$</div>
+  <p>Zero at $x=\mu$ (the peak), positive to the left of the peak, negative to the right ✓.</p></details></div>
+
+<div class="exercise"><h4>E5.4 · Taylor polynomials <span class="src">book 5.4</span></h4>
+  <p>Find $T_n$, $n=0,\dots,5$, of $f(x)=\sin x+\cos x$ at $x_0=0$.</p>
+  <details><summary>Solution</summary>
+  <p>Derivatives at 0: $f(0)=1$, $f'(0)=\cos0-\sin0=1$, $f''(0)=-1$, $f^{(3)}(0)=-1$, $f^{(4)}(0)=1$, $f^{(5)}(0)=1$ (the pattern $1,1,-1,-1$ repeats). Coefficients $f^{(k)}(0)/k!$: $1,\ 1,\ -\tfrac12,\ -\tfrac16,\ \tfrac1{24},\ \tfrac1{120}$. So</p>
+  <div class="formula">$$\begin{aligned}T_0&=1,\quad T_1=1+x,\quad T_2=1+x-\tfrac12x^2,\quad T_3=T_2-\tfrac16x^3,\\ T_4&=T_3+\tfrac1{24}x^4,\quad T_5=T_4+\tfrac1{120}x^5.\end{aligned}$$</div>
+  <p>Try these in the Taylor widget (preset "sin x + cos x").</p></details></div>
+
+<div class="exercise"><h4>E5.5 · Shapes and Jacobians <span class="src">book 5.5</span></h4>
+  <p>(a) State the dimension of $\partial f_i/\partial\mathbf x$ and (b) compute it, for $f_1(\mathbf x)=\sin(x_1)\cos(x_2)$ ($\mathbf x\in\mathbb{R}^2$), $f_2(\mathbf x,\mathbf y)=\mathbf x^\top\mathbf y$ ($\mathbf x,\mathbf y\in\mathbb{R}^n$), $f_3(\mathbf x)=\mathbf x\mathbf x^\top$ ($\mathbf x\in\mathbb{R}^n$).</p>
+  <details><summary>Solution</summary>
+  <ul class="steps">
+    <li><b>$f_1:\mathbb{R}^2\to\mathbb{R}$:</b> Jacobian $\in\mathbb{R}^{1\times2}$, $\ \dfrac{\partial f_1}{\partial\mathbf x}=\big[\cos x_1\cos x_2,\ \ -\sin x_1\sin x_2\big]$.</li>
+    <li><b>$f_2:\mathbb{R}^n\times\mathbb{R}^n\to\mathbb{R}$:</b> $\dfrac{\partial f_2}{\partial\mathbf x}=\mathbf y^\top\in\mathbb{R}^{1\times n}$ and $\dfrac{\partial f_2}{\partial\mathbf y}=\mathbf x^\top\in\mathbb{R}^{1\times n}$; with respect to the stacked $(\mathbf x,\mathbf y)$ it is $[\mathbf y^\top\ \mathbf x^\top]\in\mathbb{R}^{1\times2n}$.</li>
+    <li><b>$f_3:\mathbb{R}^n\to\mathbb{R}^{n\times n}$:</b> the Jacobian is a tensor in $\mathbb{R}^{(n\times n)\times n}$ with entries $\dfrac{\partial(x_ix_j)}{\partial x_k}=\delta_{ik}x_j+x_i\delta_{jk}$ ($\delta$ = 1 if the indices agree, else 0). Flattened, it is an $n^2\times n$ matrix.</li>
+  </ul></details></div>
+
+<div class="exercise"><h4>E5.6 · A vector and a trace <span class="src">book 5.6</span></h4>
+  <p>Differentiate $f(\mathbf t)=\sin(\log(\mathbf t^\top\mathbf t))$ with respect to $\mathbf t\in\mathbb{R}^D$, and $g(X)=\operatorname{tr}(AXB)$ with respect to $X$ ($A\in\mathbb{R}^{D\times E}$, $X\in\mathbb{R}^{E\times F}$, $B\in\mathbb{R}^{F\times D}$).</p>
+  <details><summary>Solution</summary>
+  <p><b>$f$:</b> chain rule with $z=\mathbf t^\top\mathbf t$, $\dfrac{dz}{d\mathbf t}=2\mathbf t^\top\in\mathbb{R}^{1\times D}$:</p>
+  <div class="formula">$$\frac{df}{d\mathbf t}=\cos\!\big(\log(\mathbf t^\top\mathbf t)\big)\cdot\frac1{\mathbf t^\top\mathbf t}\cdot2\mathbf t^\top\ \in\mathbb{R}^{1\times D}.$$</div>
+  <p><b>$g$:</b> write it out: $g=\sum_{i,j,k}A_{ij}X_{jk}B_{ki}$. Then $\dfrac{\partial g}{\partial X_{jk}}=\sum_iB_{ki}A_{ij}=(BA)_{kj}$. Collect over $j,k$: the gradient (same shape as $X$) is $(BA)^\top=\mathbf{A^\top B^\top}\in\mathbb{R}^{E\times F}$. (Using the cyclic property, $g=\operatorname{tr}(BAX)$ and $\partial\operatorname{tr}(CX)/\partial X=C^\top$ with $C=BA$.) Verified numerically against finite differences.</p></details></div>
+
+<div class="exercise"><h4>E5.7 · Chain rule with dimensions <span class="src">book 5.7</span></h4>
+  <p>(a) $f(z)=\log(1+z)$, $z=\mathbf x^\top\mathbf x$, $\mathbf x\in\mathbb{R}^D$. (b) $f(\mathbf z)=\sin(\mathbf z)$ (elementwise), $\mathbf z=A\mathbf x+\mathbf b$, $A\in\mathbb{R}^{E\times D}$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $\dfrac{\partial f}{\partial z}=\dfrac1{1+z}\in\mathbb{R}$ and $\dfrac{\partial z}{\partial\mathbf x}=2\mathbf x^\top\in\mathbb{R}^{1\times D}$, so $\dfrac{df}{d\mathbf x}=\dfrac{2\mathbf x^\top}{1+\mathbf x^\top\mathbf x}\in\mathbb{R}^{1\times D}$.</p>
+  <p>(b) $\mathbf f\in\mathbb{R}^E$. $\dfrac{\partial\mathbf f}{\partial\mathbf z}=\operatorname{diag}(\cos z_1,\dots,\cos z_E)\in\mathbb{R}^{E\times E}$ (elementwise function, so only the diagonal is nonzero) and $\dfrac{\partial\mathbf z}{\partial\mathbf x}=A\in\mathbb{R}^{E\times D}$. Therefore</p>
+  <div class="formula">$$\frac{d\mathbf f}{d\mathbf x}=\operatorname{diag}\big(\cos(A\mathbf x+\mathbf b)\big)\,A\in\mathbb{R}^{E\times D}.$$</div>
+  <p>In code you never build the diagonal matrix: multiply each row $i$ of $A$ by $\cos z_i$.</p></details></div>
+
+<div class="exercise"><h4>E5.8 · Three more chain rules <span class="src">book 5.8</span></h4>
+  <p>(a) $f=\exp(-\frac12z)$, $z=\mathbf y^\top S^{-1}\mathbf y$, $\mathbf y=\mathbf x-\boldsymbol\mu$ ($\mathbf x,\boldsymbol\mu\in\mathbb{R}^D$, $S\in\mathbb{R}^{D\times D}$). (b) $f(\mathbf x)=\operatorname{tr}(\mathbf x\mathbf x^\top+\sigma^2I)$. (c) $\mathbf f=\tanh(\mathbf z)\in\mathbb{R}^M$, $\mathbf z=A\mathbf x+\mathbf b$, $A\in\mathbb{R}^{M\times N}$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Shapes: $\partial f/\partial z=-\tfrac12e^{-z/2}\in\mathbb{R}$; $\partial z/\partial\mathbf y=\mathbf y^\top(S^{-1}+S^{-\top})\in\mathbb{R}^{1\times D}$; $\partial\mathbf y/\partial\mathbf x=I_D$. For symmetric $S$ (a covariance) this gives</p>
+  <div class="formula">$$\frac{df}{d\mathbf x}=-\exp\!\big(-\tfrac12(\mathbf x-\boldsymbol\mu)^\top S^{-1}(\mathbf x-\boldsymbol\mu)\big)\,(\mathbf x-\boldsymbol\mu)^\top S^{-1}\in\mathbb{R}^{1\times D}.$$</div>
+  <p>(This is the derivative of the unnormalised Gaussian bump from E5.3, now in $D$ dimensions.)</p>
+  <p>(b) Write out the outer product: $\operatorname{tr}(\mathbf x\mathbf x^\top)=\sum_ix_i^2=\mathbf x^\top\mathbf x$, and $\operatorname{tr}(\sigma^2I)=D\sigma^2$ is constant. So $f=\mathbf x^\top\mathbf x+D\sigma^2$ and $\dfrac{df}{d\mathbf x}=2\mathbf x^\top\in\mathbb{R}^{1\times D}$.</p>
+  <p>(c) $\partial\mathbf f/\partial\mathbf z=\operatorname{diag}\big(1-\tanh^2(z_i)\big)\in\mathbb{R}^{M\times M}$, $\partial\mathbf z/\partial\mathbf x=A\in\mathbb{R}^{M\times N}$, so $\dfrac{d\mathbf f}{d\mathbf x}=\operatorname{diag}\big(1-\tanh^2(A\mathbf x+\mathbf b)\big)A\in\mathbb{R}^{M\times N}$.</p></details></div>
+
+<div class="exercise"><h4>E5.9 · The reparametrisation gradient <span class="src">book 5.9</span></h4>
+  <p>Let $g(\mathbf x,\mathbf z,\boldsymbol\nu)=\log p(\mathbf x,\mathbf z)-\log q(\mathbf z,\boldsymbol\nu)$ with $\mathbf z=\mathbf t(\boldsymbol\epsilon,\boldsymbol\nu)$ ($\mathbf x\in\mathbb{R}^D,\mathbf z\in\mathbb{R}^E,\boldsymbol\nu\in\mathbb{R}^F,\boldsymbol\epsilon\in\mathbb{R}^G$). Compute $\dfrac{d}{d\boldsymbol\nu}g$.</p>
+  <details><summary>Solution</summary>
+  <p>$\boldsymbol\nu$ affects $g$ in two ways: through $\mathbf z=\mathbf t(\boldsymbol\epsilon,\boldsymbol\nu)$ and directly through $q$. The multivariate chain rule adds both paths:</p>
+  <div class="formula">$$\frac{dg}{d\boldsymbol\nu}=\underbrace{\Big(\frac{\partial\log p(\mathbf x,\mathbf z)}{\partial\mathbf z}-\frac{\partial\log q(\mathbf z,\boldsymbol\nu)}{\partial\mathbf z}\Big)}_{1\times E}\underbrace{\frac{\partial\mathbf t(\boldsymbol\epsilon,\boldsymbol\nu)}{\partial\boldsymbol\nu}}_{E\times F}-\underbrace{\frac{\partial\log q(\mathbf z,\boldsymbol\nu)}{\partial\boldsymbol\nu}}_{1\times F}\in\mathbb{R}^{1\times F}.$$</div>
+  <p class="why">This is the "reparametrisation trick" of variational inference: write the random $\mathbf z$ as a deterministic function of the parameters $\boldsymbol\nu$ and independent noise $\boldsymbol\epsilon$, so the gradient can flow through the sampling step.</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>

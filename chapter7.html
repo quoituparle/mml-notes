@@ -14,11 +14,13 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 7</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s71">7.1 Gradient descent</a>
   <a href="#s72">7.2 Constrained, Lagrange</a>
   <a href="#s73">7.3 Convex optimization</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
   <a href="#end">End of Part I</a>
 </nav>
@@ -65,6 +67,24 @@
 </ul>
 <div class="card"><h3><span class="tag def">Example</span>Book Example 7.2: solving $A\mathbf{x}=\mathbf{b}$ by descent</h3>
   <p>Minimise $\|A\mathbf x-\mathbf b\|^2$. The gradient is $2(A\mathbf x-\mathbf b)^\top A$. In this special case you can set the gradient to zero and solve directly (Ch. 9), but gradient descent also works, with speed governed by the condition number $\kappa=\sigma_{\max}(A)/\sigma_{\min}(A)$. A <b>preconditioner</b> $P^{-1}$ tries to make the valley rounder.</p></div>
+<div class="deep"><h3>Going deeper: why gradient descent works, step-size rules, conditioning, SGD in detail</h3>
+<h4>Why a small step decreases $f$</h4>
+<p>By the first-order Taylor expansion (Chapter 5), $f(\mathbf x-\gamma\nabla f^\top)\approx f(\mathbf x)-\gamma\,\|\nabla f\|^2$. The decrease is positive whenever $\nabla f\ne0$ and $\gamma$ is small enough that the approximation holds. When the gradient is zero you are at a stationary point (minimum, maximum or saddle); the Hessian tells which (Chapter 5.7). Gradient descent never "knows" if it found the <i>global</i> minimum, only that it is going downhill. For convex $f$ (7.3) that is enough.</p>
+<h4>Step-size heuristics (book, after Toussaint)</h4>
+<ul>
+  <li>If $f$ <b>increased</b> after a step, $\gamma$ was too large: <b>undo</b> the step and decrease $\gamma$ (this wastes one step but guarantees monotone decrease).</li>
+  <li>If $f$ <b>decreased</b>, try a slightly <b>larger</b> $\gamma$ next time.</li>
+</ul>
+<p>Adaptive methods automate rules like these. For SGD, convergence needs a step size that shrinks at a suitable rate.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 7.1</span> Reproducing the book's first steps</h4>
+  <p>$f(\mathbf x)=\tfrac12\mathbf x^\top\left[\begin{smallmatrix}2&1\\1&20\end{smallmatrix}\right]\mathbf x-\left[\begin{smallmatrix}5\\3\end{smallmatrix}\right]^\top\mathbf x$, so $\nabla f(\mathbf x)=\mathbf x^\top Q-\mathbf b^\top$. At $\mathbf x_0=(-3,-1)$: $\nabla f=(-3,-1)Q-(5,3)=(-7,-23)-(5,3)=(-12,-26)$. With $\gamma=0.085$: $\mathbf x_1=(-3,-1)-0.085(-12,-26)=(-1.98,\ 1.21)$ ✓ (the book's value). Notice $x_2$ jumped from $-1$ to $+1.21$: it overshot the narrow valley, exactly the zig-zag the widget shows.</p>
+  <p>Why $\gamma\approx0.1$ is the stability limit: the curvature along each eigen-direction of $Q$ is its eigenvalue ($\approx1.95$ and $\approx20.05$, Chapter 4). Plain gradient descent on a quadratic converges iff $\gamma\lt2/\lambda_{\max}\approx0.0997$.</p></div>
+<h4>Conditioning and preconditioning (book Ex. 7.2)</h4>
+<p>To solve $A\mathbf x=\mathbf b$ approximately one minimises $\|A\mathbf x-\mathbf b\|^2$, whose gradient is $2(A\mathbf x-\mathbf b)^\top A$. The speed of gradient descent depends on the <b>condition number</b> $\kappa=\sigma_{\max}(A)/\sigma_{\min}(A)$ (ratio of the most to the least curved direction): big $\kappa$ = long thin valley. A <b>preconditioner</b> $P^{-1}$ solves $P^{-1}(A\mathbf x-\mathbf b)=\mathbf 0$ instead, chosen so that $P^{-1}A$ has a smaller $\kappa$ while $P^{-1}$ is cheap to compute. (In this special case there is also the closed-form solution from setting the gradient to zero; see Chapter 9.)</p>
+<h4>Momentum, written out</h4>
+<p>$\mathbf x_{i+1}=\mathbf x_i-\gamma_i\nabla f(\mathbf x_i)^\top+\alpha\Delta\mathbf x_i$ with $\Delta\mathbf x_i=\mathbf x_i-\mathbf x_{i-1}=\alpha\Delta\mathbf x_{i-1}-\gamma_{i-1}\nabla f(\mathbf x_{i-1})^\top$. Unrolling shows the update is a <b>moving average</b> of past gradients: oscillating components cancel, consistent components add up. It also smooths noisy gradient estimates, which is why it pairs well with SGD.</p>
+<h4>SGD in detail</h4>
+<p>Typical objective: $L(\boldsymbol\theta)=\sum_{n=1}^NL_n(\boldsymbol\theta)$, e.g. negative log-likelihood $-\sum\log p(y_n\mid\mathbf x_n,\boldsymbol\theta)$. <b>Batch</b> gradient descent uses $\boldsymbol\theta_{i+1}=\boldsymbol\theta_i-\gamma_i\sum_{n=1}^N\nabla L_n(\boldsymbol\theta_i)^\top$. <b>Mini-batch</b>: replace the sum by a sum over a random subset $B$ (rescaled); <b>one example</b>: $\boldsymbol\theta_{i+1}=\boldsymbol\theta_i-\gamma_i\nabla L_n(\boldsymbol\theta_i)^\top$ for a randomly chosen $n$ (exercise E7.2). Convergence needs only that the estimate is an <b>unbiased</b> estimate of the true gradient, the way a sample mean estimates an expectation (Chapter 6). Large batches give accurate but costly steps (and use fast matrix operations); small batches are cheap and noisy, and the noise can help escape poor local optima. Goal reminder: in ML we want good <i>generalisation</i>, not an exact minimum of the training loss, so approximate gradients are usually fine.</p></div>
 <div class="short"><b>In short.</b> Gradient descent: $x\leftarrow x-\gamma\nabla f$. Small γ = slow, large γ = unstable. Thin valleys zig-zag. Momentum smooths it. SGD trades accuracy for cheapness using mini-batches.</div>
 <details><summary>Check yourself</summary>For $f(x)=x^2$, start at $x_0=4$ with $\gamma=0.25$. What is $x_1$? <br><b>Answer:</b> $f'(x)=2x=8$, so $x_1=4-0.25\cdot8=2$.</details>
 </section>
@@ -86,6 +106,16 @@
   <li><b>Weak duality:</b> dual value ≤ primal value, always (it follows from the minimax inequality $\max_y\min_x\varphi\le\min_x\max_y\varphi$).</li>
   <li>$\mathfrak D(\boldsymbol\lambda)$ is always <b>concave</b>, even if $f$ is not convex, so the dual is easy to maximise. For convex problems the gap closes: <b>strong duality</b>.</li>
 </ul>
+<div class="deep"><h3>Going deeper: from "infinite wall" to Lagrangian, and weak duality, step by step</h3>
+<ol class="steps">
+  <li><b>Hard constraints as an infinite penalty.</b> Define $J(\mathbf x)=f(\mathbf x)+\sum_i\mathbb 1(g_i(\mathbf x))$ with $\mathbb 1(z)=0$ for $z\le0$ and $\infty$ otherwise. Minimising $J$ is the constrained problem, but a step function is as hard to optimise as the original.</li>
+  <li><b>Relax the wall to a ramp.</b> Replace $\mathbb 1(g_i)$ by the linear function $\lambda_ig_i$ with $\lambda_i\ge0$: this gives the Lagrangian $\mathfrak L(\mathbf x,\boldsymbol\lambda)=f(\mathbf x)+\boldsymbol\lambda^\top\mathbf g(\mathbf x)$. For $\lambda_i\ge0$ it is a <b>lower bound</b> of $J$, and $J(\mathbf x)=\max_{\boldsymbol\lambda\ge0}\mathfrak L(\mathbf x,\boldsymbol\lambda)$ (if some $g_i\gt0$, the max over $\lambda_i$ is $+\infty$).</li>
+  <li><b>Primal and dual.</b> Primal: $\min_{\mathbf x}\max_{\boldsymbol\lambda\ge0}\mathfrak L$. Swap the order to get the dual: $\max_{\boldsymbol\lambda\ge0}\min_{\mathbf x}\mathfrak L=\max_{\boldsymbol\lambda\ge0}\mathfrak D(\boldsymbol\lambda)$, with $\mathfrak D(\boldsymbol\lambda)=\min_{\mathbf x}\mathfrak L(\mathbf x,\boldsymbol\lambda)$ (the inner problem is unconstrained!).</li>
+  <li><b>Weak duality from the minimax inequality.</b> For any $\varphi(\mathbf x,\mathbf y)$: $\max_y\min_x\varphi\le\min_x\max_y\varphi$. <i>Proof:</i> for all $x,y$, $\min_x\varphi(x,y)\le\varphi(x,y)\le\max_y\varphi(x,y)$; take $\max_y$ on the left, then $\min_x$ on the right. Hence <b>dual value $\le$ primal value</b> always.</li>
+  <li><b>The dual is always concave.</b> $\mathfrak L$ is affine in $\boldsymbol\lambda$, and $\mathfrak D$ is a pointwise minimum of affine functions, hence concave, <i>even if $f$ and $g_i$ are not convex</i>. Maximising a concave function is easy, so the dual is a tractable lower bound.</li>
+</ol>
+<p><b>Recipe to derive a dual:</b> write $\mathfrak L$, differentiate with respect to $\mathbf x$, set to zero, solve for $\mathbf x(\boldsymbol\lambda)$, substitute back to get $\mathfrak D(\boldsymbol\lambda)$, and add the constraint $\boldsymbol\lambda\ge0$. Exercises E7.6–E7.8 practise this.</p>
+<p><b>Equality constraints</b> $h_j(\mathbf x)=0$ are two inequalities $h_j\le0$ and $h_j\ge0$; their multipliers end up <b>unconstrained in sign</b>, while inequality multipliers must be $\ge0$. A pattern you can observe in exercise E7.7: the optimal multiplier is zero for every constraint that is <i>not active</i> at the optimum (a standard fact).</p></div>
 <div class="short"><b>In short.</b> Constrained min: build $\mathfrak L=f+\lambda^\top g$. At the optimum $\nabla f=-\lambda\nabla g$ (gradients parallel). Dual problem ≤ primal problem.</div>
 <details><summary>Check yourself</summary>Minimise $x^2+y^2$ on the line $x+y=2$. Where? <br><b>Answer:</b> by symmetry $(1,1)$. Check: $\nabla f=(2,2)$ and $\nabla g=(1,1)$ are parallel with $\lambda=-2$.</details>
 </section>
@@ -122,8 +152,119 @@
 <div class="ml"><b>ML link.</b> Support vector machines (Ch. 12) are trained by solving a quadratic program. Linear regression with a constraint on the weights is one too.</div>
 <h3>Legendre–Fenchel transform (a glimpse)</h3>
 <p>Because a convex function is fully described by its <b>tangent lines</b>, it can be re-expressed in terms of slopes instead of positions. That re-expression is the <b>convex conjugate</b> $f^*(\mathbf s)=\sup_{\mathbf x}\big(\langle\mathbf s,\mathbf x\rangle-f(\mathbf x)\big)$, the second kind of duality in the book. It's used in advanced derivations (e.g. SVM duality); you can skip it on a first read.</p>
+<div class="deep"><h3>Going deeper: convexity tests, LP and QP duals, and the Legendre–Fenchel transform</h3>
+<h4>More on convexity</h4>
+<ul>
+  <li><b>Epigraph:</b> "pour water into" a convex function; the filled region $\{(\mathbf x,t):t\ge f(\mathbf x)\}$ is a <i>convex set</i>. That's how convex functions and convex sets are linked. Sublevel sets $\{f\le c\}$ of convex $f$ are convex, which is why constraints $g_i(\mathbf x)\le0$ with convex $g_i$ give a convex feasible region.</li>
+  <li><b>Closure:</b> intersections of convex sets are convex; a non-negative weighted sum $\alpha f_1+\beta f_2$ ($\alpha,\beta\ge0$) of convex functions is convex (multiply the defining inequality by $\alpha$, add the two, rearrange). The maximum of convex functions is convex; differences and products need not be (exercise E7.4).</li>
+  <li>The defining inequality is a special case of <b>Jensen's inequality</b>, which extends to any non-negative weights summing to 1.</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 7.3</span> Checking convexity of $f(x)=x\log_2x$</h4>
+  <p>Definition with $x=2$, $y=4$, $\theta=\tfrac12$: left side $f(3)=3\log_23\approx4.75$, right side $\tfrac12f(2)+\tfrac12f(4)=\tfrac12\cdot2+\tfrac12\cdot8=5$, so $4.75\le5$ ✓. Gradient criterion: $f'(x)=\log_2x+\frac1{\ln2}$, so $f(2)+f'(2)(4-2)=2+(1+1.4427)\cdot2\approx6.89\le f(4)=8$ ✓. (Two points are a sanity check, not a proof; a proof needs all points, e.g. $f''(x)=\frac1{x\ln2}\gt0$.)</p></div>
+<h4>Why an LP's dual looks the way it does</h4>
+<p>Primal: $\min\mathbf c^\top\mathbf x$ s.t. $A\mathbf x\le\mathbf b$. $\mathfrak L=\mathbf c^\top\mathbf x+\boldsymbol\lambda^\top(A\mathbf x-\mathbf b)=(\mathbf c+A^\top\boldsymbol\lambda)^\top\mathbf x-\boldsymbol\lambda^\top\mathbf b$. This is linear in $\mathbf x$, so its minimum over $\mathbf x$ is $-\infty$ unless the coefficient vanishes: $\mathbf c+A^\top\boldsymbol\lambda=\mathbf 0$. Then $\mathfrak D(\boldsymbol\lambda)=-\boldsymbol\lambda^\top\mathbf b$, giving the dual <b>$\max-\mathbf b^\top\boldsymbol\lambda$ s.t. $\mathbf c+A^\top\boldsymbol\lambda=\mathbf 0$, $\boldsymbol\lambda\ge\mathbf 0$</b>: again an LP, with $m$ variables (one per primal constraint) instead of $d$. Exercise E7.6 does it for the book's example.</p>
+<h4>The QP dual</h4>
+<p>$\mathfrak L=\tfrac12\mathbf x^\top Q\mathbf x+(\mathbf c+A^\top\boldsymbol\lambda)^\top\mathbf x-\boldsymbol\lambda^\top\mathbf b$. Setting the gradient to zero: $Q\mathbf x+\mathbf c+A^\top\boldsymbol\lambda=\mathbf 0$, so $\mathbf x=-Q^{-1}(\mathbf c+A^\top\boldsymbol\lambda)$ ($Q$ positive definite, hence invertible). Substituting back:</p>
+<div class="formula">$$\max_{\boldsymbol\lambda\ge0}\ -\tfrac12(\mathbf c+A^\top\boldsymbol\lambda)^\top Q^{-1}(\mathbf c+A^\top\boldsymbol\lambda)-\boldsymbol\lambda^\top\mathbf b.$$</div>
+<p>Application: the support vector machine (Chapter 12) is a QP, and often solved through its dual.</p>
+<h4>The Legendre–Fenchel transform (convex conjugate)</h4>
+<p>Idea: describe $f$ not by its values $f(\mathbf x)$ but by its <b>tangent slopes</b> $\mathbf s=\nabla f(\mathbf x)$. For a fixed slope $s$, among all lines $y=sx+c$ that touch the graph, the lowest intercept is $c=\inf_x\,(f(x)-sx)$. By convention the conjugate is the <i>negative</i> of that intercept:</p>
+<div class="formula">$$f^*(\mathbf s)=\sup_{\mathbf x\in\mathbb{R}^D}\big(\langle\mathbf s,\mathbf x\rangle-f(\mathbf x)\big).$$</div>
+<p>It is defined for any $f$ (convex or not, differentiable or not); for convex differentiable $f$ the supremum is attained where $\nabla f(\mathbf x)=\mathbf s$ and there is a clean one-to-one correspondence; applying the transform twice returns $f$; and the slope of $f^*$ at $\mathbf s$ is the $\mathbf x$ where $f$ has slope $\mathbf s$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 7.7</span> Conjugate of a quadratic</h4>
+  <p>$f(\mathbf y)=\tfrac\lambda2\mathbf y^\top K^{-1}\mathbf y$ ($K$ positive definite). The gradient of $\langle\mathbf y,\boldsymbol\alpha\rangle-f(\mathbf y)$ is $(\boldsymbol\alpha-\lambda K^{-1}\mathbf y)^\top$, zero at $\mathbf y=\tfrac1\lambda K\boldsymbol\alpha$. Substituting: $f^*(\boldsymbol\alpha)=\tfrac1\lambda\boldsymbol\alpha^\top K\boldsymbol\alpha-\tfrac\lambda2\cdot\tfrac1{\lambda^2}\boldsymbol\alpha^\top K\boldsymbol\alpha=\dfrac1{2\lambda}\boldsymbol\alpha^\top K\boldsymbol\alpha$. (A scaled inverse matrix flips: $K^{-1}\leftrightarrow K$.)</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 7.8</span> Sums of separable losses</h4>
+  <p>For $L(\mathbf t)=\sum_i\ell_i(t_i)$, $L^*(\mathbf z)=\sup_{\mathbf t}\sum_i(z_it_i-\ell_i(t_i))=\sum_i\ell_i^*(z_i)$: the conjugate of a sum over independent coordinates is the sum of conjugates. That's why conjugates are convenient for training losses that add up over examples.</p></div>
+<div class="wex"><h4><span class="tag">Book Ex. 7.9</span> Duality via conjugates</h4>
+  <p>For convex $f,g$ and matrix $A$: $\min_{\mathbf x}f(A\mathbf x)+g(\mathbf x)=\min_{A\mathbf x=\mathbf y}f(\mathbf y)+g(\mathbf x)$. Introduce a multiplier $\mathbf u$ for $A\mathbf x=\mathbf y$, swap min and max (allowed by convexity), split into the $\mathbf y$-part and the $\mathbf x$-part, and recognise conjugates:</p>
+  <div class="formula">$$\min_{\mathbf x}f(A\mathbf x)+g(\mathbf x)=\max_{\mathbf u}\ -f^*(\mathbf u)-g^*(-A^\top\mathbf u).$$</div>
+  <p>Strong duality (primal = dual) holds because the problem is convex. This is the template used to derive duals of regularised loss minimisation (e.g. SVMs).</p></div></div>
 <div class="short"><b>In short.</b> Convex = chord above curve = every local min is global. LP: corners. QP: bowl + linear constraints. Test convexity with tangents or a PSD Hessian.</div>
 <details><summary>Check yourself</summary>Is $f(x)=x^3$ convex on all of $\mathbb{R}$? <br><b>Answer:</b> No. $f''(x)=6x<0$ for $x<0$ (concave there). It is convex only for $x\ge0$.</details>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>All eleven exercises of the book's Chapter 7 (numbers refer to the book). Numeric answers (including the primal/dual optima) were verified by computer.</p>
+
+<div class="exercise"><h4>E7.1 · Stationary points <span class="src">book 7.1</span></h4>
+  <p>Find the stationary points of $f(x)=x^3+6x^2-3x-5$ and classify them.</p>
+  <details><summary>Solution</summary>
+  <p>$f'(x)=3x^2+12x-3=3(x^2+4x-1)=0\Rightarrow x=-2\pm\sqrt5$. Second derivative $f''(x)=6x+12$:</p>
+  <ul class="steps">
+    <li>$x=-2+\sqrt5\approx0.236$: $f''=6\sqrt5\gt0$, a <b>local minimum</b>, $f\approx-5.36$.</li>
+    <li>$x=-2-\sqrt5\approx-4.236$: $f''=-6\sqrt5\lt0$, a <b>local maximum</b>, $f\approx39.36$.</li>
+  </ul>
+  <p>No saddle points (a saddle would need $f'=f''=0$ at the same point; $f''(-2)=0$ is the inflection point, where $f'\ne0$). Neither is global: $f\to\pm\infty$ at the ends.</p></details></div>
+
+<div class="exercise"><h4>E7.2 · SGD with mini-batch size one <span class="src">book 7.2</span></h4>
+  <p>Write the SGD update of eq. (7.15) for a mini-batch of size one.</p>
+  <details><summary>Solution</summary>
+  <p>Draw an index $n$ uniformly at random from $\{1,\dots,N\}$ and update with the gradient of that single term only:</p>
+  <div class="formula">$$\boldsymbol\theta_{i+1}=\boldsymbol\theta_i-\gamma_i\big(\nabla L_n(\boldsymbol\theta_i)\big)^\top.$$</div>
+  <p>(Batch GD would use $\sum_{n=1}^N\nabla L_n$; the single-example gradient is an unbiased but noisy stand-in for it, up to a factor $N$ absorbed in $\gamma_i$.)</p></details></div>
+
+<div class="exercise"><h4>E7.3 · Convex sets: true or false? <span class="src">book 7.3</span></h4>
+  <p>(a) The intersection of any two convex sets is convex. (b) The union of any two convex sets is convex. (c) The difference $A\setminus B$ of convex sets is convex.</p>
+  <details><summary>Solution</summary>
+  <p>(a) <b>True.</b> If $\mathbf x,\mathbf y$ lie in both sets, the segment between them lies in each set, hence in the intersection.</p>
+  <p>(b) <b>False.</b> $A=[0,1]$ and $B=[2,3]$ are convex, but the union contains $0$ and $3$ and not their midpoint $1.5$.</p>
+  <p>(c) <b>False.</b> $A=[0,3]$, $B=[1,2]$: $A\setminus B=[0,1)\cup(2,3]$ is not convex (it misses the midpoint $1.5$ of $0.5$ and $2.5$).</p></details></div>
+
+<div class="exercise"><h4>E7.4 · Convex functions: true or false? <span class="src">book 7.4</span></h4>
+  <p>(a) The sum of two convex functions is convex. (b) The difference. (c) The product. (d) The maximum.</p>
+  <details><summary>Solution</summary>
+  <p>(a) <b>True</b> (add the two defining inequalities). (b) <b>False:</b> $f=0$ and $g=x^2$ are convex, but $f-g=-x^2$ is concave. (c) <b>False:</b> $f(x)=x$ and $g(x)=-x$ are convex (linear), but $fg=-x^2$ is not. (d) <b>True:</b> $\max(f,g)(\theta x+(1-\theta)y)\le\max\{\theta f(x)+(1-\theta)f(y),\ \theta g(x)+(1-\theta)g(y)\}\le\theta\max(f,g)(x)+(1-\theta)\max(f,g)(y)$.</p></details></div>
+
+<div class="exercise"><h4>E7.5 · Write as a standard LP <span class="src">book 7.5</span></h4>
+  <p>Express $\max_{\mathbf x\in\mathbb{R}^2,\ \xi\in\mathbb{R}}\ \mathbf p^\top\mathbf x+\xi$ subject to $\xi\ge0$, $x_0\le0$, $x_1\le3$ as a standard LP $\min\mathbf c^\top\mathbf z$ s.t. $A\mathbf z\le\mathbf b$.</p>
+  <details><summary>Solution</summary>
+  <p>Stack the variables as $\mathbf z=(x_0,x_1,\xi)$. Maximising is minimising the negative: $\mathbf c=-(p_0,\,p_1,\,1)$. Write each constraint as "$\le$":</p>
+  <div class="formula">$$\min_{\mathbf z\in\mathbb{R}^3}-\begin{bmatrix}p_0\\p_1\\1\end{bmatrix}^{\!\top}\mathbf z\quad\text{s.t.}\quad\underbrace{\begin{bmatrix}0&0&-1\\1&0&0\\0&1&0\end{bmatrix}}_{A}\mathbf z\le\underbrace{\begin{bmatrix}0\\0\\3\end{bmatrix}}_{\mathbf b}$$</div>
+  <p>(row 1 is $-\xi\le0$, i.e. $\xi\ge0$). Side remark: as stated, $\xi$ has no upper bound, so this LP is unbounded (objective $\to-\infty$ as $\xi\to\infty$). It is still a valid <i>formulation</i>, which is all the exercise asks.</p></details></div>
+
+<div class="exercise"><h4>E7.6 · The dual of the book's linear program <span class="src">book 7.6</span></h4>
+  <p>Derive the dual of $\min_{\mathbf x}-\left[\begin{smallmatrix}5\\3\end{smallmatrix}\right]^\top\mathbf x$ s.t. $\left[\begin{smallmatrix}2&2\\2&-4\\-2&1\\0&-1\\0&1\end{smallmatrix}\right]\mathbf x\le\left[\begin{smallmatrix}33\\8\\5\\-1\\8\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>Lagrangian with $\boldsymbol\lambda\in\mathbb{R}^5_{\ge0}$: $\mathfrak L=\mathbf c^\top\mathbf x+\boldsymbol\lambda^\top(A\mathbf x-\mathbf b)=(\mathbf c+A^\top\boldsymbol\lambda)^\top\mathbf x-\boldsymbol\lambda^\top\mathbf b$. Minimising a linear function over free $\mathbf x$ is $-\infty$ unless $\mathbf c+A^\top\boldsymbol\lambda=\mathbf 0$. So</p>
+  <div class="formula">$$\max_{\boldsymbol\lambda\in\mathbb{R}^5}\ -\mathbf b^\top\boldsymbol\lambda\quad\text{s.t.}\quad A^\top\boldsymbol\lambda=\begin{bmatrix}5\\3\end{bmatrix},\ \ \boldsymbol\lambda\ge\mathbf 0,$$</div>
+  <p>explicitly: maximise $-(33\lambda_1+8\lambda_2+5\lambda_3-\lambda_4+8\lambda_5)$ s.t. $2\lambda_1+2\lambda_2-2\lambda_3=5$, $\ 2\lambda_1-4\lambda_2+\lambda_3-\lambda_4+\lambda_5=3$, $\boldsymbol\lambda\ge0$.</p>
+  <p><b>Check of strong duality:</b> the dual optimum is $\boldsymbol\lambda=(\tfrac{13}6,\tfrac13,0,0,0)$ (solve the two equations with only $\lambda_1,\lambda_2$ nonzero), giving dual value $-(33\cdot\tfrac{13}6+8\cdot\tfrac13)=-74.17$, equal to the primal optimum $-74.17$ at $\mathbf x^*=(12.33,4.17)$. Only the two constraints active at the optimum have nonzero multipliers. (Solved with an LP solver too.)</p></details></div>
+
+<div class="exercise"><h4>E7.7 · The dual of the book's quadratic program <span class="src">book 7.7</span></h4>
+  <p>Derive the dual of $\min\tfrac12\mathbf x^\top\left[\begin{smallmatrix}2&1\\1&4\end{smallmatrix}\right]\mathbf x+\left[\begin{smallmatrix}5\\3\end{smallmatrix}\right]^\top\mathbf x$ s.t. $\left[\begin{smallmatrix}1&0\\-1&0\\0&1\\0&-1\end{smallmatrix}\right]\mathbf x\le\mathbf 1$.</p>
+  <details><summary>Solution</summary>
+  <p>With $Q=\left[\begin{smallmatrix}2&1\\1&4\end{smallmatrix}\right]$, $\mathbf c=(5,3)$, the general QP dual (derived in 7.3) is $\max_{\boldsymbol\lambda\ge0}-\tfrac12(\mathbf c+A^\top\boldsymbol\lambda)^\top Q^{-1}(\mathbf c+A^\top\boldsymbol\lambda)-\boldsymbol\lambda^\top\mathbf 1$. Here $Q^{-1}=\tfrac17\left[\begin{smallmatrix}4&-1\\-1&2\end{smallmatrix}\right]$ and $\mathbf c+A^\top\boldsymbol\lambda=(5+\lambda_1-\lambda_2,\ 3+\lambda_3-\lambda_4)$. With $u=5+\lambda_1-\lambda_2$, $v=3+\lambda_3-\lambda_4$:</p>
+  <div class="formula">$$\max_{\boldsymbol\lambda\ge0}\ -\tfrac1{14}\big(4u^2-2uv+2v^2\big)-(\lambda_1+\lambda_2+\lambda_3+\lambda_4).$$</div>
+  <p><b>Check:</b> maximising numerically gives $\boldsymbol\lambda=(0,\,2.5,\,0,\,0)$ and dual value $-4.5$. The primal optimum is $\mathbf x^*=(-1,-0.5)$ with value $-4.5$: equal, as strong duality demands. Only $\lambda_2\gt0$, the multiplier of the active constraint $-x_1\le1$ (the other three constraints are inactive).</p></details></div>
+
+<div class="exercise"><h4>E7.8 · Dual of a hard-margin problem <span class="src">book 7.8</span></h4>
+  <p>Derive the Lagrangian dual of $\min_{\mathbf w}\tfrac12\mathbf w^\top\mathbf w$ subject to $\mathbf w^\top\mathbf x\ge1$.</p>
+  <details><summary>Solution</summary>
+  <p>Write the constraint as $1-\mathbf w^\top\mathbf x\le0$ and introduce $\lambda\ge0$: $\mathfrak L(\mathbf w,\lambda)=\tfrac12\mathbf w^\top\mathbf w+\lambda(1-\mathbf w^\top\mathbf x)$. Minimise over $\mathbf w$: $\nabla_{\mathbf w}\mathfrak L=\mathbf w-\lambda\mathbf x=0\Rightarrow\mathbf w=\lambda\mathbf x$. Substitute:</p>
+  <div class="formula">$$\mathfrak D(\lambda)=\tfrac12\lambda^2\|\mathbf x\|^2+\lambda-\lambda^2\|\mathbf x\|^2=\lambda-\tfrac12\lambda^2\|\mathbf x\|^2,\qquad\text{dual: }\max_{\lambda\ge0}\ \lambda-\tfrac12\lambda^2\|\mathbf x\|^2.$$</div>
+  <p>The maximiser is $\lambda=1/\|\mathbf x\|^2$ with value $\dfrac1{2\|\mathbf x\|^2}$, which equals the primal optimum ($\mathbf w^*=\mathbf x/\|\mathbf x\|^2$, $\tfrac12\|\mathbf w^*\|^2=\frac1{2\|\mathbf x\|^2}$) ✓. This is the one-example version of the SVM dual (Chapter 12).</p></details></div>
+
+<div class="exercise"><h4>E7.9 · Conjugate of the negative entropy <span class="src">book 7.9</span></h4>
+  <p>Find $f^*(\mathbf s)$ for $f(\mathbf x)=\sum_{d=1}^Dx_d\log x_d$.</p>
+  <details><summary>Solution</summary>
+  <p>$f^*(\mathbf s)=\sup_{\mathbf x}\sum_d\big(s_dx_d-x_d\log x_d\big)$, separable over coordinates. For each $d$ set the derivative to zero: $s_d-\log x_d-1=0\Rightarrow x_d=e^{s_d-1}$. The value there is $s_dx_d-x_d(s_d-1)=x_d=e^{s_d-1}$. Hence</p>
+  <div class="formula">$$f^*(\mathbf s)=\sum_{d=1}^De^{s_d-1}.$$</div>
+  <p>(The negative entropy is convex for $x\gt0$, so this stationary point is the supremum.)</p></details></div>
+
+<div class="exercise"><h4>E7.10 · Conjugate of a quadratic <span class="src">book 7.10</span></h4>
+  <p>Find the convex conjugate of $f(\mathbf x)=\tfrac12\mathbf x^\top A\mathbf x+\mathbf b^\top\mathbf x+c$ with $A$ strictly positive definite.</p>
+  <details><summary>Solution</summary>
+  <p>Maximise $\mathbf s^\top\mathbf x-f(\mathbf x)$: the gradient $\mathbf s-A\mathbf x-\mathbf b=\mathbf 0$ gives $\mathbf x=A^{-1}(\mathbf s-\mathbf b)$. Substituting, with $\mathbf d=\mathbf s-\mathbf b$:</p>
+  <div class="formula">$$f^*(\mathbf s)=\mathbf d^\top A^{-1}\mathbf d-\tfrac12\mathbf d^\top A^{-1}\mathbf d-c=\tfrac12(\mathbf s-\mathbf b)^\top A^{-1}(\mathbf s-\mathbf b)-c.$$</div></details></div>
+
+<div class="exercise"><h4>E7.11 · Conjugate of the hinge loss, and its smoothing <span class="src">book 7.11</span></h4>
+  <p>Hinge loss $L(\alpha)=\max\{0,1-\alpha\}$. (a) Compute $L^*(\beta)$. (b) Add a proximal term and compute the conjugate of $L^*(\beta)+\frac\gamma2\beta^2$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $L^*(\beta)=\sup_\alpha\big(\alpha\beta-\max\{0,1-\alpha\}\big)$. If $\beta\gt0$: let $\alpha\to\infty$, the value $\to+\infty$. If $\beta\lt-1$: let $\alpha\to-\infty$ where $\alpha\beta-(1-\alpha)=\alpha(\beta+1)-1\to+\infty$. For $-1\le\beta\le0$: for $\alpha\ge1$ the value is $\alpha\beta\le\beta$; for $\alpha\le1$ it is $\alpha(\beta+1)-1$, which increases in $\alpha$ and so is at most $\beta$ (at $\alpha=1$). The sup is attained at $\alpha=1$:</p>
+  <div class="formula">$$L^*(\beta)=\begin{cases}\beta&-1\le\beta\le0\\+\infty&\text{otherwise.}\end{cases}$$</div>
+  <p>(b) The conjugate of $L^*(\beta)+\frac\gamma2\beta^2$ is $\sup_{\beta\in[-1,0]}\big[(\alpha-1)\beta-\frac\gamma2\beta^2\big]$. The unconstrained maximiser is $\beta=(\alpha-1)/\gamma$; clip it to $[-1,0]$:</p>
+  <div class="formula">$$\Big(L^*+\tfrac\gamma2\beta^2\Big)^*(\alpha)=\begin{cases}0&\alpha\ge1\\\dfrac{(\alpha-1)^2}{2\gamma}&1-\gamma\le\alpha\lt1\\1-\alpha-\dfrac\gamma2&\alpha\lt1-\gamma.\end{cases}$$</div>
+  <p>This is the <b>smoothed hinge loss</b>: the sharp kink at $\alpha=1$ is replaced by a quadratic piece of width $\gamma$, so the function is differentiable and gradient methods such as L-BFGS apply (as the exercise wanted). As $\gamma\to0$ it recovers the hinge loss. (Matches a brute-force numeric check at several $\alpha$.)</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>

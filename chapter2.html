@@ -12,6 +12,7 @@
 <div class="layout">
 <nav class="side">
   <a class="home" href="index.html">← All chapters</a>
+  <a href="glossary.html" style="color:var(--muted)">Notation &amp; glossary</a>
   <h2>Chapter 2</h2>
   <a href="#intro">Why this chapter</a>
   <a href="#s21">2.1 Systems of equations</a>
@@ -22,6 +23,7 @@
   <a href="#s26">2.6 Basis and rank</a>
   <a href="#s27">2.7 Linear mappings</a>
   <a href="#s28">2.8 Affine spaces</a>
+  <a href="#exercises">Exercises</a>
   <a href="#recap">Cheat sheet</a>
 </nav>
 <main>
@@ -61,6 +63,15 @@
 <div class="widget" id="w-cols"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p class="why">Slide $x_1$ and $x_2$ until the red dot lands on the orange target. Then try the "Dependent columns" presets: when the columns point in the same direction, many targets are simply unreachable. That is exactly the "no solution" case in the row view.</p>
 
+<div class="deep"><h3>Going deeper: the general setting</h3>
+<p>A system of $m$ equations in $n$ unknowns $x_1,\dots,x_n$ looks like</p>
+<div class="formula">$$a_{11}x_1+\dots+a_{1n}x_n=b_1,\quad\dots,\quad a_{m1}x_1+\dots+a_{mn}x_n=b_m,$$</div>
+<p>and the single line $A\mathbf x=\mathbf b$ with $A=(a_{ij})\in\mathbb{R}^{m\times n}$ packs all of it. The numbers $a_{ij}$ and $b_i$ are known, the $x_j$ are unknown.</p>
+<ul>
+  <li><b>Geometry in higher dimensions.</b> With 3 unknowns each equation is a <i>plane</i>; with $n$ unknowns it is a <i>hyperplane</i> (dimension $n-1$). A solution is a point lying on all of them at once.</li>
+  <li><b>Counting rule of thumb.</b> More unknowns than equations ($n\gt m$, "underdetermined") usually means infinitely many solutions. More equations than unknowns ($m\gt n$, "overdetermined") usually means none. In ML you typically have more data points than parameters, so exact solutions rarely exist. Chapters 3 and 9 show the fix: find the <i>closest</i> answer (least squares).</li>
+  <li><b>Homogeneous vs inhomogeneous.</b> $A\mathbf x=\mathbf 0$ (right side zero) always has the solution $\mathbf x=\mathbf 0$. The interesting question is whether it has <i>more</i>. $A\mathbf x=\mathbf b$ with $\mathbf b\neq\mathbf 0$ is called inhomogeneous.</li>
+</ul></div>
 <div class="short"><b>In short.</b> $A\mathbf{x}=\mathbf{b}$ can be read as "lines that meet" or as "a recipe of columns". Solutions: 0, 1, or ∞.</div>
 <details><summary>Check yourself</summary>The system $x_1+x_2=3$, $2x_1+2x_2=6$: how many solutions? <br><b>Answer:</b> infinitely many. The second equation is the first one doubled, so both describe the same line.</details>
 </section>
@@ -89,6 +100,29 @@
 <p class="why">Why the order flips: to undo "socks then shoes" you must take off the shoes first.</p>
 <p>Other rules work as you expect: $A(BC)=(AB)C$ (associative), $A(B+C)=AB+AC$ (distributive), and $(A+B)^\top=A^\top+B^\top$.</p>
 
+<div class="deep"><h3>Going deeper: all the rules, with examples</h3>
+<h4>Addition and scaling</h4>
+<p>Matrices of the <b>same size</b> are added entry by entry, $(A+B)_{ij}=a_{ij}+b_{ij}$. Scaling multiplies every entry: $(\lambda A)_{ij}=\lambda a_{ij}$.</p>
+<h4>The product, two ways of seeing it</h4>
+<p>Besides "row · column", the matrix–vector product is a <b>linear combination of columns</b>:</p>
+<div class="formula">$$A\mathbf x=x_1\mathbf a_1+x_2\mathbf a_2+\dots+x_n\mathbf a_n\qquad(\mathbf a_j=\text{the }j\text{th column of }A)$$</div>
+<p>That is exactly the "column view" from 2.1, and it is why $A\mathbf x=\mathbf b$ is solvable only if $\mathbf b$ is reachable from the columns.</p>
+<h4>Algebra rules</h4>
+<ul>
+  <li>Associative: $(AB)C=A(BC)$. Distributive: $(A+B)C=AC+BC$ and $A(C+D)=AC+AD$.</li>
+  <li>Identity: $I_mA=A=AI_n$ for $A\in\mathbb{R}^{m\times n}$.</li>
+  <li><b>Not commutative.</b> Even if both $AB$ and $BA$ exist they usually differ (and may not even have the same size).</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 2.3</span> AB versus BA</h4>
+  <p>$A=\begin{bmatrix}1&2&3\\3&2&1\end{bmatrix}$ ($2\times3$), $B=\begin{bmatrix}0&2\\1&-1\\0&1\end{bmatrix}$ ($3\times2$). Then</p>
+  <div class="formula">$$AB=\begin{bmatrix}2&3\\2&5\end{bmatrix}\ (2\times2),\qquad BA=\begin{bmatrix}6&4&2\\-2&0&2\\3&2&1\end{bmatrix}\ (3\times3).$$</div>
+  <p>Different sizes, so certainly different matrices. (Check one entry: $(AB)_{11}=1\cdot0+2\cdot1+3\cdot0=2$.)</p></div>
+<h4>The inverse</h4>
+<p>$A\in\mathbb{R}^{n\times n}$ is <b>invertible</b> (also: <b>regular</b>, <b>non-singular</b>) if some $B$ satisfies $AB=BA=I_n$. That $B$ is unique and written $A^{-1}$. Matrices without an inverse are <b>singular</b>. Only square matrices can have an inverse. For $2\times2$ there is a closed formula:</p>
+<div class="formula">$$A^{-1}=\frac{1}{a_{11}a_{22}-a_{12}a_{21}}\begin{bmatrix}a_{22}&-a_{12}\\-a_{21}&a_{11}\end{bmatrix}\quad\text{(exists iff }a_{11}a_{22}-a_{12}a_{21}\ne0).$$</div>
+<p>The quantity $a_{11}a_{22}-a_{12}a_{21}$ is the <i>determinant</i> (Chapter 4). A bigger example (book Ex. 2.4): $A=\begin{bmatrix}1&2&1\\4&4&5\\6&7&7\end{bmatrix}$ and $B=\begin{bmatrix}-7&-7&6\\2&1&-1\\4&5&-4\end{bmatrix}$ satisfy $AB=BA=I_3$, so $B=A^{-1}$.</p>
+<h4>The transpose</h4>
+<p>$(A^\top)_{ij}=a_{ji}$. Rules: $(A^\top)^\top=A$, $(A+B)^\top=A^\top+B^\top$, $(AB)^\top=B^\top A^\top$, and $(A^{-1})^\top=(A^\top)^{-1}$. A matrix is <b>symmetric</b> if $A=A^\top$ (so it must be square). Sums of symmetric matrices are symmetric, but <i>products need not be</i>: $\begin{bmatrix}1&0\\0&0\end{bmatrix}\begin{bmatrix}1&1\\1&1\end{bmatrix}=\begin{bmatrix}1&1\\0&0\end{bmatrix}$. Useful fact for later: for <i>any</i> matrix $A$, both $A^\top A$ and $AA^\top$ are symmetric.</p></div>
 <div class="short"><b>In short.</b> Multiply = row · column. Order matters. Inverse = undo. Transpose = flip. Reverse the order when inverting or transposing a product.</div>
 <details><summary>Check yourself</summary>$A$ is $3\times 2$ and $B$ is $2\times 5$. What is the size of $AB$? Does $BA$ exist? <br><b>Answer:</b> $AB$ is $3\times5$. $BA$ would need $5=3$, so it does not exist.</details>
 </section>
@@ -121,6 +155,44 @@
 <div class="formula">$$A\mathbf{x}=\mathbf{b}\ \Longleftrightarrow\ A^\top A\mathbf{x}=A^\top\mathbf{b}\ \Longleftrightarrow\ \mathbf{x}=(A^\top A)^{-1}A^\top\mathbf{b}$$</div>
 <div class="ml"><b>ML link.</b> This is the closed-form solution of <b>linear regression</b> (Ch. 9): the best-fitting $\mathbf{x}$ in the least-squares sense. The book also warns that explicitly computing inverses is numerically fragile and expensive, so real software uses smarter factorisations (Ch. 4).</div>
 
+<div class="deep"><h3>Going deeper: the complete solving toolkit</h3>
+<h4>Particular and general solution, by inspection</h4>
+<p>Take $\begin{bmatrix}1&0&8&-4\\0&1&2&12\end{bmatrix}\mathbf x=\begin{bmatrix}42\\8\end{bmatrix}$. Two equations, four unknowns. The first two columns are already $\mathbf e_1,\mathbf e_2$, so $42\cdot\text{col}_1+8\cdot\text{col}_2=\mathbf b$ gives a <b>particular solution</b> $\mathbf x_p=(42,8,0,0)$. To find <i>all</i> solutions we need ways to write $\mathbf 0$ non-trivially. Columns 3 and 4 are combinations of columns 1, 2: $8\,\text{col}_1+2\,\text{col}_2-\text{col}_3=\mathbf 0$ and $-4\,\text{col}_1+12\,\text{col}_2-\text{col}_4=\mathbf 0$. So</p>
+<div class="formula">$$\mathbf x=\begin{bmatrix}42\\8\\0\\0\end{bmatrix}+\lambda_1\begin{bmatrix}8\\2\\-1\\0\end{bmatrix}+\lambda_2\begin{bmatrix}-4\\12\\0\\-1\end{bmatrix},\qquad\lambda_1,\lambda_2\in\mathbb{R}.$$</div>
+<p>The recipe, always: <b>(1)</b> find one particular solution, <b>(2)</b> find all solutions of $A\mathbf x=\mathbf 0$, <b>(3)</b> add them. Neither piece is unique, but the solution <i>set</i> is.</p>
+<h4>Elementary transformations</h4>
+<p>Three moves keep the solution set unchanged: <b>swap</b> two equations, <b>multiply</b> an equation by a nonzero number, <b>add</b> one equation to another. Work on the <b>augmented matrix</b> $[A\,|\,\mathbf b]$ so you don't have to rewrite the variables.</p>
+<h4>Row-echelon form, precisely</h4>
+<ul>
+  <li><b>Row-echelon form (REF):</b> all-zero rows are at the bottom; the first nonzero entry of each nonzero row (the <b>pivot</b>) lies strictly to the right of the pivot in the row above.</li>
+  <li><b>Reduced row-echelon form (RREF):</b> additionally every pivot is $1$ and is the <i>only</i> nonzero entry in its column.</li>
+  <li>Variables of <b>pivot columns</b> are <b>basic variables</b>; the others are <b>free variables</b>.</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 2.6</span> A system with a parameter</h4>
+  <p>For which $a$ does the system below have solutions, and what are they?</p>
+  <div class="formula">$$\begin{aligned}-2x_1+4x_2-2x_3-x_4+4x_5&=-3\\4x_1-8x_2+3x_3-3x_4+x_5&=2\\x_1-2x_2+x_3-x_4+x_5&=0\\x_1-2x_2-3x_4+4x_5&=a\end{aligned}$$</div>
+  <p>Row-reducing the augmented matrix gives the RREF</p>
+  <div class="formula">$$\left[\begin{array}{ccccc|c}1&-2&0&0&-2&2\\0&0&1&0&1&-1\\0&0&0&1&-2&1\\0&0&0&0&0&a+1\end{array}\right].$$</div>
+  <p>The last row says $0=a+1$, so a solution exists <b>only if $a=-1$</b>. Then the pivot columns are 1, 3, 4 (basic variables $x_1,x_3,x_4$), and $x_2,x_5$ are free. Reading off a particular solution (set the free variables to 0): $\mathbf x_p=(2,0,-1,1,0)$. Kernel vectors (next paragraph) give</p>
+  <div class="formula">$$\mathbf x=\begin{bmatrix}2\\0\\-1\\1\\0\end{bmatrix}+\lambda_1\begin{bmatrix}2\\1\\0\\0\\0\end{bmatrix}+\lambda_2\begin{bmatrix}2\\0\\-1\\2\\1\end{bmatrix}.$$</div></div>
+<h4>The Minus-1 trick (reading the kernel off RREF)</h4>
+<p>For $A\mathbf x=\mathbf 0$ with $A$ in RREF: insert a row with a $-1$ on the diagonal wherever a pivot is missing, to make $A$ square. <b>The columns that contain a $-1$ on the diagonal form a basis of the solution space.</b> Why it works: each such column $\mathbf c$ has $A\mathbf c=\mathbf 0$ because the $-1$ exactly cancels the column's free-variable entries.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 2.8</span> Minus-1 trick</h4>
+  <p>$A=\begin{bmatrix}1&3&0&0&3\\0&0&1&0&9\\0&0&0&1&-4\end{bmatrix}$ is in RREF. Pivots are in columns 1, 3, 4, so columns 2 and 5 are missing. Add rows $[0\ {-1}\ 0\ 0\ 0]$ and $[0\ 0\ 0\ 0\ {-1}]$ (as rows 2 and 5):</p>
+  <div class="formula">$$\tilde A=\begin{bmatrix}1&3&0&0&3\\0&-1&0&0&0\\0&0&1&0&9\\0&0&0&1&-4\\0&0&0&0&-1\end{bmatrix}.$$</div>
+  <p>Columns 2 and 5 of $\tilde A$ solve $A\mathbf x=\mathbf 0$: kernel $=\{\lambda_1(3,-1,0,0,0)^\top+\lambda_2(3,0,9,-4,-1)^\top\}$. Check the second vector against the three rows of $A$: $3+3(-1)=0$ ✓, $9-9=0$ ✓, $-4+4=0$ ✓.</p></div>
+<h4>Computing an inverse with the same machine</h4>
+<p>$AX=I$ is $n$ systems with the same $A$ and right sides $\mathbf e_1,\dots,\mathbf e_n$. Solve them all at once: row-reduce $[A\,|\,I]$ to $[I\,|\,A^{-1}]$. If the left block can't become $I$, $A$ is singular.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 2.9</span> Inverse by elimination</h4>
+  <p>$A=\begin{bmatrix}1&0&2&0\\1&1&0&0\\1&2&0&1\\1&1&1&1\end{bmatrix}$ row-reduces to $\big[I\mid A^{-1}\big]$ with</p>
+  <div class="formula">$$A^{-1}=\begin{bmatrix}-1&2&-2&2\\1&-1&2&-2\\1&-1&1&-1\\-1&0&-1&2\end{bmatrix}.$$</div>
+  <p>(Multiply to check: $AA^{-1}=I_4$.)</p></div>
+<h4>Practical remarks on algorithms</h4>
+<ul>
+  <li>The pseudo-inverse $(A^\top A)^{-1}A^\top$ needs <b>linearly independent columns</b>; it gives the minimum-norm least-squares answer, but forming $A^\top A$ and inverting it is costly and numerically touchy. Software avoids it.</li>
+  <li>Gaussian elimination costs about $n^3$ operations: fine for thousands of unknowns, hopeless for millions. For huge systems people use <b>iterative methods</b>, repeating $\mathbf x^{(k+1)}=C\mathbf x^{(k)}+\mathbf d$ until the error is small (Jacobi, Gauss–Seidel, conjugate gradients...). Chapter 7 is the same spirit.</li>
+  <li>Elimination also computes determinants (Ch. 4), checks independence (2.5), finds ranks (2.6) and bases. One tool, many uses.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Gaussian elimination = clean up rows with 3 safe moves. Pivots decide unique / none / infinite. Solutions = particular + kernel.</div>
 <details><summary>Check yourself</summary>After elimination a 3-unknown system has 2 pivots and no contradictory row. How many free variables, and how many solutions? <br><b>Answer:</b> $3-2=1$ free variable, so infinitely many solutions (a line of them).</details>
 </section>
@@ -147,6 +219,29 @@
   <p class="why">Lines and planes <b>through the origin</b> are subspaces. Shift the line off the origin, or bend it, and it breaks. Also: the kernel $\{\mathbf{x}:A\mathbf{x}=\mathbf{0}\}$ is always a subspace, but $\{\mathbf{x}:A\mathbf{x}=\mathbf{b}\}$ with $\mathbf b\neq\mathbf 0$ is not (it misses $\mathbf{0}$).</p>
 </div>
 
+<div class="deep"><h3>Going deeper: the precise definitions</h3>
+<h4>Group axioms</h4>
+<p>$(G,\otimes)$ is a group if: <b>(1) closure</b> $x\otimes y\in G$; <b>(2) associativity</b> $(x\otimes y)\otimes z=x\otimes(y\otimes z)$; <b>(3) neutral element</b> $e$ with $x\otimes e=e\otimes x=x$; <b>(4) inverses</b> for every $x$ some $y$ with $x\otimes y=y\otimes x=e$. Abelian: also $x\otimes y=y\otimes x$.</p>
+<table class="t">
+  <tr><th>Candidate</th><th>Group?</th><th>Why</th></tr>
+  <tr><td>$(\mathbb{N}_0,+)$</td><td>No</td><td>neutral element $0$ exists, but $1$ has no inverse ($-1\notin\mathbb{N}_0$)</td></tr>
+  <tr><td>$(\mathbb{Z},+)$</td><td>Yes, Abelian</td><td>inverse of $a$ is $-a$</td></tr>
+  <tr><td>$(\mathbb{Z},\cdot)$</td><td>No</td><td>neutral $1$, but $2$ has no integer inverse</td></tr>
+  <tr><td>$(\mathbb{R}\setminus\{0\},\cdot)$</td><td>Yes, Abelian</td><td>inverse $1/a$ (note $0$ must be removed)</td></tr>
+  <tr><td>$(\mathbb{R}^n,+)$, $(\mathbb{R}^{m\times n},+)$</td><td>Yes, Abelian</td><td>add entrywise, inverse is the negative</td></tr>
+  <tr><td>$(\mathbb{R}^{n\times n},\cdot)$</td><td>No</td><td>singular matrices have no inverse</td></tr>
+  <tr><td>invertible $n\times n$ matrices, $\cdot$</td><td>Yes, <i>not</i> Abelian</td><td>this is $GL(n,\mathbb{R})$; $AB\ne BA$</td></tr>
+</table>
+<h4>Vector space axioms</h4>
+<p>A real vector space $(V,+,\cdot)$ has addition $V\times V\to V$ and scalar multiplication $\mathbb{R}\times V\to V$ such that: $(V,+)$ is an Abelian group; $\lambda(\mathbf x+\mathbf y)=\lambda\mathbf x+\lambda\mathbf y$; $(\lambda+\psi)\mathbf x=\lambda\mathbf x+\psi\mathbf x$; $\lambda(\psi\mathbf x)=(\lambda\psi)\mathbf x$; and $1\cdot\mathbf x=\mathbf x$. Note there is no "vector times vector" in this definition (that comes with inner products, Ch. 3).</p>
+<p><b>Examples:</b> $\mathbb{R}^n$; $\mathbb{R}^{m\times n}$; polynomials of degree $\le d$; all functions $\mathbb{R}\to\mathbb{R}$; audio signals; even the complex numbers $\mathbb{C}$ viewed over $\mathbb{R}$. <b>Non-example:</b> the set of integer vectors $\mathbb{Z}^n$ isn't a <i>real</i> vector space (scaling by $\tfrac12$ leaves it).</p>
+<h4>Subspaces</h4>
+<p>$U\subseteq V$ is a subspace iff (a) $U\ne\emptyset$, in particular $\mathbf 0\in U$; (b) closed under addition; (c) closed under scalar multiplication. (a) is quick to test and often catches impostors.</p>
+<ul>
+  <li>Always subspaces: $\{\mathbf 0\}$ and $V$ itself.</li>
+  <li>The solution set of $A\mathbf x=\mathbf 0$ is a subspace of $\mathbb{R}^n$. The solution set of $A\mathbf x=\mathbf b$ with $\mathbf b\neq\mathbf 0$ is <b>not</b> (it misses $\mathbf 0$), though it is an affine subspace (2.8).</li>
+  <li>The <b>intersection</b> of subspaces is a subspace. The union generally is not (two lines through $\mathbf 0$ in $\mathbb R^2$: their union isn't closed under addition).</li>
+</ul></div>
 <div class="short"><b>In short.</b> Vector space = closed under add and scale. Subspace = a vector space sitting inside another. It must pass through $\mathbf{0}$.</div>
 <details><summary>Check yourself</summary>Is the set of all points with $x_1\ge 0$ in $\mathbb{R}^2$ a subspace? <br><b>Answer:</b> No. It has $\mathbf 0$ and is closed under addition, but multiplying $(1,0)$ by $-1$ leaves the set.</details>
 </section>
@@ -160,6 +255,16 @@
 <div class="widget" id="w-span"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <p><b>How to test it:</b> put the vectors as columns of a matrix and run Gaussian elimination. If <i>every</i> column is a pivot column, they are independent. Any column without a pivot is redundant.</p>
 <div class="ml"><b>ML link.</b> Two features that are perfect copies of each other (height in cm and height in inches) are linearly dependent. They carry no extra information and can make a regression ill-defined, since the matrix $A^\top A$ from 2.3 stops being invertible.</div>
+<div class="deep"><h3>Going deeper: testing independence step by step</h3>
+<p><b>Recipe.</b> To test $\mathbf x_1,\dots,\mathbf x_k\in\mathbb{R}^n$: put them as <b>columns</b> of a matrix $M$ and row-reduce. The vectors are independent exactly when <b>every column is a pivot column</b> (the system $M\boldsymbol\lambda=\mathbf 0$ has only $\boldsymbol\lambda=\mathbf 0$). If some column has no pivot, it is a combination of the pivot columns to its left, and the RREF entries in that column are the coefficients.</p>
+<div class="wex"><h4>Worked example (dependent set)</h4>
+  <p>$\mathbf u_1=(1,2,-3,4)$, $\mathbf u_2=(1,1,0,2)$, $\mathbf u_3=(-1,0,-3,0)$. Row-reducing $[\mathbf u_1\ \mathbf u_2\ \mathbf u_3]$ gives pivots in columns 1 and 2 only, and column 3 reads $(1,-2,0,0)^\top$. So $\mathbf u_3=1\cdot\mathbf u_1-2\cdot\mathbf u_2$. Check: $(1,2,-3,4)-2(1,1,0,2)=(-1,0,-3,0)$ ✓. The set is <b>dependent</b>.</p></div>
+<ul>
+  <li>Any set containing $\mathbf 0$ is dependent. Two vectors are dependent iff one is a multiple of the other.</li>
+  <li>More than $n$ vectors in $\mathbb{R}^n$ are always dependent. ($n+1$ vectors can't all be pivot columns of an $n$-row matrix.)</li>
+  <li>For a square matrix: columns independent $\iff$ $\det\ne0$ $\iff$ invertible $\iff$ full rank.</li>
+</ul>
+<p class="why">The test for <i>rows</i> works identically (use $A^\top$). Row-reducing never changes the span of the rows, which is why rank by rows and by columns agree.</p></div>
 <div class="short"><b>In short.</b> Independent = no redundant vectors. Dependent = someone can be built from the others.</div>
 <details><summary>Check yourself</summary>Are $(1,2)$, $(2,4)$ independent? And any three vectors in $\mathbb{R}^2$? <br><b>Answer:</b> The first pair is dependent ($(2,4)=2\cdot(1,2)$). Any three vectors in $\mathbb{R}^2$ are dependent: the plane only has 2 directions to offer.</details>
 </section>
@@ -183,6 +288,29 @@
 <div class="card"><b style="font-family:system-ui">Rank explorer.</b> Type numbers into the matrix (or use a preset):
   <div class="widget" id="w-rank" style="grid-template-columns:auto 1fr;margin-bottom:0"><div class="mat-in"></div><div class="readout"></div></div></div>
 <div class="ml"><b>ML link.</b> Low rank = compressible. A big data matrix with small rank can be stored with far fewer numbers (that is the idea behind PCA and SVD in Ch. 4 and 10).</div>
+<div class="deep"><h3>Going deeper: span, basis, and how to find one</h3>
+<p>The <b>span</b> of a set $\mathcal A=\{\mathbf x_1,\dots,\mathbf x_k\}$ is $\operatorname{span}[\mathcal A]=\{\lambda_1\mathbf x_1+\dots+\lambda_k\mathbf x_k\}$, the smallest subspace containing them. $\mathcal A$ is then a <b>generating set</b> of that subspace. A <b>basis</b> is a generating set that is as small as possible. The following are all equivalent for $\mathcal B\subseteq V$:</p>
+<ul>
+  <li>$\mathcal B$ is a basis (independent and generating);</li>
+  <li>$\mathcal B$ is a <i>minimal</i> generating set (remove any vector and the span shrinks);</li>
+  <li>$\mathcal B$ is a <i>maximal</i> independent set (add any vector and independence breaks);</li>
+  <li>every $\mathbf x\in V$ is a combination of $\mathcal B$ in <b>exactly one</b> way.</li>
+</ul>
+<p>Bases are <b>not unique</b> (the standard basis $\mathbf e_1,\dots,\mathbf e_n$ of $\mathbb{R}^n$ is just the most popular), but <b>every basis has the same size</b>, the dimension. A subspace $U\subseteq V$ has $\dim U\le\dim V$, with equality only if $U=V$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 2.17</span> Which vectors form a basis of the span?</h4>
+  <p>$U\subseteq\mathbb{R}^5$ is spanned by $\mathbf x_1=(1,2,-1,-1,-1)$, $\mathbf x_2=(2,-1,1,2,-2)$, $\mathbf x_3=(3,-4,3,5,-3)$, $\mathbf x_4=(-1,8,-5,-6,1)$. Put them in columns and row-reduce; the reduced form has pivots in columns 1, 2, 4:</p>
+  <div class="formula">$$\begin{bmatrix}1&0&-1&0\\0&1&2&0\\0&0&0&1\\0&0&0&0\\0&0&0&0\end{bmatrix}.$$</div>
+  <p>So $\{\mathbf x_1,\mathbf x_2,\mathbf x_4\}$ is a basis, $\dim U=3$, and column 3 tells us $\mathbf x_3=-\mathbf x_1+2\mathbf x_2$ (check: $-(1,2,-1,-1,-1)+2(2,-1,1,2,-2)=(3,-4,3,5,-3)$ ✓).</p></div>
+<h4>Rank: everything you should know</h4>
+<ul>
+  <li>$\operatorname{rk}(A)=$ number of independent columns $=$ number of independent rows, so $\operatorname{rk}(A)=\operatorname{rk}(A^\top)$.</li>
+  <li>The columns span the <b>column space</b> $\subseteq\mathbb{R}^m$ with dimension $\operatorname{rk}(A)$ (basis: the pivot columns of $A$). The rows span the <b>row space</b> $\subseteq\mathbb{R}^n$, also of dimension $\operatorname{rk}(A)$ (basis: the nonzero rows of the echelon form).</li>
+  <li>$A\mathbf x=\mathbf b$ is solvable $\iff\operatorname{rk}(A)=\operatorname{rk}([A\,|\,\mathbf b])$.</li>
+  <li>The solutions of $A\mathbf x=\mathbf 0$ form a subspace of dimension $n-\operatorname{rk}(A)$ (the number of free variables).</li>
+  <li>Square $A$ is invertible $\iff\operatorname{rk}(A)=n$. <b>Full rank</b> means $\operatorname{rk}(A)=\min(m,n)$; otherwise <b>rank-deficient</b>.</li>
+</ul>
+<div class="wex"><h4><span class="tag">Book Ex. 2.18</span> Computing a rank</h4>
+  <p>$A=\begin{bmatrix}1&2&1\\-2&-3&1\\3&5&0\end{bmatrix}$ row-reduces to $\begin{bmatrix}1&0&-5\\0&1&3\\0&0&0\end{bmatrix}$: two pivots, so $\operatorname{rk}(A)=2$. Indeed row 3 $=$ row 1 $-$ row 2, so the rows are dependent and $A$ is not invertible.</p></div></div>
 <div class="short"><b>In short.</b> Basis = independent vectors that span the space; their count is the dimension. Rank = number of independent columns; full rank = invertible.</div>
 <details><summary>Check yourself</summary>A $4\times 4$ matrix has rank 3. Is it invertible? <br><b>Answer:</b> No. Invertible needs rank 4. One column is a mix of the others.</details>
 </section>
@@ -218,6 +346,35 @@
   <p class="why">Try the <b>Squash (singular)</b> preset above. The plane collapses onto a line: image has dimension 1, so the kernel must have dimension $2-1=1$ (a whole line of points gets crushed to the origin). A map is injective exactly when its kernel is just $\{\mathbf 0\}$. And $\operatorname{rk}(A)=\dim\operatorname{Im}(A)$.</p>
 </div>
 
+<div class="deep"><h3>Going deeper: coordinates, basis change, image and kernel</h3>
+<h4>Vocabulary for maps</h4>
+<p>$\Phi$ is <b>injective</b> (one-to-one), <b>surjective</b> (onto) or <b>bijective</b> (both). A linear map is called an <b>isomorphism</b> if linear and bijective, an <b>endomorphism</b> if $V\to V$, and an <b>automorphism</b> if both. Compositions of linear maps are linear, inverses of isomorphisms are linear.</p>
+<div class="card" style="margin:10px 0"><h3><span class="tag thm">Thm</span>Same dimension = same space</h3>
+  <p>Finite-dimensional vector spaces $V,W$ are isomorphic iff $\dim V=\dim W$. So $\mathbb{R}^{m\times n}$ behaves exactly like $\mathbb{R}^{mn}$ (just rearrange the entries). Every $n$-dimensional real vector space looks like $\mathbb{R}^n$ once you pick a basis.</p></div>
+<h4>Coordinates</h4>
+<p>For an ordered basis $B=(\mathbf b_1,\dots,\mathbf b_n)$ and $\mathbf x=\alpha_1\mathbf b_1+\dots+\alpha_n\mathbf b_n$, the numbers $\boldsymbol\alpha=(\alpha_1,\dots,\alpha_n)$ are the <b>coordinates</b> of $\mathbf x$ in $B$. Book Ex. 2.20: $\mathbf x=(2,3)$ in the basis $\mathbf b_1=(1,-1),\mathbf b_2=(1,1)$ has coordinates $\tfrac12(-1,5)$, since $-\tfrac12\mathbf b_1+\tfrac52\mathbf b_2=(-\tfrac12+\tfrac52,\ \tfrac12+\tfrac52)=(2,3)$. Same arrow, different description.</p>
+<h4>Transformation matrix (the recipe)</h4>
+<p>Given bases $B$ of $V$ and $C$ of $W$, write each image $\Phi(\mathbf b_j)$ in the basis $C$: $\Phi(\mathbf b_j)=\sum_i\alpha_{ij}\mathbf c_i$. The matrix $A_\Phi=[\alpha_{ij}]$ has these coordinate vectors as <b>columns</b>, and it maps coordinates to coordinates: $\hat{\mathbf y}=A_\Phi\hat{\mathbf x}$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 2.21</span> Reading off a transformation matrix</h4>
+  <p>If $\Phi(\mathbf b_1)=\mathbf c_1-\mathbf c_2+3\mathbf c_3-\mathbf c_4$, $\Phi(\mathbf b_2)=2\mathbf c_1+\mathbf c_2+7\mathbf c_3+2\mathbf c_4$, $\Phi(\mathbf b_3)=3\mathbf c_2+\mathbf c_3+4\mathbf c_4$, then the columns are those coefficient lists:</p>
+  <div class="formula">$$A_\Phi=\begin{bmatrix}1&2&0\\-1&1&3\\3&7&1\\-1&2&4\end{bmatrix}\quad(4\times3,\ \text{from a 3-dim. space to a 4-dim. one}).$$</div></div>
+<p>Book Ex. 2.22 shows three standard $2\times2$ maps on a grid of points: rotation by $45^\circ$ ($\left[\begin{smallmatrix}\cos\frac\pi4&-\sin\frac\pi4\\\sin\frac\pi4&\cos\frac\pi4\end{smallmatrix}\right]$), horizontal stretch by 2 ($\left[\begin{smallmatrix}2&0\\0&1\end{smallmatrix}\right]$), and a general mix of reflection, rotation and stretch ($\tfrac12\left[\begin{smallmatrix}3&-1\\1&-1\end{smallmatrix}\right]$; its determinant is negative, which signals the reflection). You can play with maps like these in the widget above.</p>
+<h4>Basis change, derived</h4>
+<p>Let $S$ express the new input basis $\tilde B$ in terms of the old $B$ (columns = $\tilde{\mathbf b}_j$ in $B$-coordinates), and $T$ likewise for $\tilde C$ in terms of $C$. A vector with $\tilde B$-coordinates $\tilde{\mathbf x}$ has $B$-coordinates $S\tilde{\mathbf x}$; applying $A_\Phi$ gives $C$-coordinates $A_\Phi S\tilde{\mathbf x}$; converting those to $\tilde C$-coordinates multiplies by $T^{-1}$. Hence $\tilde A_\Phi=T^{-1}A_\Phi S$. Two matrices related like this are <b>equivalent</b>; if $V=W$ and $S=T$ they are <b>similar</b>: $\tilde A=S^{-1}AS$.</p>
+<div class="wex"><h4><span class="tag">Book Ex. 2.23</span> A basis where the matrix becomes diagonal</h4>
+  <p>$A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$ in the standard basis. In the new basis $B=\big(\left[\begin{smallmatrix}1\\1\end{smallmatrix}\right],\left[\begin{smallmatrix}1\\-1\end{smallmatrix}\right]\big)$ we have $S=\begin{bmatrix}1&1\\1&-1\end{bmatrix}$ and</p>
+  <div class="formula">$$\tilde A=S^{-1}AS=\begin{bmatrix}3&0\\0&1\end{bmatrix}.$$</div>
+  <p>In that basis $A$ just stretches the first direction by 3 and leaves the second alone. Finding such "nice" bases is the whole idea of eigenvectors (Chapter 4).</p></div>
+<h4>Image and kernel</h4>
+<div class="formula">$$\ker(\Phi)=\{\mathbf x\in V:\Phi(\mathbf x)=\mathbf 0\},\qquad \operatorname{Im}(\Phi)=\{\Phi(\mathbf x):\mathbf x\in V\}.$$</div>
+<ul>
+  <li>Always $\Phi(\mathbf 0)=\mathbf 0$, so $\mathbf 0\in\ker$. Both $\ker\Phi\subseteq V$ and $\operatorname{Im}\Phi\subseteq W$ are subspaces.</li>
+  <li>$\Phi$ is <b>injective $\iff\ker\Phi=\{\mathbf 0\}$</b>. (If $\Phi(\mathbf x)=\Phi(\mathbf y)$ then $\Phi(\mathbf x-\mathbf y)=\mathbf 0$.) $\Phi$ is <b>surjective $\iff\operatorname{Im}\Phi=W$</b>.</li>
+  <li>For $\Phi(\mathbf x)=A\mathbf x$: $\operatorname{Im}\Phi$ is the <b>column space</b> of $A$ (span of the columns), with $\dim=\operatorname{rk}(A)$; $\ker\Phi$ is the <b>null space</b>, found by solving $A\mathbf x=\mathbf 0$ (Minus-1 trick).</li>
+  <li><b>Rank–nullity:</b> $\dim\ker\Phi+\dim\operatorname{Im}\Phi=\dim V$. (Each free variable adds to the kernel, each pivot to the image; together they account for all $n$ columns.)</li>
+</ul>
+<div class="wex"><h4>Worked example (in the spirit of book Ex. 2.25)</h4>
+  <p>$\Phi:\mathbb{R}^4\to\mathbb{R}^2$ with $A=\begin{bmatrix}1&2&-1&0\\1&0&0&1\end{bmatrix}$. The two rows are clearly independent, so $\operatorname{rk}A=2$ and $\operatorname{Im}\Phi=\mathbb{R}^2$ (surjective). By rank–nullity $\dim\ker\Phi=4-2=2$. Solving $A\mathbf x=\mathbf 0$ ($x_1+2x_2-x_3=0$, $x_1+x_4=0$) gives the basis $\ker\Phi=\operatorname{span}\big[(0,1,2,0)^\top,\,(-2,1,0,2)^\top\big]$. Check the second: $-2+2-0=0$ ✓ and $-2+2=0$ ✓. $\Phi$ is not injective: it squashes a whole plane of inputs onto $\mathbf 0$.</p></div></div>
 <div class="short"><b>In short.</b> Matrix = linear map; columns = where the basis vectors go. Compose = multiply (order matters). Kernel + image dimensions add to the input dimension.</div>
 <details><summary>Check yourself</summary>A $5\times 3$ matrix has rank 3. What is its kernel? <br><b>Answer:</b> Rank–nullity: $\dim\ker=3-3=0$, so the kernel is just $\{\mathbf 0\}$ and the map is injective.</details>
 </section>
@@ -230,8 +387,134 @@
 <p>This ties the chapter together. The solutions of $A\mathbf{x}=\mathbf{b}$ are exactly an affine subspace: particular solution + kernel (see 2.3). Here is a single equation $ax_1+bx_2=c$:</p>
 <div class="widget" id="w-affine"><canvas></canvas><div><div class="ctrl"></div><div class="readout"></div></div></div>
 <div class="ml"><b>ML link.</b> Every neural-network layer $\mathbf{x}\mapsto W\mathbf{x}+\mathbf{b}$ is an affine map. The matrix $W$ rotates/stretches/squashes, the bias $\mathbf{b}$ shifts.</div>
+<div class="deep"><h3>Going deeper: lines, planes, hyperplanes, affine maps</h3>
+<p>An affine subspace $L=\mathbf x_0+U$ has a <b>support point</b> $\mathbf x_0$ and a <b>direction space</b> $U$. If $(\mathbf b_1,\dots,\mathbf b_k)$ is a basis of $U$ then every point is $\mathbf x=\mathbf x_0+\lambda_1\mathbf b_1+\dots+\lambda_k\mathbf b_k$ (the <b>parametric equation</b>). Names by dimension $k$: $k=1$ <b>line</b>, $k=2$ <b>plane</b>, $k=n-1$ <b>hyperplane</b> (in $\mathbb{R}^n$).</p>
+<div class="wex"><h4>Worked example (in the spirit of book Ex. 2.26)</h4>
+  <p>The line through $(1,0,1)$ with direction $(1,1,0)$ is $L=\{(1+\lambda,\lambda,1)\}$. In $\mathbb{R}^3$ the plane $x_1+x_2+x_3=3$ is the affine subspace $(1,1,1)+U$ where $U=\{x_1+x_2+x_3=0\}$ is the <i>plane through the origin</i> with the same normal. Same shape, shifted, which is why solution sets of $A\mathbf x=\mathbf b$ are affine.</p></div>
+<ul>
+  <li>An affine subspace is a vector subspace <b>only if</b> it passes through $\mathbf 0$ (i.e. $\mathbf x_0\in U$).</li>
+  <li>Two affine subspaces with the same direction space are <b>parallel</b>.</li>
+  <li><b>Affine maps</b> $\phi(\mathbf x)=\mathbf a+\Phi(\mathbf x)$ compose to affine maps, preserve the dimension of affine subspaces, and map lines to lines and parallel lines to parallel lines. Example: $\mathbf x\mapsto\left[\begin{smallmatrix}1&2\\3&4\end{smallmatrix}\right]\mathbf x+\left[\begin{smallmatrix}1\\-1\end{smallmatrix}\right]$ stretches/shears the plane and then slides it.</li>
+</ul></div>
 <div class="short"><b>In short.</b> Affine = linear + shift. Solutions to $A\mathbf{x}=\mathbf{b}$ form an affine subspace.</div>
 <details><summary>Check yourself</summary>Is $\{(x,y):x+y=1\}$ a subspace? An affine subspace? <br><b>Answer:</b> Not a subspace (it misses $(0,0)$). It is affine: the line $x+y=0$ shifted by $(1,0)$.</details>
+</section>
+
+<section id="exercises"><h2>Exercises with solutions</h2>
+<p>Selected from the book's Chapter 2 exercises (numbers refer to the book). Try each on paper first, then open the solution. Every answer was checked with a computer algebra system.</p>
+
+<div class="exercise"><h4>E2.1 · A group from a strange operation <span class="src">book 2.1</span></h4>
+  <p>On $\mathbb{R}\setminus\{-1\}$ define $a\star b=ab+a+b$. (a) Show it is an Abelian group. (b) Solve $3\star x\star x=15$.</p>
+  <details><summary>Solution</summary>
+  <p><b>Key trick:</b> $a\star b+1=(a+1)(b+1)$. Everything follows from this.</p>
+  <ul class="steps">
+    <li><b>Closure:</b> if $a,b\ne-1$ then $(a+1)(b+1)\ne0$, so $a\star b\ne-1$ ✓.</li>
+    <li><b>Associativity:</b> $(a\star b)\star c+1=(a+1)(b+1)(c+1)=a\star(b\star c)+1$ ✓.</li>
+    <li><b>Neutral element:</b> $e=0$, since $a\star0=a$ ✓.</li>
+    <li><b>Inverse:</b> want $(a+1)(a'+1)=1$, so $a'=\frac{1}{a+1}-1=-\frac{a}{a+1}$ (which is $\ne-1$) ✓.</li>
+    <li><b>Commutative:</b> $ab+a+b=ba+b+a$ ✓.</li>
+  </ul>
+  <p>(b) $(3\star x)\star x+1=(3+1)(x+1)(x+1)=4(x+1)^2$. Setting $3\star x\star x=15$ gives $4(x+1)^2=16$, so $x+1=\pm2$, i.e. <b>$x=1$ or $x=-3$</b> (both are allowed since both $\ne-1$).</p></details></div>
+
+<div class="exercise"><h4>E2.2 · Clock arithmetic (modular multiplication) <span class="src">book 2.2 b–d</span></h4>
+  <p>In $\mathbb{Z}_n=\{0,\dots,n-1\}$ define $a\otimes b=(a\cdot b)\bmod n$. (a) Show $(\mathbb{Z}_5\setminus\{0\},\otimes)$ is an Abelian group. (b) Show $(\mathbb{Z}_8\setminus\{0\},\otimes)$ is not. (c) For which $n$ is $(\mathbb{Z}_n\setminus\{0\},\otimes)$ a group?</p>
+  <details><summary>Solution</summary>
+  <p>(a) Times table mod 5:</p>
+  <table class="t" style="max-width:340px"><tr><th>⊗</th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tr><th>1</th><td>1</td><td>2</td><td>3</td><td>4</td></tr><tr><th>2</th><td>2</td><td>4</td><td>1</td><td>3</td></tr><tr><th>3</th><td>3</td><td>1</td><td>4</td><td>2</td></tr><tr><th>4</th><td>4</td><td>3</td><td>2</td><td>1</td></tr></table>
+  <p>Every entry is in $\{1,2,3,4\}$ (closed), the row of 1 shows $1$ is neutral, and each row contains a 1, so inverses exist: $1^{-1}=1$, $2^{-1}=3$, $3^{-1}=2$, $4^{-1}=4$. Associativity and commutativity are inherited from ordinary multiplication. ✓</p>
+  <p>(b) $2\otimes4=8\bmod8=0\notin\mathbb{Z}_8\setminus\{0\}$: not closed, so not a group.</p>
+  <p>(c) <b>Exactly when $n$ is prime.</b> If $n=rs$ with $1\lt r,s\lt n$ then $r\otimes s=0$: not closed. If $n=p$ is prime and $a\ne0$, then $\gcd(a,p)=1$, so by Bézout $au+pv=1$ for some integers $u,v$; hence $a\otimes u=1$: $a$ has an inverse. Closure: if $p\mid ab$ then $p\mid a$ or $p\mid b$, so a product of nonzero classes is nonzero.</p></details></div>
+
+<div class="exercise"><h4>E2.3 · A group of matrices <span class="src">book 2.3</span></h4>
+  <p>Let $G=\Big\{\begin{bmatrix}1&x&z\\0&1&y\\0&0&1\end{bmatrix}:x,y,z\in\mathbb{R}\Big\}$ with matrix multiplication. Is $(G,\cdot)$ a group? Is it Abelian?</p>
+  <details><summary>Solution</summary>
+  <p>Multiply two elements:</p>
+  <div class="formula">$$\begin{bmatrix}1&x&z\\0&1&y\\0&0&1\end{bmatrix}\begin{bmatrix}1&x'&z'\\0&1&y'\\0&0&1\end{bmatrix}=\begin{bmatrix}1&x+x'&z+z'+xy'\\0&1&y+y'\\0&0&1\end{bmatrix}\in G\ \text{(closed)}.$$</div>
+  <p>Associativity: inherited from matrix multiplication. Neutral element: $I$ ($x=y=z=0$). Inverse: $\begin{bmatrix}1&-x&xy-z\\0&1&-y\\0&0&1\end{bmatrix}$ (check by multiplying). So <b>it is a group</b>. Swapping the factors changes the top-right entry to $z+z'+x'y$, so the products differ whenever $xy'\ne x'y$, for example $x=y'=1$, $x'=y=0$. So <b>it is not Abelian</b>.</p></details></div>
+
+<div class="exercise"><h4>E2.4 · Matrix products <span class="src">book 2.4</span></h4>
+  <p>Compute if possible. Let $P=\left[\begin{smallmatrix}1&2&3\\4&5&6\\7&8&9\end{smallmatrix}\right]$, $Q=\left[\begin{smallmatrix}1&1&0\\0&1&1\\1&0&1\end{smallmatrix}\right]$. (a) $\left[\begin{smallmatrix}1&2\\4&5\\7&8\end{smallmatrix}\right]Q$ (b) $PQ$ (c) $QP$ (d) $D\,E$ with $D=\left[\begin{smallmatrix}1&2&1&2\\4&1&-1&-4\end{smallmatrix}\right]$, $E=\left[\begin{smallmatrix}0&3\\1&-1\\2&1\\5&2\end{smallmatrix}\right]$ (e) $E\,D$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $3\times2$ times $3\times3$: inner sizes $2\ne3$, <b>not defined</b>.</p>
+  <p>(b) $PQ=\begin{bmatrix}4&3&5\\10&9&11\\16&15&17\end{bmatrix}$. (c) $QP=\begin{bmatrix}5&7&9\\11&13&15\\8&10&12\end{bmatrix}$. Note $PQ\ne QP$.</p>
+  <p>(d) $DE=\begin{bmatrix}14&6\\-21&2\end{bmatrix}$ ($2\times2$). (e) $ED=\begin{bmatrix}12&3&-3&-12\\-3&1&2&6\\6&5&1&0\\13&12&3&2\end{bmatrix}$ ($4\times4$).</p>
+  <p class="why">Rule: $(m\times n)(n\times k)\to(m\times k)$. Here the same two matrices give a $2\times2$ or a $4\times4$ product depending on the order.</p></details></div>
+
+<div class="exercise"><h4>E2.5 · Solve inhomogeneous systems <span class="src">book 2.5</span></h4>
+  <p>Find all solutions of $A\mathbf x=\mathbf b$. (a) $A=\left[\begin{smallmatrix}1&1&-1&-1\\2&5&-7&-5\\2&-1&1&3\\5&2&-4&2\end{smallmatrix}\right]$, $\mathbf b=(1,-2,4,6)$. (b) $A=\left[\begin{smallmatrix}1&-1&0&0&1\\1&1&0&-3&0\\2&-1&0&1&-1\\-1&2&0&-2&-1\end{smallmatrix}\right]$, $\mathbf b=(3,6,5,-1)$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Row-reducing $[A\,|\,\mathbf b]$ produces the row $[0\ 0\ 0\ 0\,|\,1]$ (it says $0=1$). Equivalently $\operatorname{rk}A=3\lt\operatorname{rk}[A|\mathbf b]=4$. <b>No solution: $S=\emptyset$.</b></p>
+  <p>(b) The RREF of $[A|\mathbf b]$ is $\left[\begin{smallmatrix}1&0&0&0&-1&3\\0&1&0&0&-2&0\\0&0&0&1&-1&-1\\0&0&0&0&0&0\end{smallmatrix}\right]$. Pivot columns 1, 2, 4; free variables $x_3,x_5$. It reads $x_1=3+x_5$, $x_2=2x_5$, $x_4=-1+x_5$. Particular solution ($x_3=x_5=0$): $(3,0,0,-1,0)$.</p>
+  <div class="formula">$$S=\Big\{\begin{bmatrix}3\\0\\0\\-1\\0\end{bmatrix}+\lambda_1\begin{bmatrix}0\\0\\1\\0\\0\end{bmatrix}+\lambda_2\begin{bmatrix}1\\2\\0\\1\\1\end{bmatrix}:\lambda_1,\lambda_2\in\mathbb{R}\Big\}.$$</div></details></div>
+
+<div class="exercise"><h4>E2.6 · Gaussian elimination, 3 equations 6 unknowns <span class="src">book 2.6</span></h4>
+  <p>Solve $A\mathbf x=\mathbf b$ for $A=\left[\begin{smallmatrix}0&1&0&0&1&0\\0&0&0&1&1&0\\0&1&0&0&0&1\end{smallmatrix}\right]$, $\mathbf b=(2,-1,1)$.</p>
+  <details><summary>Solution</summary>
+  <p>RREF of the augmented matrix: $x_2+x_6=1$, $x_4+x_6=-2$, $x_5-x_6=1$. Pivots in columns 2, 4, 5; free variables $x_1,x_3,x_6$ (column 1 and 3 are zero columns, so $x_1,x_3$ are completely free). Particular solution (free variables $0$): $(0,1,0,-2,1,0)$. Kernel basis: $\mathbf e_1$, $\mathbf e_3$, and for $x_6=1$: $(0,-1,0,-1,1,1)$.</p>
+  <div class="formula">$$\mathbf x=\begin{bmatrix}0\\1\\0\\-2\\1\\0\end{bmatrix}+\lambda_1\begin{bmatrix}1\\0\\0\\0\\0\\0\end{bmatrix}+\lambda_2\begin{bmatrix}0\\0\\1\\0\\0\\0\end{bmatrix}+\lambda_3\begin{bmatrix}0\\-1\\0\\-1\\1\\1\end{bmatrix}.$$</div>
+  <p>Check the last kernel vector: row 1: $-1+1=0$ ✓, row 2: $-1+1=0$ ✓, row 3: $-1+1=0$ ✓.</p></details></div>
+
+<div class="exercise"><h4>E2.7 · A first eigenvector (preview of Ch. 4) <span class="src">book 2.7</span></h4>
+  <p>Find all $\mathbf x\in\mathbb{R}^3$ with $A\mathbf x=12\mathbf x$ and $x_1+x_2+x_3=1$, where $A=\left[\begin{smallmatrix}6&4&3\\6&0&9\\0&8&0\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>$A\mathbf x=12\mathbf x\iff(A-12I)\mathbf x=\mathbf 0$ with $A-12I=\left[\begin{smallmatrix}-6&4&3\\6&-12&9\\0&8&-12\end{smallmatrix}\right]$. Row-reducing: the solution space is one-dimensional, spanned by $(3,3,2)$ (check: $-18+12+6=0$, $18-36+18=0$, $24-24=0$ ✓). The extra condition fixes the scale: $\mathbf x=t(3,3,2)$ with $8t=1$, so <b>$\mathbf x=(\tfrac38,\tfrac38,\tfrac14)$</b>, the only solution. (12 is an <i>eigenvalue</i> of $A$ and this is its eigenvector, normalised to sum to 1.)</p></details></div>
+
+<div class="exercise"><h4>E2.8 · Inverses <span class="src">book 2.8</span></h4>
+  <p>Determine the inverse, if it exists: (a) $\left[\begin{smallmatrix}2&3&4\\3&4&5\\4&5&6\end{smallmatrix}\right]$ (b) $\left[\begin{smallmatrix}1&0&1&0\\0&1&1&0\\1&1&0&1\\1&1&1&0\end{smallmatrix}\right]$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) Row 3 $=2\cdot$row 2 $-$ row 1 ($2(3,4,5)-(2,3,4)=(4,5,6)$ ✓). The rows are dependent, $\operatorname{rk}=2\lt3$, $\det=0$: <b>no inverse</b> (row-reducing $[A|I]$ would produce a zero row on the left).</p>
+  <p>(b) Row-reduce $[A|I]$ to $[I|A^{-1}]$:</p>
+  <div class="formula">$$A^{-1}=\begin{bmatrix}0&-1&0&1\\-1&0&0&1\\1&1&0&-1\\1&1&1&-2\end{bmatrix}\qquad(\det A=1).$$</div></details></div>
+
+<div class="exercise"><h4>E2.9 · Which sets are subspaces of $\mathbb{R}^3$? <span class="src">book 2.9</span></h4>
+  <p>(a) $A=\{(\lambda,\lambda+\mu^3,\lambda-\mu^3)\}$ (b) $B=\{(\lambda^2,-\lambda^2,0)\}$ (c) $C=\{\xi\in\mathbb{R}^3:\xi_1-2\xi_2+3\xi_3=\gamma\}$ (for $\gamma\in\mathbb{R}$) (d) $D=\{\xi:\xi_2\in\mathbb{Z}\}$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) <b>Yes.</b> $\mu^3$ takes every real value $t$, so $A=\{(\lambda,\lambda+t,\lambda-t)\}=\operatorname{span}[(1,1,1),(0,1,-1)]$, a span, hence a subspace.</p>
+  <p>(b) <b>No.</b> Only $\lambda^2\ge0$ occurs, so $(1,-1,0)\in B$ but $(-1)\cdot(1,-1,0)=(-1,1,0)\notin B$.</p>
+  <p>(c) <b>Only for $\gamma=0$.</b> A subspace must contain $\mathbf 0$, which satisfies the equation iff $\gamma=0$. For $\gamma=0$ it is the kernel of $[1\ -2\ 3]$, a plane through the origin. For $\gamma\ne0$ it's an affine plane.</p>
+  <p>(d) <b>No.</b> $(0,1,0)\in D$ but $\tfrac12(0,1,0)=(0,\tfrac12,0)\notin D$.</p></details></div>
+
+<div class="exercise"><h4>E2.10 · Linear independence <span class="src">book 2.10, 2.11</span></h4>
+  <p>(a) Are $\mathbf x_1=(2,-1,3)$, $\mathbf x_2=(1,1,-2)$, $\mathbf x_3=(3,-3,8)$ independent? (b) Are $(1,2,1,0,0)$, $(1,1,0,1,1)$, $(1,0,0,1,1)$ independent? (c) Write $\mathbf y=(1,-2,5)$ as a combination of $(1,1,1)$, $(1,2,3)$, $(2,-1,1)$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) <b>Dependent.</b> Solving $a\mathbf x_1+b\mathbf x_2=\mathbf x_3$ gives $a=2$, $b=-1$: $2(2,-1,3)-(1,1,-2)=(3,-3,8)$ ✓. So $\mathbf x_3=2\mathbf x_1-\mathbf x_2$, rank 2.</p>
+  <p>(b) <b>Independent:</b> the $5\times3$ matrix of columns has rank 3 (three pivots).</p>
+  <p>(c) Solve $\lambda_1(1,1,1)+\lambda_2(1,2,3)+\lambda_3(2,-1,1)=(1,-2,5)$. The coefficient matrix has determinant $5\ne0$, so the solution is unique: $\lambda=(-6,\,3,\,2)$. Check: $-6(1,1,1)+3(1,2,3)+2(2,-1,1)=(-6+3+4,\,-6+6-2,\,-6+9+2)=(1,-2,5)$ ✓.</p></details></div>
+
+<div class="exercise"><h4>E2.11 · Intersecting subspaces <span class="src">book 2.15</span></h4>
+  <p>$F=\{(x,y,z):x+y-z=0\}$ and $G=\{(a-b,\,a+b,\,a-3b):a,b\in\mathbb{R}\}$. (a) Show both are subspaces. (b) Compute $F\cap G$ <i>without</i> bases. (c) Recompute it from bases.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $F=\ker[1\ 1\ -1]$ is a kernel, so a subspace. $G=\operatorname{span}[(1,1,1),(-1,1,-3)]$ (take $a$-part and $b$-part), so also a subspace.</p>
+  <p>(b) A point of $G$ lies in $F$ iff $(a-b)+(a+b)-(a-3b)=a+3b=0$, i.e. $a=-3b$. Then the point is $(-4b,-2b,-6b)=-2b\,(2,1,3)$. So <b>$F\cap G=\operatorname{span}[(2,1,3)]$</b>, a line.</p>
+  <p>(c) Basis of $F$: $(1,-1,0),(1,0,1)$ (each satisfies $x+y-z=0$). Basis of $G$: $(1,1,1),(-1,1,-3)$. Find the common vectors: $(2,1,3)=-1\cdot(1,-1,0)+3\cdot(1,0,1)$ and also $=\tfrac32(1,1,1)-\tfrac12(-1,1,-3)$. It lies in both, and since $\dim F+\dim G=4\gt3$ the intersection has dimension $\ge1$; it can't be 2 (else $F=G$, but $(1,1,1)\notin F$). So the intersection is exactly that line ✓.</p></details></div>
+
+<div class="exercise"><h4>E2.12 · Are these maps linear? <span class="src">book 2.16</span></h4>
+  <p>(a) $f\mapsto\int_a^bf(x)dx$ (b) $f\mapsto f'$ (from $C^1$ to $C^0$) (c) $x\mapsto\cos x$ on $\mathbb R$ (d) $\mathbf x\mapsto\left[\begin{smallmatrix}1&2&3\\1&4&3\end{smallmatrix}\right]\mathbf x$ (e) $\mathbf x\mapsto\left[\begin{smallmatrix}\cos\theta&\sin\theta\\-\sin\theta&\cos\theta\end{smallmatrix}\right]\mathbf x$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) <b>Linear:</b> $\int(f+g)=\int f+\int g$ and $\int\lambda f=\lambda\int f$. (b) <b>Linear:</b> derivatives respect sums and constant multiples. (c) <b>Not linear:</b> $\cos(0)=1\ne0$, but a linear map must send $0\mapsto0$ (also $\cos(x+y)\ne\cos x+\cos y$). (d), (e) <b>Linear:</b> multiplication by a fixed matrix is always linear ((e) is a rotation by $-\theta$).</p>
+  <p class="why">Quick test: does it send $\mathbf 0$ to $\mathbf 0$? If not, it can't be linear. (It can still fail even if it does.)</p></details></div>
+
+<div class="exercise"><h4>E2.13 · Kernel, image, rank of a map <span class="src">book 2.17</span></h4>
+  <p>$\Phi:\mathbb{R}^3\to\mathbb{R}^4$, $\Phi(\mathbf x)=(3x_1+2x_2+x_3,\ x_1+x_2+x_3,\ x_1-3x_2,\ 2x_1+3x_2+x_3)$. Find $A_\Phi$, its rank, and the kernel and image.</p>
+  <details><summary>Solution</summary>
+  <p>Columns = images of $\mathbf e_1,\mathbf e_2,\mathbf e_3$: $A_\Phi=\begin{bmatrix}3&2&1\\1&1&1\\1&-3&0\\2&3&1\end{bmatrix}$. Row-reduction gives $\left[\begin{smallmatrix}1&0&0\\0&1&0\\0&0&1\\0&0&0\end{smallmatrix}\right]$: three pivots, so <b>$\operatorname{rk}A_\Phi=3$</b>. Hence $\ker\Phi=\{\mathbf 0\}$ ($\dim=0$), $\Phi$ is injective, and $\operatorname{Im}\Phi=\operatorname{span}[(3,1,1,2),(2,1,-3,3),(1,1,0,1)]$, a 3-dimensional subspace of $\mathbb{R}^4$ ($\dim=3$). Rank–nullity: $0+3=3=\dim\mathbb{R}^3$ ✓.</p></details></div>
+
+<div class="exercise"><h4>E2.14 · Changing basis for an endomorphism <span class="src">book 2.19</span></h4>
+  <p>$A_\Phi=\left[\begin{smallmatrix}1&1&0\\1&-1&0\\1&1&1\end{smallmatrix}\right]$ (standard basis). (a) Find $\ker\Phi$ and $\operatorname{Im}\Phi$. (b) Find the matrix $\tilde A_\Phi$ in the basis $B=\big((1,1,1),(1,2,1),(1,0,0)\big)$.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $\det A_\Phi=-2\ne0$, so $A_\Phi$ is invertible: <b>$\ker\Phi=\{\mathbf 0\}$ and $\operatorname{Im}\Phi=\mathbb{R}^3$</b> (bijective).</p>
+  <p>(b) $S=\begin{bmatrix}1&1&1\\1&2&0\\1&1&0\end{bmatrix}$ (columns = new basis vectors), $\det S=-1$. Then</p>
+  <div class="formula">$$\tilde A_\Phi=S^{-1}A_\Phi S=\begin{bmatrix}6&9&1\\-3&-5&0\\-1&-1&0\end{bmatrix}.$$</div>
+  <p>(Sanity check via invariants: the trace is $1-1+1=1$ and $6-5+0=1$ ✓; the determinant is unchanged too.)</p></details></div>
+
+<div class="exercise"><h4>E2.15 · A full basis-change problem <span class="src">book 2.20</span></h4>
+  <p>$\mathbf b_1=(2,1)$, $\mathbf b_2=(-1,-1)$, $\mathbf b_1'=(2,-2)$, $\mathbf b_2'=(1,1)$; $B=(\mathbf b_1,\mathbf b_2)$, $B'=(\mathbf b_1',\mathbf b_2')$; $\mathbf c_1=(1,2,-1)$, $\mathbf c_2=(0,-1,2)$, $\mathbf c_3=(1,0,-1)$, $C=(\mathbf c_1,\mathbf c_2,\mathbf c_3)$. A linear $\Phi:\mathbb{R}^2\to\mathbb{R}^3$ has $\Phi(\mathbf b_1+\mathbf b_2)=\mathbf c_2+\mathbf c_3$ and $\Phi(\mathbf b_1-\mathbf b_2)=2\mathbf c_1-\mathbf c_2+3\mathbf c_3$. (a) Show $B,B'$ are bases; find the change matrix $P_1$ from $B'$ to $B$. (b) Find $A_\Phi$ (w.r.t. $B,C$) and $A'$ (w.r.t. $B'$ and the standard basis of $\mathbb R^3$). (c) If $\mathbf x$ has $B'$-coordinates $(2,3)$: find its $B$-coordinates, $\Phi(\mathbf x)$ in $C$-coordinates, and $\Phi(\mathbf x)$ in the standard basis.</p>
+  <details><summary>Solution</summary>
+  <p>(a) $\det[\mathbf b_1\ \mathbf b_2]=2(-1)-(-1)(1)=-1\ne0$ and $\det[\mathbf b_1'\ \mathbf b_2']=2\cdot1-1\cdot(-2)=4\ne0$: two bases. The matrix expressing $B'$ in terms of $B$ is $P_1=[\mathbf b_1\ \mathbf b_2]^{-1}[\mathbf b_1'\ \mathbf b_2']=\begin{bmatrix}4&0\\6&-1\end{bmatrix}$, meaning $\mathbf b_1'=4\mathbf b_1+6\mathbf b_2$ and $\mathbf b_2'=-\mathbf b_2$ (check: $4(2,1)+6(-1,-1)=(2,-2)$ ✓).</p>
+  <p>(b) Adding and subtracting the two given equations: $\Phi(\mathbf b_1)=\mathbf c_1+2\mathbf c_3$ and $\Phi(\mathbf b_2)=-\mathbf c_1+\mathbf c_2-\mathbf c_3$. So</p>
+  <div class="formula">$$A_\Phi=\begin{bmatrix}1&-1\\0&1\\2&-1\end{bmatrix},\qquad A'=\underbrace{[\mathbf c_1\ \mathbf c_2\ \mathbf c_3]}_{P_2}A_\Phi P_1=\begin{bmatrix}0&2\\-10&3\\12&-4\end{bmatrix}$$</div>
+  <p>($\det[\mathbf c_1\mathbf c_2\mathbf c_3]=4\ne0$, so $C$ is a basis too.)</p>
+  <p>(c) $B$-coordinates: $P_1(2,3)^\top=(8,\,9)$. Then in $C$-coordinates: $A_\Phi(8,9)^\top=(-1,\,9,\,7)$, i.e. $\Phi(\mathbf x)=-\mathbf c_1+9\mathbf c_2+7\mathbf c_3=(6,-11,12)$ in the standard basis. Directly with $A'$: $A'(2,3)^\top=(6,-11,12)$ ✓. Two routes, one answer.</p></details></div>
 </section>
 
 <section id="recap"><h2>Cheat sheet</h2>
